@@ -109,14 +109,22 @@ function TxDetailView({ hash }: { hash: `0x${string}` }) {
           />
         )}
 
-        <a
-          href={`${EXPLORER_URL}/tx/${hash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
-        >
-          Open in Explorer
-        </a>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/app"
+            className="inline-flex h-11 items-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition-all duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          >
+            Back to Wallet
+          </Link>
+          <a
+            href={`${EXPLORER_URL}/tx/${hash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          >
+            Open in Explorer
+          </a>
+        </div>
       </div>
     </main>
   );

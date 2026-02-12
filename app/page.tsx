@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PasskeyAuth } from "@/components/PasskeyAuth";
@@ -8,6 +8,21 @@ import { PasskeyAuth } from "@/components/PasskeyAuth";
 export default function Home() {
   const router = useRouter();
   const { isConnected } = useAccount();
+  const [hasWalletHistory] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const hasCredentialInStorage =
+      window.localStorage.getItem("wagmi.webAuthn.activeCredential") !== null ||
+      window.localStorage.getItem("wagmi.webAuthn.lastActiveCredential") !== null;
+    const hasKeyManagerEntries = Object.keys(window.localStorage).some((key) =>
+      key.startsWith("wagmi.keyManager."),
+    );
+    const walletCreated = window.localStorage.getItem("tempo.walletCreated") === "1";
+
+    return hasCredentialInStorage || hasKeyManagerEntries || walletCreated;
+  });
 
   useEffect(() => {
     if (isConnected) {
@@ -41,6 +56,16 @@ export default function Home() {
           </div>
         </div>
         <PasskeyAuth />
+        <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-600 backdrop-blur">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+            {hasWalletHistory ? "Returning user" : "First-time setup"}
+          </p>
+          <p className="mt-1">
+            {hasWalletHistory
+              ? "Use Sign In with your existing passkey to reconnect the same address."
+              : "Create Wallet once to generate your address, then use Sign In for future sessions."}
+          </p>
+        </div>
       </div>
     </main>
   );
