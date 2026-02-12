@@ -21,9 +21,13 @@ export function TxStatus({ hash, status, blockNumber, amount, memo }: TxStatusPr
   const shortHash = useMemo(() => `${hash.slice(0, 10)}...${hash.slice(-8)}`, [hash]);
 
   const copyHash = async () => {
-    await navigator.clipboard.writeText(hash);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
+    try {
+      await navigator.clipboard.writeText(hash);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (

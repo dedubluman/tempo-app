@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAccount, useReadContract } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import { useAccount, useBlockNumber, useReadContract } from "wagmi";
 import { Hooks } from "wagmi/tempo";
-import { isAddress, getAddress, parseUnits, stringToHex, pad } from "viem";
+import { formatUnits, getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import Link from "next/link";
@@ -17,8 +17,15 @@ export function TransferForm() {
   const [amountError, setAmountError] = useState("");
   const [memoError, setMemoError] = useState("");
   const [copiedHash, setCopiedHash] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const { data: blockNumber } = useBlockNumber({
+    watch: true,
+    query: {
+      enabled: !!address,
+    },
+  });
 
-  const { data: balance } = useReadContract({
+  const { data: balance, isLoading: isBalanceLoading, refetch: refetchBalance } = useReadContract({
     address: PATHUSD_ADDRESS,
     abi: pathUsdAbi,
     functionName: "balanceOf",
@@ -48,6 +55,10 @@ export function TransferForm() {
     const checksummed = getAddress(value);
     if (checksummed === "0x0000000000000000000000000000000000000000") {
       setRecipientError("Cannot send to zero address");
+      return false;
+    }
+    if (address && checksummed === getAddress(address)) {
+      setRecipientError("Cannot send to your own address");
       return false;
     }
     setRecipientError("");
@@ -99,12 +110,59 @@ export function TransferForm() {
   const isSuccess = Boolean(hash);
   const memoByteLength = new TextEncoder().encode(memo).length;
   const memoRemaining = 32 - memoByteLength;
+  const formattedBalance = balance ? formatUnits(balance, PATHUSD_DECIMALS) : "0";
+  const maxDisabled = isPending || isBalanceLoading || !balance || formattedBalance === "0";
   const shortHash = useMemo(() => (hash ? `${hash.slice(0, 10)}...${hash.slice(-8)}` : ""), [hash]);
+  const transferErrorMessage = useMemo(() => {
+    if (!transferError) {
+      return "";
+    }
+
+    const rawMessage = transferError.message.split("\n")[0];
+    const normalized = transferError.message.toLowerCase();
+
+    if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
+      return "Transfer cancelled in passkey confirmation. Review the details and approve to send.";
+    }
+
+    if (
+      normalized.includes("insufficient funds") ||
+      normalized.includes("insufficient balance") ||
+      normalized.includes("gas") ||
+      normalized.includes("fee") ||
+      normalized.includes("sponsor")
+    ) {
+      return "Transfer could not be sponsored. New or inactive wallets may need initial state creation gas. Fund your wallet with native testnet tokens, then retry.";
+    }
+
+    if (
+      normalized.includes("network") ||
+      normalized.includes("timeout") ||
+      normalized.includes("rpc") ||
+      normalized.includes("fetch")
+    ) {
+      return "Network error while sending transfer. Check your connection, confirm Tempo RPC availability, and retry.";
+    }
+
+    if (normalized.includes("execution reverted")) {
+      return "Transfer reverted on-chain. Confirm recipient address, amount, and that you are using the current receive address.";
+    }
+
+    return rawMessage;
+  }, [transferError]);
 
   const inputBaseClass =
     "h-11 w-full rounded-xl border bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-150 hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-1";
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!address || blockNumber === undefined) {
+      return;
+    }
+
+    void refetchBalance();
+  }, [address, blockNumber, refetchBalance]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const isRecipientValid = validateRecipient(recipient);
@@ -115,6 +173,10 @@ export function TransferForm() {
       return;
     }
 
+    setConfirming(true);
+  };
+
+  const handleConfirmTransfer = async () => {
     const checksummedRecipient = getAddress(recipient);
     const amountInUnits = parseUnits(amount, PATHUSD_DECIMALS);
     const memoBytes32 = memo ? pad(stringToHex(memo), { size: 32 }) : pad("0x", { size: 32 });
@@ -126,12 +188,18 @@ export function TransferForm() {
         amount: amountInUnits,
         memo: memoBytes32,
       });
+
+      await refetchBalance();
+      window.setTimeout(() => {
+        void refetchBalance();
+      }, 1200);
     } catch {
-      // Hook state already exposes the error.
+      setConfirming(false);
     }
   };
 
   const handleReset = () => {
+    setConfirming(false);
     setRecipient("");
     setAmount("");
     setMemo("");
@@ -143,9 +211,18 @@ export function TransferForm() {
 
   const handleCopyHash = async () => {
     if (!hash) return;
-    await navigator.clipboard.writeText(hash);
-    setCopiedHash(true);
-    window.setTimeout(() => setCopiedHash(false), 1200);
+    try {
+      await navigator.clipboard.writeText(hash);
+      setCopiedHash(true);
+      window.setTimeout(() => setCopiedHash(false), 1200);
+    } catch {
+      setCopiedHash(false);
+    }
+  };
+
+  const handleMaxAmount = () => {
+    setAmount(formattedBalance);
+    validateAmount(formattedBalance);
   };
 
   if (isSuccess && hash) {
@@ -198,6 +275,57 @@ export function TransferForm() {
     );
   }
 
+  if (confirming) {
+    return (
+      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Confirm Transfer</p>
+          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+            Review required
+          </span>
+        </div>
+        <div className="space-y-3 border-t border-slate-200 pt-4 text-sm text-slate-700">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recipient</p>
+            <p className="mt-1 break-all rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-900">
+              {recipient}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Amount</p>
+            <p className="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900">
+              {amount} pathUSD
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Memo</p>
+            <p className="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900">
+              {memo || "-"}
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            disabled={isPending}
+            onClick={() => void handleConfirmTransfer()}
+          >
+            {isPending ? "Processing..." : "Confirm & Send"}
+          </button>
+          <button
+            type="button"
+            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            disabled={isPending}
+            onClick={() => setConfirming(false)}
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
       <div className="flex items-center justify-between gap-3">
@@ -230,9 +358,19 @@ export function TransferForm() {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="amount" className="text-sm font-medium text-slate-900">
-            Amount
-          </label>
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="amount" className="text-sm font-medium text-slate-900">
+              Amount
+            </label>
+            <button
+              type="button"
+              onClick={handleMaxAmount}
+              disabled={maxDisabled}
+              className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2 text-xs font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            >
+              Max
+            </button>
+          </div>
           <input
             id="amount"
             type="text"
@@ -279,7 +417,7 @@ export function TransferForm() {
 
         {transferError && (
           <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 md:col-span-2">
-            {transferError.message.split("\n")[0]}
+            {transferErrorMessage}
           </p>
         )}
 

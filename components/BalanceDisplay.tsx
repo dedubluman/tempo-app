@@ -1,14 +1,21 @@
 "use client";
 
-import { useAccount, useReadContract } from "wagmi";
+import { useEffect } from "react";
+import { useAccount, useBlockNumber, useReadContract } from "wagmi";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatUnits } from "viem";
 
 export function BalanceDisplay() {
   const { address } = useAccount();
+  const { data: blockNumber } = useBlockNumber({
+    watch: true,
+    query: {
+      enabled: !!address,
+    },
+  });
 
-  const { data: balance, isLoading, isError, refetch } = useReadContract({
+  const { data: balance, isLoading, isFetching, isError, refetch } = useReadContract({
     address: PATHUSD_ADDRESS,
     abi: pathUsdAbi,
     functionName: "balanceOf",
@@ -17,6 +24,25 @@ export function BalanceDisplay() {
       enabled: !!address,
     },
   });
+
+  useEffect(() => {
+    const handleFocus = () => {
+      void refetch();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refetch]);
+
+  useEffect(() => {
+    if (!address || blockNumber === undefined) {
+      return;
+    }
+
+    void refetch();
+  }, [address, blockNumber, refetch]);
 
   if (!address) {
     return null;
@@ -29,12 +55,15 @@ export function BalanceDisplay() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
             Available Balance
           </p>
-          <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">
-            pathUSD
+          <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+            Loading
           </span>
         </div>
-        <p className="text-base text-slate-600">Loading balance...</p>
-        <div className="h-2 w-24 animate-pulse rounded-full bg-slate-200" />
+        <div className="space-y-2">
+          <div className="h-10 w-52 animate-pulse rounded-lg bg-slate-200" />
+          <div className="h-3 w-36 animate-pulse rounded-full bg-slate-100" />
+        </div>
+        <p className="text-sm text-slate-500">Reading your latest on-chain balance...</p>
       </div>
     );
   }
@@ -65,6 +94,7 @@ export function BalanceDisplay() {
   const formattedFull = balance ? formatUnits(balance, PATHUSD_DECIMALS) : "0";
   const [whole, fraction = "00"] = formattedFull.split(".");
   const twoDecimals = `${whole}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+  const isZeroBalance = !balance || formattedFull === "0";
 
   return (
     <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
@@ -74,6 +104,11 @@ export function BalanceDisplay() {
         </p>
         <div className="flex items-center gap-2">
           <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">pathUSD</span>
+          {isFetching ? (
+            <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
+              Refreshing
+            </span>
+          ) : null}
           <button
             className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2 text-xs font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
             onClick={() => refetch()}
@@ -90,6 +125,20 @@ export function BalanceDisplay() {
           6 decimals
         </span>
       </div>
+      {isZeroBalance ? (
+        <p className="text-sm text-slate-600">
+          No funds yet. Get testnet tokens from the faucet to start.{" "}
+          <a
+            href="https://docs.tempo.xyz/quickstart/faucet"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-teal-700 underline decoration-teal-300 underline-offset-2"
+          >
+            Open faucet
+          </a>
+          .
+        </p>
+      ) : null}
       <p className="border-t border-slate-200 pt-3 text-sm text-slate-600">Sponsored gas keeps transfers at $0 for users.</p>
     </div>
   );
