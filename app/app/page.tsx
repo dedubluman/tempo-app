@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
 import { BalanceDisplay } from "@/components/BalanceDisplay";
 import { TransferForm } from "@/components/TransferForm";
+import { TransactionHistory } from "@/components/TransactionHistory";
 import { formatAddress } from "@/lib/utils";
 
 export default function AppPage() {
@@ -110,6 +111,10 @@ export default function AppPage() {
           <div className="lg:col-span-12">
             <TransferForm />
           </div>
+
+          <section className="lg:col-span-12">
+            <TransactionHistory />
+          </section>
         </div>
       </div>
     </main>
