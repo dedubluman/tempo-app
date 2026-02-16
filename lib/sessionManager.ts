@@ -33,14 +33,75 @@ type SessionSnapshot = {
   sessions: SessionRecord[];
 };
 
+type SerializedSessionRecord = Omit<SessionRecord, "spendLimit" | "spent"> & {
+  spendLimit: string;
+  spent: string;
+};
+
 let store: SessionSnapshot = {
   sessions: [],
 };
+
+let hydrated = false;
+const STORAGE_KEY = "tempo.sessionStore.v1";
 
 const listeners = new Set<() => void>();
 
 function emit() {
   for (const listener of listeners) listener();
+}
+
+function serializeSession(session: SessionRecord): SerializedSessionRecord {
+  return {
+    ...session,
+    spendLimit: session.spendLimit.toString(),
+    spent: session.spent.toString(),
+  };
+}
+
+function deserializeSession(session: SerializedSessionRecord): SessionRecord {
+  return {
+    ...session,
+    spendLimit: BigInt(session.spendLimit),
+    spent: BigInt(session.spent),
+  };
+}
+
+function persistSessions(snapshot: SessionSnapshot) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const payload = snapshot.sessions.map(serializeSession);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+function hydrateSessionsIfNeeded() {
+  if (hydrated || typeof window === "undefined") {
+    return;
+  }
+
+  hydrated = true;
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as SerializedSessionRecord[];
+    store = {
+      sessions: parsed.map(deserializeSession),
+    };
+  } catch {
+    store = { sessions: [] };
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function updateStore(next: SessionSnapshot) {
+  store = next;
+  persistSessions(next);
+  emit();
 }
 
 function nowSec() {
@@ -66,6 +127,7 @@ function remainingSpend(session: SessionRecord) {
 }
 
 export function subscribeSessions(listener: () => void) {
+  hydrateSessionsIfNeeded();
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
@@ -73,10 +135,13 @@ export function subscribeSessions(listener: () => void) {
 }
 
 export function getSessionSnapshot() {
+  hydrateSessionsIfNeeded();
   return store;
 }
 
 export async function createSession(policy: SessionPolicy) {
+  hydrateSessionsIfNeeded();
+
   if (policy.spendLimit <= BigInt(0)) {
     throw new Error("Spend limit must be greater than 0.");
   }
@@ -121,49 +186,49 @@ export async function createSession(policy: SessionPolicy) {
     keyAuthorization,
   };
 
-  store = {
+  updateStore({
     sessions: [session, ...store.sessions],
-  };
-  emit();
+  });
   return session;
 }
 
 export function revokeSession(sessionId: string) {
+  hydrateSessionsIfNeeded();
   const next = store.sessions.filter((session) => session.id !== sessionId);
   if (next.length === store.sessions.length) {
     return;
   }
-  store = {
+  updateStore({
     sessions: next,
-  };
-  emit();
+  });
 }
 
 export function revokeAllSessions() {
+  hydrateSessionsIfNeeded();
   if (store.sessions.length === 0) {
     return;
   }
-  store = {
+  updateStore({
     sessions: [],
-  };
-  emit();
+  });
 }
 
 export function cleanupExpiredSessions() {
+  hydrateSessionsIfNeeded();
   const current = nowSec();
   const next = store.sessions.filter((session) => session.expiresAtSec > current);
   const removedCount = store.sessions.length - next.length;
   if (next.length === store.sessions.length) {
     return 0;
   }
-  store = {
+  updateStore({
     sessions: next,
-  };
-  emit();
+  });
   return removedCount;
 }
 
 export function clearSessionAuthorization(sessionId: string) {
+  hydrateSessionsIfNeeded();
   let changed = false;
   const nextSessions = store.sessions.map((session) => {
     if (session.id !== sessionId || !session.keyAuthorization) {
@@ -175,19 +240,21 @@ export function clearSessionAuthorization(sessionId: string) {
       keyAuthorization: null,
     };
   });
-  store = {
-    sessions: nextSessions,
-  };
-  if (changed) {
-    emit();
+  if (!changed) {
+    return;
   }
+  updateStore({
+    sessions: nextSessions,
+  });
 }
 
 export function getSessionById(sessionId: string) {
+  hydrateSessionsIfNeeded();
   return store.sessions.find((session) => session.id === sessionId);
 }
 
 export function applySessionSpend(sessionId: string, amount: bigint) {
+  hydrateSessionsIfNeeded();
   let changed = false;
   const nextSessions = store.sessions.map((session) => {
     if (session.id !== sessionId) {
@@ -199,15 +266,16 @@ export function applySessionSpend(sessionId: string, amount: bigint) {
       spent: session.spent + amount,
     };
   });
-  store = {
-    sessions: nextSessions,
-  };
-  if (changed) {
-    emit();
+  if (!changed) {
+    return;
   }
+  updateStore({
+    sessions: nextSessions,
+  });
 }
 
 export function getSessionForTransfer(parameters: { recipient: string; amount: bigint }) {
+  hydrateSessionsIfNeeded();
   const recipient = getAddress(parameters.recipient);
   const current = nowSec();
 
@@ -224,6 +292,7 @@ export function getSessionForTransfer(parameters: { recipient: string; amount: b
 }
 
 export function getSessionForBatch(parameters: { recipients: string[]; amount: bigint }) {
+  hydrateSessionsIfNeeded();
   const current = nowSec();
   const recipients = parameters.recipients.map((item) => getAddress(item));
 

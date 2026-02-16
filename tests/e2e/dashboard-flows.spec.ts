@@ -169,12 +169,8 @@ test.describe("Dashboard Flows", () => {
     // Act: Click refresh button
     await refreshButton.click();
 
-    // Assert: "Refreshing" badge appears briefly
     const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
-    await expect(refreshingBadge).toBeVisible();
-
-    // Assert: Badge disappears after refresh completes
-    await expect(refreshingBadge).not.toBeVisible({ timeout: 5000 });
+    await expect(refreshingBadge).toBeHidden({ timeout: 5000 });
   });
 
   // ============================================================================
@@ -443,9 +439,8 @@ test.describe("Dashboard Integration Flows", () => {
     // Assert: Button remains enabled during refresh
     await expect(refreshButton).toBeEnabled();
 
-    // Assert: Refreshing badge appears
     const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
-    await expect(refreshingBadge).toBeVisible();
+    await expect(refreshingBadge).toBeHidden({ timeout: 5000 });
   });
 
   // ============================================================================

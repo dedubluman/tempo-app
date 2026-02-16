@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useAccount, useBlockNumber, useReadContract } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount, useReadContract } from "wagmi";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatUnits, getAddress, isAddress, parseUnits } from "viem";
@@ -39,13 +39,6 @@ export function BalanceDisplay() {
       : undefined;
   const hasForcedBalance = forcedBalance !== undefined;
 
-  const { data: blockNumber } = useBlockNumber({
-    watch: true,
-    query: {
-      enabled: !!effectiveAddress,
-    },
-  });
-
   const { data: balance, isLoading, isFetching, isError, isRefetchError, refetch } = useReadContract({
     address: PATHUSD_ADDRESS,
     abi: pathUsdAbi,
@@ -53,8 +46,29 @@ export function BalanceDisplay() {
     args: effectiveAddress ? [effectiveAddress] : undefined,
     query: {
       enabled: !!effectiveAddress,
+      refetchOnWindowFocus: false,
     },
   });
+
+  const [showRefreshing, setShowRefreshing] = useState(false);
+
+  useEffect(() => {
+    let timeoutId = 0;
+
+    if (!isFetching) {
+      timeoutId = window.setTimeout(() => {
+        setShowRefreshing(false);
+      }, 0);
+    } else {
+      timeoutId = window.setTimeout(() => {
+        setShowRefreshing(true);
+      }, 450);
+    }
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isFetching]);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -66,14 +80,6 @@ export function BalanceDisplay() {
       window.removeEventListener("focus", handleFocus);
     };
   }, [refetch]);
-
-  useEffect(() => {
-    if (!effectiveAddress || blockNumber === undefined) {
-      return;
-    }
-
-    void refetch();
-  }, [effectiveAddress, blockNumber, refetch]);
 
   if (!effectiveAddress) {
     return null;
@@ -136,11 +142,13 @@ export function BalanceDisplay() {
         </p>
         <div className="flex items-center gap-2">
           <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">pathUSD</span>
-          {isFetching ? (
-            <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
-              Refreshing
-            </span>
-          ) : null}
+          <span
+            className={`inline-flex min-h-6 min-w-20 items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
+              showRefreshing ? "bg-slate-100 text-slate-600" : "invisible"
+            }`}
+          >
+            Refreshing
+          </span>
           <button
             className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
             onClick={() => refetch()}

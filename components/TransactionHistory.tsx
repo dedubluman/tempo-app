@@ -1,15 +1,17 @@
 "use client";
 
+import { useMemo, useSyncExternalStore } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatAddress } from "@/lib/utils";
+import { getTransferHistorySnapshot, subscribeTransferHistory } from "@/lib/transactionHistoryStore";
 
 interface TransferLog {
   transactionHash: string;
-  blockNumber: bigint;
+  blockNumber?: bigint;
   args: {
     from: string;
     to: string;
@@ -20,6 +22,7 @@ interface TransferLog {
 export function TransactionHistory() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const localSnapshot = useSyncExternalStore(subscribeTransferHistory, getTransferHistorySnapshot, getTransferHistorySnapshot);
 
   const { data: logs, isLoading, isError, refetch } = useQuery({
     queryKey: ["transferHistory", address],
@@ -34,40 +37,78 @@ export function TransactionHistory() {
         throw new Error("Transfer event not found in ABI");
       }
 
-      const outboundLogs = await publicClient.getLogs({
-        address: PATHUSD_ADDRESS,
-        event: transferEvent,
-        args: {
-          from: address,
-        },
-        fromBlock: "earliest",
-        toBlock: "latest",
-      });
+      try {
+        const outboundLogs = await publicClient.getLogs({
+          address: PATHUSD_ADDRESS,
+          event: transferEvent,
+          args: {
+            from: address,
+          },
+          fromBlock: "earliest",
+          toBlock: "latest",
+        });
 
-      const inboundLogs = await publicClient.getLogs({
-        address: PATHUSD_ADDRESS,
-        event: transferEvent,
-        args: {
-          to: address,
-        },
-        fromBlock: "earliest",
-        toBlock: "latest",
-      });
+        const inboundLogs = await publicClient.getLogs({
+          address: PATHUSD_ADDRESS,
+          event: transferEvent,
+          args: {
+            to: address,
+          },
+          fromBlock: "earliest",
+          toBlock: "latest",
+        });
 
-      const allLogs = [...outboundLogs, ...inboundLogs];
-      const sortedLogs = allLogs.sort((a, b) => Number(b.blockNumber - a.blockNumber));
-      
-      return sortedLogs.slice(0, 20) as TransferLog[];
+        const allLogs = [...outboundLogs, ...inboundLogs];
+        const sortedLogs = allLogs.sort((a, b) => Number((b.blockNumber ?? BigInt(0)) - (a.blockNumber ?? BigInt(0))));
+
+        return sortedLogs.slice(0, 20) as TransferLog[];
+      } catch {
+        return [];
+      }
     },
     enabled: !!address && !!publicClient,
-    staleTime: 30000
+    staleTime: 30000,
   });
+
+  const mergedLogs = useMemo(() => {
+    if (!address) {
+      return [] as TransferLog[];
+    }
+
+    const normalizedAddress = address.toLowerCase();
+    const localLogs: TransferLog[] = localSnapshot.entries
+      .map((entry) => {
+        const isSent = entry.direction === "sent";
+        return {
+          transactionHash: entry.transactionHash,
+          blockNumber: undefined,
+          args: {
+            from: isSent ? address : entry.counterparty,
+            to: isSent ? entry.counterparty : address,
+            value: entry.amount,
+          },
+        };
+      })
+      .filter((entry) => entry.args.from.toLowerCase() === normalizedAddress || entry.args.to.toLowerCase() === normalizedAddress);
+
+    const remoteLogs = logs ?? [];
+    const deduped = new Map<string, TransferLog>();
+
+    for (const entry of [...localLogs, ...remoteLogs]) {
+      const key = `${entry.transactionHash}-${entry.args.from.toLowerCase()}-${entry.args.to.toLowerCase()}-${entry.args.value.toString()}`;
+      if (!deduped.has(key)) {
+        deduped.set(key, entry);
+      }
+    }
+
+    return Array.from(deduped.values()).slice(0, 20);
+  }, [address, localSnapshot.entries, logs]);
 
   if (!address) {
     return null;
   }
 
-  if (isLoading) {
+  if (isLoading && localSnapshot.entries.length === 0) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -85,7 +126,7 @@ export function TransactionHistory() {
     );
   }
 
-  if (isError) {
+  if (isError && localSnapshot.entries.length === 0) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -105,7 +146,7 @@ export function TransactionHistory() {
     );
   }
 
-  if (!logs || logs.length === 0) {
+  if (!mergedLogs || mergedLogs.length === 0) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -136,7 +177,7 @@ export function TransactionHistory() {
       </div>
 
       <div className="space-y-2">
-        {logs.map((log) => {
+        {mergedLogs.map((log) => {
           const isOutbound = log.args.from.toLowerCase() === address.toLowerCase();
           const counterparty = isOutbound ? log.args.to : log.args.from;
           const formattedAmount = formatUnits(log.args.value, PATHUSD_DECIMALS);
@@ -161,7 +202,7 @@ export function TransactionHistory() {
                     {formatAddress(counterparty, 6, 4)}
                   </p>
                   <p className="text-xs text-slate-500">
-                    Block {log.blockNumber.toString()}
+                    {log.blockNumber ? `Block ${log.blockNumber.toString()}` : "Pending confirmation"}
                   </p>
                 </div>
               </div>

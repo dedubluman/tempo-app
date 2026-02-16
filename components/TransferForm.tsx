@@ -13,6 +13,7 @@ import {
   getSessionForBatch,
   getSessionForTransfer,
 } from "@/lib/sessionManager";
+import { addTransferHistoryEntries } from "@/lib/transactionHistoryStore";
 import Link from "next/link";
 
 type TransferMode = "single" | "batch";
@@ -463,6 +464,8 @@ export function TransferForm() {
     } as const;
 
     try {
+      let transactionHash: `0x${string}` | undefined;
+
       if (sessionId) {
         const accessAccount = getAccessAccountForSession(sessionId);
         const request = {
@@ -472,15 +475,17 @@ export function TransferForm() {
         };
 
         try {
-          await transferSync(request);
+          const response = await transferSync(request);
+          transactionHash = response?.receipt?.transactionHash;
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           if (sessionId.keyAuthorization && message.includes("KeyAlreadyExists")) {
             clearSessionAuthorization(sessionId.id);
-            await transferSync({
+            const response = await transferSync({
               ...baseRequest,
               account: accessAccount,
             });
+            transactionHash = response?.receipt?.transactionHash;
           } else {
             throw error;
           }
@@ -491,7 +496,21 @@ export function TransferForm() {
           clearSessionAuthorization(sessionId.id);
         }
       } else {
-        await transferSync(baseRequest);
+        const response = await transferSync(baseRequest);
+        transactionHash = response?.receipt?.transactionHash;
+      }
+
+      if (address && transactionHash) {
+        addTransferHistoryEntries([
+          {
+            id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+            transactionHash,
+            counterparty: checksummedRecipient,
+            amount: amountInUnits,
+            direction: "sent",
+            createdAtMs: Date.now(),
+          },
+        ]);
       }
 
       await refetchBalance();
@@ -534,6 +553,8 @@ export function TransferForm() {
         amount: totalAmount,
       });
 
+      let transactionHash: `0x${string}` | undefined;
+
       if (batchSession) {
         const accessAccount = getAccessAccountForSession(batchSession);
         const request = {
@@ -544,16 +565,18 @@ export function TransferForm() {
         };
 
         try {
-          await sendCallsSync(request);
+          const response = await sendCallsSync(request);
+          transactionHash = response?.receipts?.[0]?.transactionHash;
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           if (batchSession.keyAuthorization && message.includes("KeyAlreadyExists")) {
             clearSessionAuthorization(batchSession.id);
-            await sendCallsSync({
+            const response = await sendCallsSync({
               calls,
               forceAtomic: true,
               account: accessAccount,
             });
+            transactionHash = response?.receipts?.[0]?.transactionHash;
           } else {
             throw error;
           }
@@ -564,10 +587,27 @@ export function TransferForm() {
           clearSessionAuthorization(batchSession.id);
         }
       } else {
-        await sendCallsSync({
+        const response = await sendCallsSync({
           calls,
           forceAtomic: true,
         });
+        transactionHash = response?.receipts?.[0]?.transactionHash;
+      }
+
+      if (address && transactionHash) {
+        addTransferHistoryEntries(
+          batchRows.map((row, index) => ({
+            id:
+              typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}-${index}`,
+            transactionHash,
+            counterparty: getAddress(row.recipient),
+            amount: parseUnits(row.amount, PATHUSD_DECIMALS),
+            direction: "sent" as const,
+            createdAtMs: Date.now(),
+          })),
+        );
       }
 
       await refetchBalance();
