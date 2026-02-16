@@ -27,6 +27,8 @@ async function enableVirtualAuthenticator(page: Page) {
 }
 
 test.describe("Authentication flows", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test.beforeEach(async ({ page }) => {
     await enableVirtualAuthenticator(page);
     

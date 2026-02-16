@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const PATHUSD_DECIMALS = 6;
 const VALID_RECIPIENT = "0x1234567890AbcdEF1234567890aBcdef12345678";
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -278,7 +277,7 @@ test.describe("Transfer Form - Error Recovery", () => {
     await sendButton.click();
 
     // Assert: Error is shown
-    let errorMessage = page.locator("text=Invalid address format");
+    const errorMessage = page.locator("text=Invalid address format");
     await expect(errorMessage).toBeVisible();
 
     // Act: Enter valid address
@@ -300,7 +299,7 @@ test.describe("Transfer Form - Error Recovery", () => {
     await sendButton.click();
 
     // Assert: Error is shown
-    let errorMessage = page.locator("text=Amount must be greater than 0");
+    const errorMessage = page.locator("text=Amount must be greater than 0");
     await expect(errorMessage).toBeVisible();
 
     // Act: Enter valid amount

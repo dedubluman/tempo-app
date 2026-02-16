@@ -33,18 +33,16 @@ async function enableVirtualAuthenticator(page: Page): Promise<void> {
  * Extended test with fixtures
  */
 export const test = base.extend<TestFixtures>({
-  // Auto-enable virtual authenticator for every test
-  page: async ({ page }, use) => {
+  page: async ({ page }, fixtureUse) => {
     await enableVirtualAuthenticator(page);
-    await use(page);
+    await fixtureUse(page);
   },
 
-  // Clear localStorage before test
-  emptyStorage: async ({ page }, use) => {
+  emptyStorage: async ({ page }, fixtureUse) => {
     await page.addInitScript(() => {
       window.localStorage.clear();
     });
-    await use();
+    await fixtureUse();
   },
 });
 

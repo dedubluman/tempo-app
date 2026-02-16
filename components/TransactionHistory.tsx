@@ -69,7 +69,7 @@ export function TransactionHistory() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Transaction History
         </p>
@@ -87,15 +87,15 @@ export function TransactionHistory() {
 
   if (isError) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Transaction History
         </p>
         <div className="space-y-3 py-8 text-center">
-          <p className="text-sm text-rose-600">Failed to load transaction history</p>
+          <p className="text-sm text-rose-600">Network is slow. Please try again. We could not load your transaction history.</p>
           <button
             onClick={() => void refetch()}
-            className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2.5 text-xs font-medium text-teal-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-teal-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
             type="button"
           >
             Try again
@@ -107,7 +107,7 @@ export function TransactionHistory() {
 
   if (!logs || logs.length === 0) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Transaction History
         </p>
@@ -120,8 +120,8 @@ export function TransactionHistory() {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center justify-between">
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Transaction History
         </p>
@@ -144,9 +144,9 @@ export function TransactionHistory() {
           return (
             <div
               key={`${log.transactionHash}-${log.blockNumber}`}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition-all duration-150 hover:border-slate-300 hover:shadow-sm"
+              className="flex flex-col items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all duration-150 hover:border-slate-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex flex-1 items-center gap-3">
+              <div className="flex w-full flex-col gap-2 sm:flex-1 sm:flex-row sm:items-center sm:gap-3">
                 <span
                   className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
                     isOutbound
@@ -166,7 +166,7 @@ export function TransactionHistory() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+               <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
                 <div className="text-right">
                   <p className="font-mono text-sm font-semibold text-slate-900">
                     {formattedAmount}
@@ -177,7 +177,7 @@ export function TransactionHistory() {
                   href={`${EXPLORER_URL}/tx/${log.transactionHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2.5 text-xs font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                   className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
                 >
                   View
                 </a>

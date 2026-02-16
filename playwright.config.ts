@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:3000";
+const baseURL = process.env.E2E_BASE_URL || "http://localhost:3100";
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -26,9 +26,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
+    command: "NEXT_PUBLIC_E2E_MOCK_AUTH=1 npm run dev -- --port 3100",
     url: baseURL,
     timeout: 120_000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });

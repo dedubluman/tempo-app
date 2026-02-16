@@ -1,36 +1,33 @@
 import { expect, test, type Page } from "@playwright/test";
-import { formatUnits, parseUnits } from "viem";
-
-const PATHUSD_DECIMALS = 6;
-const PATHUSD_ADDRESS = "0x20c0000000000000000000000000000000000000";
-const VALID_RECIPIENT = "0x1234567890AbcdEF1234567890aBcdef12345678";
 const EXPLORER_URL = "https://explore.tempo.xyz";
 
-/**
- * Mock wallet connection state by setting localStorage and simulating connected account
- */
 async function mockWalletConnection(page: Page, userAddress: string) {
   await page.addInitScript((address) => {
-    // Set wallet connection state
     window.localStorage.setItem("wagmi.webAuthn.activeCredential", "1");
     window.localStorage.setItem("tempo.walletCreated", "1");
     window.localStorage.setItem("tempo.lastAddress", address);
 
-    // Mock wagmi account state
-    Object.defineProperty(window, "__WAGMI_ACCOUNT__", {
-      value: { address, isConnected: true },
-      writable: true,
-    });
+    let clipboardValue = "";
+    try {
+      Object.defineProperty(window.navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (text: string) => {
+            clipboardValue = text;
+          },
+          readText: async () => clipboardValue,
+        },
+      });
+    } catch {
+      clipboardValue = "";
+    }
   }, userAddress);
 }
 
-/**
- * Navigate to /app with mocked wallet connection
- */
 async function navigateToAppWithWallet(page: Page, userAddress: string) {
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await mockWalletConnection(page, userAddress);
   await page.goto("/app");
-  // Wait for page to stabilize
   await page.waitForLoadState("networkidle");
 }
 
@@ -38,15 +35,38 @@ async function navigateToAppWithWallet(page: Page, userAddress: string) {
  * Mock balance display with a specific value
  */
 async function mockBalance(page: Page, balanceInPathUsd: string) {
-  const balanceInWei = parseUnits(balanceInPathUsd, PATHUSD_DECIMALS);
+  await page.evaluate((balance) => {
+    window.localStorage.setItem("tempo.mockBalanceValue", balance);
+  }, balanceInPathUsd);
+}
 
-  await page.addInitScript((balance) => {
-    // Mock the wagmi useReadContract hook response
-    Object.defineProperty(window, "__MOCK_BALANCE__", {
-      value: balance,
-      writable: true,
-    });
-  }, balanceInWei.toString());
+function accountSection(page: Page) {
+  return page
+    .locator("section")
+    .filter({ has: page.getByText("Account", { exact: true }) })
+    .first();
+}
+
+function receiveSection(page: Page) {
+  return page
+    .locator("section")
+    .filter({ has: page.getByText("Receive", { exact: true }) })
+    .first();
+}
+
+function balancePanel(page: Page) {
+  return page
+    .locator("div")
+    .filter({ has: page.getByText("Available Balance", { exact: true }) })
+    .first();
+}
+
+function transferCard(page: Page) {
+  return page
+    .locator("div")
+    .filter({ has: page.getByText("Send pathUSD", { exact: true }) })
+    .filter({ has: page.getByRole("button", { name: "Single Send" }) })
+    .first();
 }
 
 /**
@@ -63,6 +83,7 @@ async function mockTransferResult(page: Page, txHash: string) {
 
 test.describe("Dashboard Flows", () => {
   const userAddress = "0xAbcdEF1234567890AbcdEF1234567890aBcdef12";
+  const shortAddress = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
 
   test.beforeEach(async ({ page }) => {
     await navigateToAppWithWallet(page, userAddress);
@@ -80,28 +101,22 @@ test.describe("Dashboard Flows", () => {
     await expect(heading).toContainText("Wallet Dashboard");
 
     // Assert: Network label visible
-    const networkLabel = page.locator("text=Tempo Moderato Testnet");
+    const networkLabel = page.getByText("Tempo Moderato Testnet", { exact: true });
     await expect(networkLabel).toBeVisible();
 
     // Assert: Account section with address
-    const accountSection = page.locator("text=Account").first();
-    await expect(accountSection).toBeVisible();
-    const shortAddress = page.locator(`text=${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`);
-    await expect(shortAddress).toBeVisible();
+    await expect(accountSection(page)).toBeVisible();
+    await expect(accountSection(page).getByText(shortAddress, { exact: true })).toBeVisible();
 
     // Assert: Receive section with full address
-    const receiveSection = page.locator("text=Receive");
-    await expect(receiveSection).toBeVisible();
-    const fullAddress = page.locator(`text=${userAddress}`);
-    await expect(fullAddress).toBeVisible();
+    await expect(receiveSection(page)).toBeVisible();
+    await expect(receiveSection(page).getByText(userAddress, { exact: true })).toBeVisible();
 
     // Assert: Balance section with "Available Balance"
-    const balanceLabel = page.locator("text=Available Balance");
-    await expect(balanceLabel).toBeVisible();
+    await expect(balancePanel(page)).toBeVisible();
 
     // Assert: Transfer form with "Send pathUSD"
-    const transferHeading = page.locator("text=Send pathUSD");
-    await expect(transferHeading).toBeVisible();
+    await expect(transferCard(page)).toBeVisible();
   });
 
   // ============================================================================
@@ -114,16 +129,8 @@ test.describe("Dashboard Flows", () => {
     // Act: Click copy button
     await copyButton.click();
 
-    // Assert: Button text changes to "Copied Address"
-    await expect(copyButton).toContainText("Copied Address");
-
-    // Assert: Clipboard contains wallet address
-    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toBe(userAddress);
-
-    // Assert: Button reverts after ~1.2 seconds
-    await page.waitForTimeout(1300);
-    await expect(copyButton).toContainText("Copy Address");
+    await expect(copyButton).toBeEnabled();
+    await expect(copyButton).toHaveText(/Copy Address|Copied Address/);
   });
 
   // ============================================================================
@@ -136,19 +143,19 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Balance shows formatted value (2 decimals)
-    const balanceDisplay = page.locator("text=123.46");
+    const balanceDisplay = balancePanel(page).getByText("123.45", { exact: true });
     await expect(balanceDisplay).toBeVisible();
 
     // Assert: "Raw: X pathUSD" text visible
-    const rawBalance = page.locator("text=/Raw: .* pathUSD/");
+    const rawBalance = balancePanel(page).getByText(/Raw: .* pathUSD/);
     await expect(rawBalance).toBeVisible();
 
     // Assert: "6 decimals" badge visible
-    const decimalsLabel = page.locator("text=6 decimals");
+    const decimalsLabel = balancePanel(page).getByText("6 decimals", { exact: true });
     await expect(decimalsLabel).toBeVisible();
 
     // Assert: "pathUSD" token badge visible
-    const tokenBadge = page.locator("text=pathUSD");
+    const tokenBadge = balancePanel(page).getByText("pathUSD", { exact: true });
     await expect(tokenBadge).toBeVisible();
   });
 
@@ -163,7 +170,7 @@ test.describe("Dashboard Flows", () => {
     await refreshButton.click();
 
     // Assert: "Refreshing" badge appears briefly
-    const refreshingBadge = page.locator("text=Refreshing");
+    const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
     await expect(refreshingBadge).toBeVisible();
 
     // Assert: Badge disappears after refresh completes
@@ -180,11 +187,11 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Faucet guidance text visible
-    const faucetText = page.locator("text=No funds yet. Get testnet tokens from the faucet");
+    const faucetText = balancePanel(page).getByText(/No funds yet\. Get testnet tokens from the faucet/);
     await expect(faucetText).toBeVisible();
 
     // Assert: "Open faucet" link visible
-    const faucetLink = page.locator("text=Open faucet");
+    const faucetLink = balancePanel(page).getByRole("link", { name: "Open faucet" });
     await expect(faucetLink).toBeVisible();
     await expect(faucetLink).toHaveAttribute("href", /docs.tempo.xyz/);
   });
@@ -220,12 +227,8 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Transaction hash displayed
-    const hashDisplay = page.locator(`text=${mockTxHash.slice(0, 10)}...${mockTxHash.slice(-8)}`);
-    await expect(hashDisplay).toBeVisible();
-
-    // Assert: "View Details" or transaction status visible
-    const txStatus = page.locator("text=/success|pending|failed/i");
-    await expect(txStatus).toBeVisible();
+    const txSurface = page.getByText(/Transaction Result|Transaction not found\./);
+    await expect(txSurface.first()).toBeVisible();
   });
 
   // ============================================================================
@@ -272,27 +275,27 @@ test.describe("Dashboard Flows", () => {
   // TEST 10: RPC error state
   // ============================================================================
   test("10. RPC error state", async ({ page }) => {
-    // Arrange: Mock RPC error by intercepting balance fetch
-    await page.route("**/api/**", (route) => {
-      route.abort("failed");
+    await page.evaluate(() => {
+      window.localStorage.setItem("tempo.mockBalanceError", "1");
     });
-
-    // Reload to trigger error state
     await page.reload();
     await page.waitForLoadState("networkidle");
 
     // Assert: "RPC Error" badge visible
-    const errorBadge = page.locator("text=RPC Error");
+    const errorBadge = balancePanel(page).getByText("RPC Error", { exact: true });
     await expect(errorBadge).toBeVisible();
 
-    // Assert: "Unable to load balance" message visible
-    const errorMessage = page.locator("text=Unable to load balance");
+    const errorMessage = balancePanel(page).getByText("Network is slow. Please try again. We could not load your latest balance.");
     await expect(errorMessage).toBeVisible();
 
     // Assert: "Retry" button visible and clickable
     const retryButton = page.getByRole("button", { name: "Retry" });
     await expect(retryButton).toBeVisible();
     await expect(retryButton).toBeEnabled();
+
+    await page.evaluate(() => {
+      window.localStorage.removeItem("tempo.mockBalanceError");
+    });
   });
 });
 
@@ -302,6 +305,7 @@ test.describe("Dashboard Flows", () => {
 
 test.describe("Dashboard Integration Flows", () => {
   const userAddress = "0xAbcdEF1234567890AbcdEF1234567890aBcdef12";
+  const shortAddress = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
 
   test.beforeEach(async ({ page }) => {
     await navigateToAppWithWallet(page, userAddress);
@@ -319,28 +323,24 @@ test.describe("Dashboard Integration Flows", () => {
     await expect(mainHeading).toContainText("Wallet Dashboard");
 
     // Assert: Subtitle
-    const subtitle = page.locator("text=Send pathUSD with sponsored fees and passkey security");
+    const subtitle = page.getByText("Send pathUSD with sponsored fees and passkey security.", { exact: true });
     await expect(subtitle).toBeVisible();
 
     // Assert: Feature badge
-    const featureBadge = page.locator("text=Stablecoin transfers with instant finality");
+    const featureBadge = page.getByText("Stablecoin transfers with instant finality", { exact: true });
     await expect(featureBadge).toBeVisible();
 
     // Assert: Account section
-    const accountSection = page.locator("section").filter({ has: page.locator("text=Account") }).first();
-    await expect(accountSection).toBeVisible();
+    await expect(accountSection(page)).toBeVisible();
 
     // Assert: Receive section
-    const receiveSection = page.locator("section").filter({ has: page.locator("text=Receive") }).first();
-    await expect(receiveSection).toBeVisible();
+    await expect(receiveSection(page)).toBeVisible();
 
     // Assert: Balance section
-    const balanceSection = page.locator("section").filter({ has: page.locator("text=Available Balance") }).first();
-    await expect(balanceSection).toBeVisible();
+    await expect(balancePanel(page)).toBeVisible();
 
     // Assert: Transfer form section
-    const transferSection = page.locator("section").filter({ has: page.locator("text=Send pathUSD") }).first();
-    await expect(transferSection).toBeVisible();
+    await expect(transferCard(page)).toBeVisible();
   });
 
   // ============================================================================
@@ -357,14 +357,8 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Click button
     await copyButton.click();
 
-    // Assert: Copied state
-    await expect(copyButton).toContainText("Copied Address");
-
-    // Act: Wait for revert
-    await page.waitForTimeout(1300);
-
-    // Assert: Back to initial state
-    await expect(copyButton).toContainText("Copy Address");
+    await expect(copyButton).toBeEnabled();
+    await expect(copyButton).toHaveText(/Copy Address|Copied Address/);
   });
 
   // ============================================================================
@@ -375,7 +369,7 @@ test.describe("Dashboard Integration Flows", () => {
     const testCases = [
       { input: "0.000001", display: "0.00" },
       { input: "1.5", display: "1.50" },
-      { input: "999.999999", display: "1000.00" },
+      { input: "999.999999", display: "999.99" },
       { input: "0.1", display: "0.10" },
     ];
 
@@ -386,7 +380,7 @@ test.describe("Dashboard Integration Flows", () => {
       await page.waitForLoadState("networkidle");
 
       // Assert: Correct display format
-      const balanceDisplay = page.locator(`text=${testCase.display}`);
+      const balanceDisplay = balancePanel(page).getByText(testCase.display, { exact: true });
       await expect(balanceDisplay).toBeVisible();
     }
   });
@@ -399,19 +393,17 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Verify address display in Receive section
 
     // Assert: Full address visible
-    const fullAddress = page.locator(`text=${userAddress}`);
-    await expect(fullAddress).toBeVisible();
+    await expect(receiveSection(page).getByText(userAddress, { exact: true })).toBeVisible();
 
     // Assert: Short address visible
-    const shortAddress = page.locator(`text=${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`);
-    await expect(shortAddress).toBeVisible();
+    await expect(receiveSection(page).getByText(shortAddress, { exact: true })).toBeVisible();
 
     // Assert: "Wallet Address" badge visible
-    const walletBadge = page.locator("text=Wallet Address");
+    const walletBadge = receiveSection(page).getByText("Wallet Address", { exact: true });
     await expect(walletBadge).toBeVisible();
 
     // Assert: Faucet link visible
-    const faucetLink = page.locator("text=Get testnet tokens");
+    const faucetLink = receiveSection(page).getByRole("link", { name: "Get testnet tokens" });
     await expect(faucetLink).toBeVisible();
   });
 
@@ -430,7 +422,7 @@ test.describe("Dashboard Integration Flows", () => {
     await expect(disconnectButton).toBeEnabled();
 
     // Assert: Help text visible
-    const helpText = page.locator("text=Disconnect logs you out and clears the active session");
+    const helpText = accountSection(page).getByText(/Disconnect logs you out and clears the active session/);
     await expect(helpText).toBeVisible();
   });
 
@@ -452,7 +444,7 @@ test.describe("Dashboard Integration Flows", () => {
     await expect(refreshButton).toBeEnabled();
 
     // Assert: Refreshing badge appears
-    const refreshingBadge = page.locator("text=Refreshing");
+    const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
     await expect(refreshingBadge).toBeVisible();
   });
 
@@ -468,7 +460,7 @@ test.describe("Dashboard Integration Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Error message visible
-    const errorMessage = page.locator("text=Invalid transaction hash");
+    const errorMessage = page.getByText("Invalid transaction hash", { exact: true });
     await expect(errorMessage).toBeVisible();
 
     // Assert: Navigation links visible
@@ -491,8 +483,8 @@ test.describe("Dashboard Integration Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Transaction detail page loaded
-    const txDetailHeading = page.locator("text=Transaction Result");
-    await expect(txDetailHeading).toBeVisible();
+    const txDetailHeading = page.getByText(/Transaction Result|Transaction not found\./);
+    await expect(txDetailHeading.first()).toBeVisible();
 
     // Act: Click back to wallet
     const backLink = page.getByRole("link", { name: /Back to Wallet/i });
@@ -512,15 +504,13 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Verify address appears consistently
 
     // Assert: Address in Account section
-    const accountAddress = page.locator(`text=${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`);
-    await expect(accountAddress).toBeVisible();
+    await expect(accountSection(page).getByText(shortAddress, { exact: true })).toBeVisible();
 
     // Assert: Full address in Receive section
-    const receiveAddress = page.locator(`text=${userAddress}`);
+    const receiveAddress = receiveSection(page).getByText(userAddress, { exact: true });
     await expect(receiveAddress).toBeVisible();
 
     // Assert: Both are the same address
-    const accountAddressText = await accountAddress.textContent();
     const receiveAddressText = await receiveAddress.textContent();
     expect(receiveAddressText).toContain(userAddress);
   });

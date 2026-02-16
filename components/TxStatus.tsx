@@ -31,7 +31,7 @@ export function TxStatus({ hash, status, blockNumber, amount, memo }: TxStatusPr
   };
 
   return (
-    <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+    <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Transaction Result</p>
         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] ${statusStyle[status]}`}>
@@ -42,14 +42,14 @@ export function TxStatus({ hash, status, blockNumber, amount, memo }: TxStatusPr
       <div className="space-y-3 border-t border-slate-200 pt-4 text-sm text-slate-800">
         <div className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Hash</p>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <p className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-mono text-sm text-slate-800" title={hash}>
               {shortHash}
             </p>
             <button
               type="button"
               onClick={() => void copyHash()}
-              className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2 text-xs font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
             >
               {copied ? "Copied" : "Copy"}
             </button>

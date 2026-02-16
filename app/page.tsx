@@ -31,16 +31,16 @@ export default function Home() {
   }, [isConnected, router]);
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-6 py-16">
+    <main className="relative flex min-h-screen items-center justify-center overflow-x-hidden overflow-y-hidden bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
       <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-300/25 blur-3xl motion-safe:animate-pulse" />
       <div className="pointer-events-none absolute top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-teal-300/20 blur-2xl" />
 
-      <div className="relative z-10 w-full max-w-md space-y-8">
+      <div className="relative z-10 w-full max-w-md space-y-6 sm:space-y-8">
         <div className="space-y-3 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
             Tempo Moderato Testnet
           </p>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-[2.65rem]">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-[2.65rem]">
             Passkey P2P Wallet
           </h1>
           <p className="mx-auto max-w-sm text-base leading-7 text-slate-600">

@@ -265,7 +265,7 @@ export function PasskeyAuth() {
       typeof window !== "undefined" ? window.localStorage.getItem(LAST_ADDRESS_KEY) : null;
 
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
         <div className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Active Wallet</p>
           <p className="font-mono text-sm font-medium text-slate-700" title={address}>
@@ -292,7 +292,7 @@ export function PasskeyAuth() {
   }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
       <div className="space-y-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           {hasWalletHistory ? "Welcome back" : "New wallet setup"}
