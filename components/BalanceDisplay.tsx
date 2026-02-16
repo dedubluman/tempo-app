@@ -136,21 +136,21 @@ export function BalanceDisplay() {
 
   return (
       <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Available Balance
         </p>
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
           <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">pathUSD</span>
           <span
-            className={`inline-flex min-h-6 min-w-20 items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
+            className={`inline-flex min-h-6 items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
               showRefreshing ? "bg-slate-100 text-slate-600" : "invisible"
             }`}
           >
             Refreshing
           </span>
           <button
-            className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="inline-flex h-11 shrink-0 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
             onClick={() => refetch()}
             type="button"
           >

@@ -33,9 +33,10 @@ type SessionSnapshot = {
   sessions: SessionRecord[];
 };
 
-type SerializedSessionRecord = Omit<SessionRecord, "spendLimit" | "spent"> & {
+type SerializedSessionRecord = Omit<SessionRecord, "spendLimit" | "spent" | "keyAuthorization"> & {
   spendLimit: string;
   spent: string;
+  keyAuthorization: null;
 };
 
 let store: SessionSnapshot = {
@@ -56,6 +57,7 @@ function serializeSession(session: SessionRecord): SerializedSessionRecord {
     ...session,
     spendLimit: session.spendLimit.toString(),
     spent: session.spent.toString(),
+    keyAuthorization: null,
   };
 }
 
@@ -64,6 +66,7 @@ function deserializeSession(session: SerializedSessionRecord): SessionRecord {
     ...session,
     spendLimit: BigInt(session.spendLimit),
     spent: BigInt(session.spent),
+    keyAuthorization: null,
   };
 }
 
@@ -72,8 +75,12 @@ function persistSessions(snapshot: SessionSnapshot) {
     return;
   }
 
-  const payload = snapshot.sessions.map(serializeSession);
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  try {
+    const payload = snapshot.sessions.map(serializeSession);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 function hydrateSessionsIfNeeded() {
