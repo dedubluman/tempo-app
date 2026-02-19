@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { AlertTriangle } from "lucide-react";
 
 type ErrorPageProps = {
   error: Error;
@@ -9,25 +11,19 @@ type ErrorPageProps = {
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
-      <div className="mx-auto w-full max-w-2xl space-y-5">
-        <div className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 sm:p-6">
-          <p className="text-xl font-semibold tracking-tight text-rose-800">Page failed to load</p>
-          <p className="text-sm text-rose-700">{error.message || "Unexpected error while loading this page."}</p>
+    <main className="min-h-screen bg-[--bg-base] flex items-center justify-center px-4">
+      <div className="max-w-md w-full flex flex-col items-center gap-6 text-center">
+        <div className="w-16 h-16 rounded-[--radius-2xl] bg-[--status-error-bg] flex items-center justify-center text-[--status-error-text]">
+          <AlertTriangle size={28} />
         </div>
-        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-          <button
-            type="button"
-            onClick={() => reset()}
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
-          >
-            Try Again
-          </button>
-          <Link
-            href="/app"
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition-all duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
-          >
-            Go to Wallet
+        <div className="space-y-2">
+          <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">Something went wrong</h1>
+          <p className="text-sm text-[--text-secondary]">{error.message || "An unexpected error occurred while loading this page."}</p>
+        </div>
+        <div className="flex gap-3 w-full">
+          <Button variant="secondary" className="flex-1" onClick={() => reset()} data-testid="error-retry">Try Again</Button>
+          <Link href="/app" className="flex-1">
+            <Button className="w-full" data-testid="error-home">Go to Wallet</Button>
           </Link>
         </div>
       </div>

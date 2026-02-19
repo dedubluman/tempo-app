@@ -1,16 +1,22 @@
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 
 export default function NotFoundPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
-      <div className="mx-auto w-full max-w-2xl space-y-5">
-        <div className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 sm:p-6">
-          <p className="text-xl font-semibold tracking-tight text-rose-800">Page not found</p>
-          <p className="text-sm text-rose-700">The page you are looking for does not exist or has moved.</p>
+    <main className="min-h-screen bg-[--bg-base] flex items-center justify-center px-4">
+      <div className="max-w-md w-full flex flex-col items-center gap-6 text-center">
+        <div className="w-16 h-16 rounded-[--radius-2xl] bg-[--bg-elevated] flex items-center justify-center text-[--text-muted]">
+          <SearchX size={28} />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">Page not found</h1>
+          <p className="text-sm text-[--text-secondary]">The page you are looking for does not exist or has moved.</p>
         </div>
         <Link
           href="/app"
-          className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
+          className="inline-flex h-10 items-center justify-center px-5 rounded-[--radius-md] font-medium text-sm text-white transition-opacity hover:opacity-90"
+          style={{ background: "var(--gradient-btn-primary)" }}
+          data-testid="notfound-home"
         >
           Go to Wallet
         </Link>

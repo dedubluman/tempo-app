@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const BASE_URL = process.env.E2E_BASE_URL || "http://127.0.0.1:3000";
+const BASE_URL = process.env.E2E_BASE_URL || "http://localhost:3100";
 
 // ============================================================================
 // Test 1: 404 Not Found page
@@ -230,19 +230,12 @@ test("Network error handling - RPC request blocked", async ({ page }) => {
 test("404 page - styling and accessibility", async ({ page }) => {
   await page.goto(`${BASE_URL}/non-existent-page`);
 
-  // Verify the error container has proper styling
-  const errorContainer = page.locator(
-    "div.rounded-2xl.border.border-rose-200.bg-rose-50"
-  );
-  await expect(errorContainer).toBeVisible();
-
-  // Verify heading has proper styling
-  const heading = page.locator("p.text-xl.font-semibold.text-rose-800");
-  await expect(heading).toBeVisible();
+  // Verify the 404 heading is visible
+  await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 
   // Verify button is keyboard accessible
-  const button = page.locator("a:has-text('Go to Wallet')");
-  await expect(button).toHaveClass(/focus-visible:ring/);
+  const button = page.getByTestId("notfound-home");
+  await expect(button).toBeVisible();
 
   // Verify button can be focused
   await button.focus();

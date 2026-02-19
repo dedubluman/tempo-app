@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const AUTH_BASE_URL = (process.env.E2E_BASE_URL || "http://127.0.0.1:3000").replace("127.0.0.1", "localhost");
+const AUTH_BASE_URL = process.env.E2E_BASE_URL || "http://localhost:3100";
 const RUN_DASHBOARD_SCENARIOS = process.env.E2E_ENABLE_DASHBOARD_AUTH === "1";
 const MOCK_USER_ADDRESS = "0xAbcdEF1234567890AbcdEF1234567890aBcdef12";
 
@@ -22,7 +22,7 @@ test.describe("Mobile Responsive Polish", () => {
       await page.goto(`${AUTH_BASE_URL}/`);
       await page.waitForLoadState("networkidle");
 
-      await expect(page.getByRole("heading", { name: /Passkey P2P Wallet/i })).toBeVisible();
+      await expect(page.getByText("Instant Stablecoin Payments")).toBeVisible();
       await assertNoHorizontalOverflow(page);
     }
   });
