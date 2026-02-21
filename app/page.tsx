@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LandingNav } from "@/components/landing/LandingNav";
@@ -12,6 +13,11 @@ import { LandingCommunity } from "@/components/landing/LandingCommunity";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { AuthSheet } from "@/components/wallet/AuthSheet";
 
+const ThreeHeroScene = dynamic(
+  () => import("@/components/ui/ThreeHeroScene"),
+  { ssr: false }
+);
+
 export default function Home() {
   const router = useRouter();
   const [authOpen, setAuthOpen] = useState(false);
@@ -21,7 +27,12 @@ export default function Home() {
       <LandingNav onAuthClick={() => setAuthOpen(true)} />
 
       <main>
-        <LandingHero onAuthClick={() => setAuthOpen(true)} />
+        <section className="relative overflow-hidden">
+          <ThreeHeroScene />
+          <div className="relative z-10">
+            <LandingHero onAuthClick={() => setAuthOpen(true)} />
+          </div>
+        </section>
         <LandingMetrics />
         <LandingFeatures />
         <LandingHowItWorks />

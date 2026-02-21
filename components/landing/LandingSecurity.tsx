@@ -1,4 +1,8 @@
-import { ShieldCheck, DollarSign, Globe, Code } from "lucide-react";
+"use client"
+
+import { motion } from "framer-motion"
+import { ShieldCheck, DollarSign, Globe, Code } from "lucide-react"
+import { useMotionSafe } from "@/lib/motion"
 
 const trustItems = [
   {
@@ -21,24 +25,37 @@ const trustItems = [
     title: "Open Source",
     description: "Fluxus is fully open source. Inspect the code, verify the logic, and contribute on GitHub.",
   },
-];
+]
 
 export function LandingSecurity() {
+  const variants = useMotionSafe()
+
   return (
-    <section id="security" className="py-20 px-4">
+    <motion.section
+      id="security"
+      variants={variants.staggerContainer}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      className="py-20 px-4"
+    >
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
+        <motion.div variants={variants.fadeUp} className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
             Built for trust
           </h2>
           <p className="text-[--text-secondary] max-w-lg mx-auto">
             Security and transparency are non-negotiable. Here&apos;s what protects your funds.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid sm:grid-cols-2 gap-5">
           {trustItems.map(({ icon: Icon, title, description }) => (
-            <div key={title} className="flex gap-4 p-5 rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-surface]">
+            <motion.div
+              key={title}
+              variants={variants.fadeUp}
+              className="flex gap-4 p-5 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md"
+            >
               <div className="w-10 h-10 rounded-[--radius-lg] bg-[--brand-subtle] flex items-center justify-center text-[--brand-primary] flex-shrink-0">
                 <Icon size={20} />
               </div>
@@ -46,10 +63,10 @@ export function LandingSecurity() {
                 <h3 className="font-semibold text-[--text-primary] mb-1">{title}</h3>
                 <p className="text-sm text-[--text-secondary] leading-relaxed">{description}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
-  );
+    </motion.section>
+  )
 }

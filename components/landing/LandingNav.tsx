@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/Button";
 import { Zap } from "lucide-react";
@@ -25,7 +26,12 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
   const connected = isConnected || mockConnected;
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-30 border-b border-white/10 backdrop-blur-md bg-[--bg-base]/80">
+    <motion.nav
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] }}
+      className="fixed top-0 inset-x-0 z-30 border-b border-white/10 backdrop-blur-md bg-[--bg-base]/80"
+    >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-[--radius-md] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
@@ -49,6 +55,6 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
           <Button size="sm" onClick={onAuthClick} data-testid="nav-launch-cta">Launch App</Button>
         )}
       </div>
-    </nav>
+    </motion.nav>
   );
 }
