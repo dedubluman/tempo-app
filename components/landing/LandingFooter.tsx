@@ -1,9 +1,21 @@
-import Link from "next/link";
-import { Zap } from "lucide-react";
+"use client"
+
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Zap } from "lucide-react"
+import { useMotionSafe } from "@/lib/motion"
 
 export function LandingFooter() {
+  const variants = useMotionSafe()
+
   return (
-    <footer className="border-t border-[--border-subtle] py-10 px-4">
+    <motion.footer
+      variants={variants.fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      className="border-t border-[--border-subtle] py-10 px-4"
+    >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-[--radius-sm] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
@@ -24,6 +36,6 @@ export function LandingFooter() {
           Open source · Testnet only · Not financial advice
         </p>
       </div>
-    </footer>
-  );
+    </motion.footer>
+  )
 }

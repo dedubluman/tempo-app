@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
+import { motion } from "framer-motion";
+import { useMotionSafe } from "@/lib/motion";
 import { BalanceDisplay } from "@/components/BalanceDisplay";
 import { SessionKeys } from "@/components/SessionKeys";
 import { TransferForm } from "@/components/TransferForm";
@@ -22,6 +24,7 @@ export default function AppPage() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const [copied, setCopied] = useState(false);
+  const variants = useMotionSafe();
 
   const authBootstrapReady = !E2E_MOCK_AUTH || typeof window !== "undefined";
   const mockAddress =
@@ -89,7 +92,12 @@ export default function AppPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-24 md:pb-8">
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] as [number, number, number, number] }}
+        className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-24 md:pb-8"
+      >
         <div className="mb-6">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-[--text-primary] font-[--font-display]" data-testid="dashboard-heading">Wallet Dashboard</h1>
@@ -98,8 +106,13 @@ export default function AppPage() {
           <p className="text-sm text-[--text-secondary] mt-1">Send pathUSD with sponsored fees and passkey security.</p>
         </div>
 
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
-          <div className="lg:col-span-4 space-y-4">
+        <motion.div
+          variants={variants.staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid gap-4 sm:gap-5 lg:grid-cols-12"
+        >
+          <motion.div variants={variants.fadeUp} className="lg:col-span-4 space-y-4">
             <Card variant="elevated" data-testid="account-card">
               <CardHeader>
                 <CardTitle>Account</CardTitle>
@@ -165,15 +178,21 @@ export default function AppPage() {
               </CardContent>
             </Card>
 
-            <Card variant="elevated">
-              <CardHeader><CardTitle>Balance</CardTitle></CardHeader>
-              <CardContent>
-                <BalanceDisplay />
-              </CardContent>
-            </Card>
-          </div>
+            <motion.div
+              initial={{ scale: 0.97, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] as [number, number, number, number] }}
+            >
+              <Card variant="elevated">
+                <CardHeader><CardTitle>Balance</CardTitle></CardHeader>
+                <CardContent>
+                  <BalanceDisplay />
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
 
-          <div className="lg:col-span-8 space-y-4">
+          <motion.div variants={variants.fadeUp} className="lg:col-span-8 space-y-4">
             <Card variant="elevated" data-testid="transfer-card">
               <CardHeader><CardTitle>Send</CardTitle></CardHeader>
               <CardContent>
@@ -199,9 +218,9 @@ export default function AppPage() {
                 <TransactionHistory />
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </main>
+          </motion.div>
+        </motion.div>
+      </motion.main>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 border-t border-[--border-subtle] bg-[--bg-surface]/90 backdrop-blur-md z-20" data-testid="bottom-nav">
         <div className="flex items-center justify-around h-16 max-w-md mx-auto px-4">

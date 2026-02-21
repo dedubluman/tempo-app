@@ -4,10 +4,12 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { formatUnits } from "viem";
+import { motion } from "framer-motion";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatAddress } from "@/lib/utils";
 import { getTransferHistorySnapshot, subscribeTransferHistory } from "@/lib/transactionHistoryStore";
+import { useMotionSafe } from "@/lib/motion";
 
 interface TransferLog {
   transactionHash: string;
@@ -23,6 +25,7 @@ export function TransactionHistory() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
   const localSnapshot = useSyncExternalStore(subscribeTransferHistory, getTransferHistorySnapshot, getTransferHistorySnapshot);
+  const variants = useMotionSafe();
 
   const { data: logs, isLoading, isError, refetch } = useQuery({
     queryKey: ["transferHistory", address],
@@ -148,7 +151,12 @@ export function TransactionHistory() {
 
   if (!mergedLogs || mergedLogs.length === 0) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <motion.div
+        className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+        variants={variants.scaleIn}
+        initial="hidden"
+        animate="visible"
+      >
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
           Transaction History
         </p>
@@ -156,7 +164,7 @@ export function TransactionHistory() {
           <p className="text-sm text-slate-600">No transactions yet</p>
           <p className="text-xs text-slate-500">Your transfer history will appear here</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -176,16 +184,22 @@ export function TransactionHistory() {
         </a>
       </div>
 
-      <div className="space-y-2">
+      <motion.div
+        className="space-y-2"
+        variants={variants.staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
         {mergedLogs.map((log) => {
           const isOutbound = log.args.from.toLowerCase() === address.toLowerCase();
           const counterparty = isOutbound ? log.args.to : log.args.from;
           const formattedAmount = formatUnits(log.args.value, PATHUSD_DECIMALS);
 
           return (
-            <div
+            <motion.div
               key={`${log.transactionHash}-${log.blockNumber}`}
               className="flex flex-col items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all duration-150 hover:border-slate-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              variants={variants.fadeUp}
             >
               <div className="flex w-full flex-col gap-2 sm:flex-1 sm:flex-row sm:items-center sm:gap-3">
                 <span
@@ -223,10 +237,10 @@ export function TransactionHistory() {
                   View
                 </a>
               </div>
-            </div>
-          );
+            </motion.div>
+           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }
