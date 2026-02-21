@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Github, BookOpen, Globe } from "lucide-react"
+import { GithubLogo, BookOpen, Globe } from "@phosphor-icons/react"
 import { useMotionSafe } from "@/lib/motion"
 
 const links = [
-  { icon: Github, label: "GitHub", href: "https://github.com/dedubluman/tempo-app", external: true },
+  { icon: GithubLogo, label: "GitHub", href: "https://github.com/dedubluman/tempo-app", external: true },
   { icon: BookOpen, label: "Docs", href: "/docs", external: false },
   { icon: Globe, label: "Tempo Network", href: "https://tempo.xyz", external: true },
 ]

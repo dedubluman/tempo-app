@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { AlertTriangle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react";
 
 type ErrorPageProps = {
   error: Error;
@@ -14,7 +14,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     <main className="min-h-screen bg-[--bg-base] flex items-center justify-center px-4">
       <div className="max-w-md w-full flex flex-col items-center gap-6 text-center">
         <div className="w-16 h-16 rounded-[--radius-2xl] bg-[--status-error-bg] flex items-center justify-center text-[--status-error-text]">
-          <AlertTriangle size={28} />
+          <Warning size={28} />
         </div>
         <div className="space-y-2">
           <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">Something went wrong</h1>

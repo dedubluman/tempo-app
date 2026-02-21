@@ -119,17 +119,17 @@ export function SessionKeys() {
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)] lg:col-span-4">
+    <section className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg] lg:col-span-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Session Keys</p>
-        <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Session Keys</p>
+        <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">
           Quick Send
         </span>
       </div>
 
-      <div className="space-y-3 border-t border-slate-200 pt-4">
+      <div className="space-y-3 border-t border-[--border-default] pt-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Duration</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Duration</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {DURATION_OPTIONS.map((option) => (
               <button
@@ -138,8 +138,8 @@ export function SessionKeys() {
                 onClick={() => setDuration(option.value)}
                   className={`h-11 rounded-lg border text-xs font-semibold transition-colors duration-150 ${
                   duration === option.value
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    ? "border-[--brand-primary] bg-[--brand-primary] text-[--text-inverse]"
+                    : "border-[--border-default] bg-[--bg-elevated] text-[--text-secondary] hover:bg-[--bg-subtle]"
                 }`}
               >
                 {option.label}
@@ -149,7 +149,7 @@ export function SessionKeys() {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="session-limit" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <label htmlFor="session-limit" className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
             Spend Limit (pathUSD)
           </label>
           <input
@@ -158,13 +158,13 @@ export function SessionKeys() {
             inputMode="decimal"
             value={spendLimitInput}
             onChange={(event) => setSpendLimitInput(event.target.value)}
-            className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+            className="h-11 w-full rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm text-[--text-primary] placeholder:text-[--text-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40"
             placeholder="50"
           />
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="session-recipients" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <label htmlFor="session-recipients" className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
             Allowed Recipients (optional)
           </label>
           <textarea
@@ -172,58 +172,59 @@ export function SessionKeys() {
             rows={2}
             value={allowedRecipientsInput}
             onChange={(event) => setAllowedRecipientsInput(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+            className="w-full rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 text-sm text-[--text-primary] placeholder:text-[--text-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40"
             placeholder="0xabc...,0xdef..."
           />
-          <p className="text-[11px] text-slate-500">Comma-separated addresses. Empty means any recipient.</p>
+          <p className="text-[11px] text-[--text-tertiary]">Comma-separated addresses. Empty means any recipient.</p>
         </div>
 
         {error ? (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>
+          <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">{error}</p>
         ) : null}
 
         {expiredSessionNotice ? (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{expiredSessionNotice}</p>
+          <p className="rounded-lg border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">{expiredSessionNotice}</p>
         ) : null}
 
         <button
           type="button"
           onClick={() => void handleCreateSession()}
           disabled={isCreating}
-            className="h-11 w-full rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 w-full rounded-xl px-4 text-sm font-semibold text-[--text-inverse] transition-colors duration-150 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ background: "var(--gradient-btn-primary)" }}
         >
           {isCreating ? "Creating Session..." : "Create Session"}
         </button>
-        {isCreating ? <p className="text-xs text-slate-500">Preparing Access Key authorization. Keep your passkey prompt open.</p> : null}
+        {isCreating ? <p className="text-xs text-[--text-tertiary]">Preparing Access Key authorization. Keep your passkey prompt open.</p> : null}
       </div>
 
-      <div className="space-y-2 border-t border-slate-200 pt-4">
+      <div className="space-y-2 border-t border-[--border-default] pt-4">
         {activeSessions.length === 0 ? (
-          <p className="text-xs text-slate-500">No active sessions. Transfers require passkey confirmation.</p>
+          <p className="text-xs text-[--text-tertiary]">No active sessions. Transfers require passkey confirmation.</p>
         ) : (
           activeSessions.map((session) => {
             const secondsLeft = Math.max(session.expiresAtSec - nowSec, 0);
             const remaining = getSessionRemainingSpend(session);
             return (
-              <div key={session.id} className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+              <div key={session.id} className="space-y-2 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Active Session</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Active Session</p>
                   <button
                     type="button"
                     onClick={() => revokeSession(session.id)}
-                    className="inline-flex h-11 items-center rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
+                    className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle]"
                   >
                     Revoke
                   </button>
                 </div>
-                <p className="text-xs text-slate-600">Expires in: {formatCountdown(secondsLeft)}</p>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-[--text-tertiary]">Expires in: {formatCountdown(secondsLeft)}</p>
+                <p className="text-xs text-[--text-tertiary]">
                   Spend remaining: {formatUnits(remaining, PATHUSD_DECIMALS)} pathUSD
                 </p>
                 {session.allowedRecipients.length > 0 ? (
-                  <p className="text-xs text-slate-600">Allowed recipients: {session.allowedRecipients.length}</p>
+                  <p className="text-xs text-[--text-tertiary]">Allowed recipients: {session.allowedRecipients.length}</p>
                 ) : (
-                  <p className="text-xs text-slate-600">Allowed recipients: any</p>
+                  <p className="text-xs text-[--text-tertiary]">Allowed recipients: any</p>
                 )}
               </div>
             );

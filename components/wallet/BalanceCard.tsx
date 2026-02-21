@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { ArrowsClockwise } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
@@ -33,7 +33,7 @@ export function BalanceCard({
             aria-label="Refresh balance"
             data-testid="balance-refresh"
           >
-            <RefreshCw size={14} />
+            <ArrowsClockwise size={14} />
           </button>
         )}
       </div>

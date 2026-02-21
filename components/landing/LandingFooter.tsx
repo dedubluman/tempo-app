@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Zap } from "lucide-react"
+import { FluxusLogo } from "@/components/ui/FluxusLogo"
 import { useMotionSafe } from "@/lib/motion"
 
 export function LandingFooter() {
@@ -18,10 +18,7 @@ export function LandingFooter() {
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-[--radius-sm] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-            <Zap size={14} className="text-white" />
-          </div>
-          <span className="font-bold text-[--text-primary] font-[--font-display]">Fluxus</span>
+          <FluxusLogo size="sm" showText />
           <span className="text-xs text-[--text-muted] ml-2">Tempo Testnet</span>
         </div>
 
@@ -33,7 +30,7 @@ export function LandingFooter() {
         </nav>
 
         <p className="text-xs text-[--text-muted]">
-          Open source · Testnet only · Not financial advice
+          Open source · Testnet only
         </p>
       </div>
     </motion.footer>

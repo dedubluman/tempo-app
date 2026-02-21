@@ -2,13 +2,13 @@
 
 import { useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { Send, QrCode, History, Key } from "lucide-react"
+import { PaperPlaneTilt, QrCode, ClockCounterClockwise, Key } from "@phosphor-icons/react"
 import { calculateTilt, useMotionSafe } from "@/lib/motion"
 
 const features = [
-  { icon: Send, title: "Instant Send", description: "Transfer pathUSD stablecoins to any Tempo address in under a second. Single or batch — up to 10 recipients at once." },
+  { icon: PaperPlaneTilt, title: "Instant Send", description: "Transfer pathUSD stablecoins to any Tempo address in under a second. Single or batch — up to 10 recipients at once." },
   { icon: QrCode, title: "Easy Receive", description: "Share your wallet address or QR code. Funds arrive instantly with 6-decimal precision and zero fees." },
-  { icon: History, title: "Activity Feed", description: "Track every transfer with a clear activity timeline. View transaction details on the Tempo explorer." },
+  { icon: ClockCounterClockwise, title: "Activity Feed", description: "Track every transfer with a clear activity timeline. View transaction details on the Tempo explorer." },
   { icon: Key, title: "Session Keys", description: "Authorize spending policies for seamless transfers within defined limits — no passkey prompt every time." },
 ]
 

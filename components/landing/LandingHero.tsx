@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowRight, Zap, Shield, DollarSign, Layers } from "lucide-react";
+import { ArrowRight, Lightning, Shield, CurrencyDollar, Stack } from "@phosphor-icons/react";
 import { useMotionSafe } from "@/lib/motion";
 
 interface LandingHeroProps {
@@ -14,9 +14,9 @@ interface LandingHeroProps {
 }
 
 const metrics = [
-  { icon: Zap, label: "0.5s finality" },
-  { icon: DollarSign, label: "$0 gas fees" },
-  { icon: Layers, label: "6-decimal precision" },
+  { icon: Lightning, label: "0.5s finality" },
+  { icon: CurrencyDollar, label: "$0 gas fees" },
+  { icon: Stack, label: "6-decimal precision" },
   { icon: Shield, label: "Passkey secured" },
 ];
 
@@ -47,10 +47,17 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
   const connected = isConnected || mockConnected;
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden min-h-screen pt-32 pb-20 px-4">
-      <motion.div style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}>
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden min-h-[100dvh] px-4 py-8 md:py-0"
+    >
+      <motion.div
+        style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
+        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-center min-h-[100dvh]"
+      >
+        {/* Left column — text (3/5) */}
         <motion.div
-          className="max-w-3xl mx-auto text-center flex flex-col items-center gap-8"
+          className="md:col-span-3 flex flex-col gap-6 w-full"
           variants={variants.staggerContainer}
           initial="hidden"
           animate="visible"
@@ -62,12 +69,13 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
           </motion.div>
 
           <motion.div variants={variants.fadeUp}>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[--text-primary] leading-tight font-[--font-display] tracking-tight">
-              Instant Stablecoin Payments.{" "}
+            <h1 className="text-4xl md:text-6xl tracking-tighter leading-none font-bold text-[--text-primary]">
+              Instant Stablecoin{" "}
+              <br className="hidden md:block" />
+              Payments.{" "}
               <span
-                className="animate-gradient-text bg-gradient-to-r from-[--brand-primary] via-cyan-300 to-[--brand-primary]"
                 style={{
-                  background: "var(--gradient-flux)",
+                  background: "linear-gradient(135deg, #fbbf24, #fcd34d)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -79,41 +87,42 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
           </motion.div>
 
           <motion.p
-            className="text-lg text-[--text-secondary] max-w-xl leading-relaxed"
+            className="text-base text-[--text-secondary] leading-relaxed max-w-[65ch]"
             variants={variants.fadeUp}
           >
-            Send pathUSD stablecoins instantly with your device passkey. No wallet app. No seed phrases. No gas fees.
+            Send pathUSD stablecoins instantly with your device passkey. No
+            wallet app. No seed phrases. No gas fees.
           </motion.p>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto"
+            className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto pt-2"
             variants={variants.fadeUp}
           >
             {connected ? (
               <Link href="/app">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto animate-glow-pulse"
+                  className="w-full sm:w-auto active:scale-[0.98] transition-transform"
                   data-testid="hero-dashboard-cta"
                 >
-                  Go to Dashboard <ArrowRight size={18} />
+                  Go to Dashboard <ArrowRight size={18} weight="bold" />
                 </Button>
               </Link>
             ) : (
               <Button
                 size="lg"
                 onClick={onAuthClick}
-                className="w-full sm:w-auto animate-glow-pulse"
+                className="w-full sm:w-auto active:scale-[0.98] transition-transform"
                 data-testid="hero-create-cta"
               >
-                Create Your Wallet <ArrowRight size={18} />
+                Create Your Wallet <ArrowRight size={18} weight="bold" />
               </Button>
             )}
             <Link href="/docs">
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="lg"
-                className="w-full sm:w-auto bg-[--bg-glass] backdrop-blur-sm border-[--border-glass] hover:border-[--border-glass-hover]"
+                className="w-full sm:w-auto border border-[--border-default] hover:border-[--border-glass-hover]"
               >
                 Read the Docs
               </Button>
@@ -121,7 +130,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
           </motion.div>
 
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-4 pt-4"
+            className="flex flex-wrap items-start gap-4 pt-4"
             variants={variants.staggerContainer}
             initial="hidden"
             animate="visible"
@@ -137,6 +146,41 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
               </motion.div>
             ))}
           </motion.div>
+        </motion.div>
+
+        {/* Right column — ambient visual (2/5) */}
+        <motion.div
+          className="hidden md:flex md:col-span-2 items-center justify-center relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 0.4 }}
+        >
+          <div className="relative w-full aspect-square max-w-md">
+
+            <div
+              className="absolute inset-0 rounded-full blur-3xl opacity-20"
+              style={{
+                background:
+                  "radial-gradient(circle, #fbbf24 0%, transparent 70%)",
+              }}
+            />
+
+            <div
+              className="absolute inset-[15%] rounded-full blur-2xl opacity-30"
+              style={{
+                background:
+                  "radial-gradient(circle, #fcd34d 0%, transparent 60%)",
+              }}
+            />
+
+            <div
+              className="absolute inset-[35%] rounded-full blur-xl opacity-40"
+              style={{
+                background:
+                  "radial-gradient(circle, #fbbf24 0%, #fcd34d 50%, transparent 80%)",
+              }}
+            />
+          </div>
         </motion.div>
       </motion.div>
     </section>

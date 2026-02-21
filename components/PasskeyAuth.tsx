@@ -246,7 +246,7 @@ export function PasskeyAuth() {
 
   if (!supportsWebAuthn) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-800">
+      <div className="rounded-2xl border border-[--status-warning-border] bg-[--status-warning-bg] px-4 py-3 text-[13px] text-[--status-warning-text]">
         Unsupported browser, use Chrome/Safari.
       </div>
     );
@@ -254,7 +254,7 @@ export function PasskeyAuth() {
 
   if (!passkeyConnector) {
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">
+      <div className="rounded-2xl border border-[--status-error-border] bg-[--status-error-bg] px-4 py-3 text-[13px] text-[--status-error-text]">
         Passkey connector unavailable.
       </div>
     );
@@ -265,23 +265,23 @@ export function PasskeyAuth() {
       typeof window !== "undefined" ? window.localStorage.getItem(LAST_ADDRESS_KEY) : null;
 
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-lg] backdrop-blur-sm">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Active Wallet</p>
-          <p className="font-mono text-sm font-medium text-slate-700" title={address}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Active Wallet</p>
+          <p className="font-mono text-sm font-medium text-[--text-secondary]" title={address}>
             {shortAddress}
           </p>
-          <p className="font-mono text-xs text-slate-500" title={address}>
+          <p className="font-mono text-xs text-[--text-tertiary]" title={address}>
             {address}
           </p>
           {lastAddress && lastAddress.toLowerCase() !== address.toLowerCase() ? (
-            <p className="text-xs text-amber-700">
+            <p className="text-xs text-[--status-warning-text]">
               You are connected with a different address than your last session.
             </p>
           ) : null}
         </div>
         <button
-          className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(15,23,42,0.2)] transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] shadow-[--shadow-md] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
           onClick={() => disconnect()}
           type="button"
         >
@@ -292,12 +292,12 @@ export function PasskeyAuth() {
   }
 
   return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-lg] backdrop-blur-sm">
       <div className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           {hasWalletHistory ? "Welcome back" : "New wallet setup"}
         </p>
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-[--text-secondary]">
           {hasWalletHistory ? SIGN_IN_HELP : "Create Wallet once, then use Sign In for future sessions."}
         </p>
       </div>
@@ -305,7 +305,7 @@ export function PasskeyAuth() {
       {hasWalletHistory ? (
         <div className="space-y-3">
           <button
-            className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(15,23,42,0.2)] transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] shadow-[--shadow-md] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPending}
             onClick={() => void handleConnect("sign-in")}
             type="button"
@@ -313,7 +313,7 @@ export function PasskeyAuth() {
             {isPending ? "Waiting for passkey..." : "Sign In"}
           </button>
           <button
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 py-2 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-subtle] active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPending}
             onClick={() => void handleCreateWallet()}
             type="button"
@@ -324,7 +324,7 @@ export function PasskeyAuth() {
       ) : (
         <div className="space-y-3">
           <button
-            className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(15,23,42,0.2)] transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] shadow-[--shadow-md] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPending}
             onClick={() => void handleCreateWallet()}
             type="button"
@@ -332,7 +332,7 @@ export function PasskeyAuth() {
             {isPending ? "Waiting for passkey..." : "Create Wallet"}
           </button>
           <button
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 py-2 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-subtle] active:translate-y-px disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPending}
             onClick={() => void handleConnect("sign-in")}
             type="button"
@@ -342,17 +342,17 @@ export function PasskeyAuth() {
         </div>
       )}
 
-      <div className="space-y-2 border-t border-slate-200/80 pt-3">
-        <p className="text-xs text-slate-500">Your passkey is stored for this domain only.</p>
+      <div className="space-y-2 border-t border-[--border-default]/80 pt-3">
+        <p className="text-xs text-[--text-tertiary]">Your passkey is stored for this domain only.</p>
         {hasWalletHistory ? (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
             {CREATE_WARNING}
           </p>
         ) : null}
       </div>
 
       {authMessage ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+        <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
           {authMessage}
         </p>
       ) : null}

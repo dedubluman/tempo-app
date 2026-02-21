@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { History } from "lucide-react";
+import { ClockCounterClockwise } from "@phosphor-icons/react";
 
 export default function TestComponentsPage() {
   return (
@@ -55,7 +55,7 @@ export default function TestComponentsPage() {
 
       <section data-testid="empty-state-section">
         <EmptyState
-          icon={History}
+          icon={ClockCounterClockwise}
           title="No transactions yet"
           description="Your activity will appear here."
           data-testid="empty-state"

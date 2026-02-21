@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X } from "lucide-react";
+import { Check, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/cn";
 import type { TransferStep } from "@/types/ui";
 

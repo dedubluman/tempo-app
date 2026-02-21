@@ -18,18 +18,18 @@ export default function TxDetailPage({ params }: PageProps) {
 
   if (!isHash(hash)) {
     return (
-      <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
+      <main className="min-h-screen bg-[--bg-base] px-4 py-10 sm:px-6 sm:py-16">
         <div className="mx-auto w-full max-w-2xl space-y-5">
-          <div className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 sm:p-6">
-            <p className="text-xl font-semibold tracking-tight text-rose-800">Invalid transaction hash</p>
-            <p className="text-sm text-rose-700">
+          <div className="space-y-2 rounded-2xl border border-[--status-error-border] bg-[--status-error-bg] p-4 sm:p-6">
+            <p className="text-xl font-semibold tracking-tight text-[--status-error-text]">Invalid transaction hash</p>
+            <p className="text-sm text-[--status-error-text]">
               Hash must start with <code>0x</code> and have 66 characters.
             </p>
           </div>
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <Link
               href="/app"
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[--brand-primary] px-5 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 sm:w-auto"
             >
               Go to Wallet
             </Link>
@@ -37,7 +37,7 @@ export default function TxDetailPage({ params }: PageProps) {
               href={EXPLORER_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition-all duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[--border-default] bg-[--bg-elevated] px-5 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 sm:w-auto"
             >
               Open Explorer Home
             </a>
@@ -87,16 +87,16 @@ function TxDetailView({ hash }: { hash: `0x${string}` }) {
     : "pending";
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
+    <main className="min-h-screen bg-[--bg-base] px-4 py-10 sm:px-6 sm:py-16">
       <div className="mx-auto w-full max-w-2xl space-y-5">
         {txLoading || receiptLoading ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 sm:p-6">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
+          <div className="flex items-center gap-3 rounded-2xl border border-[--border-default] bg-[--bg-elevated] p-4 text-sm text-[--text-tertiary] sm:p-6">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[--border-default] border-t-[--text-secondary]" />
             Loading transaction...
           </div>
         ) : isError ? (
-          <div className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 sm:p-6">
-            <p className="font-semibold text-rose-800">Transaction not found.</p>
+          <div className="space-y-2 rounded-2xl border border-[--status-error-border] bg-[--status-error-bg] p-4 text-sm text-[--status-error-text] sm:p-6">
+            <p className="font-semibold text-[--status-error-text]">Transaction not found.</p>
             <p>Verify the hash or open the explorer for recent activity.</p>
           </div>
         ) : (
@@ -112,7 +112,7 @@ function TxDetailView({ hash }: { hash: `0x${string}` }) {
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <Link
             href="/app"
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition-all duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[--border-default] bg-[--bg-elevated] px-5 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 sm:w-auto"
           >
             Back to Wallet
           </Link>
@@ -120,7 +120,7 @@ function TxDetailView({ hash }: { hash: `0x${string}` }) {
             href={`${EXPLORER_URL}/tx/${hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[--brand-primary] px-5 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 sm:w-auto"
           >
             Open in Explorer
           </a>

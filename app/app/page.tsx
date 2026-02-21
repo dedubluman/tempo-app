@@ -14,7 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { AddressAvatar } from "@/components/ui/AddressAvatar";
-import { Copy, Check, LogOut, ExternalLink, Zap } from "lucide-react";
+import { Copy, Check, SignOut, ArrowSquareOut, BookOpen } from "@phosphor-icons/react";
+import { FluxusLogo } from "@/components/ui/FluxusLogo";
 import Link from "next/link";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
@@ -78,10 +79,7 @@ export default function AppPage() {
       <header className="border-b border-[--border-subtle] bg-[--bg-surface]/80 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-[--radius-md] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-              <Zap size={14} className="text-white" />
-            </div>
-            <span className="font-bold text-[--text-primary] font-[--font-display]">Fluxus</span>
+            <FluxusLogo size="sm" showText />
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="brand" size="sm" data-testid="network-badge">Tempo Testnet</Badge>
@@ -144,7 +142,7 @@ export default function AppPage() {
                     onClick={handleDisconnect}
                     data-testid="disconnect-btn"
                   >
-                    <LogOut size={14} />
+                    <SignOut size={14} />
                     Disconnect Wallet
                   </Button>
                   <p className="text-xs text-[--text-muted]">Disconnect logs you out and clears the active session.</p>
@@ -172,7 +170,7 @@ export default function AppPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-[--brand-primary] hover:underline"
                 >
-                  <ExternalLink size={12} />
+                  <ArrowSquareOut size={12} />
                   Get testnet tokens
                 </a>
               </CardContent>
@@ -225,11 +223,11 @@ export default function AppPage() {
       <nav className="md:hidden fixed bottom-0 inset-x-0 border-t border-[--border-subtle] bg-[--bg-surface]/90 backdrop-blur-md z-20" data-testid="bottom-nav">
         <div className="flex items-center justify-around h-16 max-w-md mx-auto px-4">
           <Link href="/app" className="flex flex-col items-center gap-0.5 text-[--brand-primary]" data-testid="nav-home">
-            <Zap size={20} />
+            <FluxusLogo size="sm" />
             <span className="text-[10px] font-medium">Wallet</span>
           </Link>
           <Link href="/docs" className="flex flex-col items-center gap-0.5 text-[--text-muted]" data-testid="nav-docs">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <BookOpen size={20} />
             <span className="text-[10px] font-medium">Docs</span>
           </Link>
         </div>

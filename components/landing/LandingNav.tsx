@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/Button";
-import { Zap } from "lucide-react";
+import { FluxusLogo } from "@/components/ui/FluxusLogo";
 
 interface LandingNavProps {
   onAuthClick?: () => void;
@@ -33,12 +33,7 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
       className="fixed top-0 inset-x-0 z-30 border-b border-white/10 backdrop-blur-md bg-[--bg-base]/80"
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-[--radius-md] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-            <Zap size={16} className="text-white" />
-          </div>
-          <span className="font-bold text-[--text-primary] text-lg font-[--font-display]">Fluxus</span>
-        </div>
+        <FluxusLogo size="sm" showText />
 
         <div className="hidden md:flex items-center gap-6 text-sm text-[--text-secondary]">
           <a href="#features" className="hover:text-[--text-primary] transition-colors">Features</a>

@@ -322,7 +322,7 @@ export function TransferForm() {
   }, [batchError]);
 
   const inputBaseClass =
-    "h-11 w-full rounded-xl border bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-150 hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-1";
+    "h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-3 text-sm text-[--text-primary] placeholder:text-[--text-muted] transition-all duration-150 hover:border-[--border-strong] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40 focus-visible:ring-offset-1";
 
   useEffect(() => {
     if (!address || blockNumber === undefined) {
@@ -704,31 +704,31 @@ export function TransferForm() {
 
   if (isBatchSuccess && batchHash) {
     return (
-      <div className="space-y-5 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-emerald-100/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--status-success-bg] p-4 sm:p-6 shadow-[--shadow-sm]">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">Batch Transfer Successful</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Batch Transfer Successful</p>
           <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700">Transaction</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">Transaction</p>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-mono text-sm text-emerald-800" title={batchHash}>
+              <p className="font-mono text-sm text-[--status-success-text]" title={batchHash}>
                 {shortBatchHash}
               </p>
               <button
                 type="button"
-                className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                 onClick={() => void handleCopyBatchHash()}
               >
                 {copiedBatchHash ? "Copied" : "Copy"}
               </button>
             </div>
           </div>
-          <p className="text-xs text-emerald-800">
+          <p className="text-xs text-[--status-success-text]">
             {batchRows.length} recipient{batchRows.length > 1 ? "s" : ""} • Total {batchTotalFormatted} pathUSD
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/tx/${batchHash}`}
-               className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+               className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             >
               View Details
             </Link>
@@ -736,14 +736,14 @@ export function TransferForm() {
               href={`${EXPLORER_URL}/tx/${batchHash}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             >
               Explorer
             </a>
           </div>
         </div>
         <button
-          className="h-11 w-full rounded-xl border border-emerald-300 bg-white text-sm font-semibold text-emerald-800 transition-all duration-200 hover:bg-emerald-100 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] text-sm font-semibold text-[--text-secondary] transition-all duration-200 hover:bg-[--bg-subtle] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
           onClick={handleReset}
           type="button"
         >
@@ -755,18 +755,18 @@ export function TransferForm() {
 
   if (isSuccess && hash) {
     return (
-      <div className="space-y-5 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-emerald-100/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--status-success-bg] p-4 sm:p-6 shadow-[--shadow-sm]">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">Transfer Successful</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Transfer Successful</p>
           <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700">Transaction</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">Transaction</p>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-mono text-sm text-emerald-800" title={hash}>
+              <p className="font-mono text-sm text-[--status-success-text]" title={hash}>
                 {shortHash}
               </p>
               <button
                 type="button"
-                className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                 onClick={() => void handleCopyHash()}
               >
                 {copiedHash ? "Copied" : "Copy"}
@@ -776,7 +776,7 @@ export function TransferForm() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/tx/${hash}`}
-              className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             >
               View Details
             </Link>
@@ -784,14 +784,14 @@ export function TransferForm() {
               href={`${EXPLORER_URL}/tx/${hash}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center rounded-lg border border-emerald-300 bg-white px-3 text-sm font-medium text-emerald-800 transition-colors duration-150 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             >
               Explorer
             </a>
           </div>
         </div>
         <button
-          className="h-11 w-full rounded-xl border border-emerald-300 bg-white text-sm font-semibold text-emerald-800 transition-all duration-200 hover:bg-emerald-100 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] text-sm font-semibold text-[--text-secondary] transition-all duration-200 hover:bg-[--bg-subtle] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
           onClick={handleReset}
           type="button"
         >
@@ -803,30 +803,30 @@ export function TransferForm() {
 
   if (batchConfirming) {
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Confirm Batch Send</p>
-          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Review required</span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Batch Send</p>
+          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
         </div>
 
-        <div className="space-y-3 border-t border-slate-200 pt-4 text-sm text-slate-700">
+        <div className="space-y-3 border-t border-[--border-default] pt-4 text-sm text-[--text-secondary]">
           {batchRows.map((row, index) => (
-            <div key={row.id} className="rounded-xl border border-slate-200 bg-white p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recipient {index + 1}</p>
-              <p className="mt-1 break-all font-mono text-xs text-slate-900">{row.recipient}</p>
-              <p className="mt-2 font-mono text-sm text-slate-900">{row.amount} pathUSD</p>
-              <p className="mt-1 text-xs text-slate-600">Memo: {row.memo || "-"}</p>
+            <div key={row.id} className="rounded-xl border border-[--border-default] bg-[--bg-elevated] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient {index + 1}</p>
+              <p className="mt-1 break-all font-mono text-xs text-[--text-primary]">{row.recipient}</p>
+              <p className="mt-2 font-mono text-sm text-[--text-primary]">{row.amount} pathUSD</p>
+              <p className="mt-1 text-xs text-[--text-tertiary]">Memo: {row.memo || "-"}</p>
             </div>
           ))}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-          <p className="font-medium text-slate-900">{batchRows.length} recipients</p>
+        <div className="rounded-xl border border-[--border-default] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary]">
+          <p className="font-medium text-[--text-primary]">{batchRows.length} recipients</p>
           <p>Total: {batchTotalFormatted} pathUSD</p>
         </div>
 
         {batchHasNewAddress && (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
             Sending to new addresses costs more. Estimated fee: {batchEstimatedFee ?? "0.001"} pathUSD.
           </p>
         )}
@@ -834,7 +834,7 @@ export function TransferForm() {
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPendingAny}
             onClick={() => void handleConfirmBatchTransfer()}
           >
@@ -842,7 +842,7 @@ export function TransferForm() {
           </button>
           <button
             type="button"
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 py-2 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-subtle] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPendingAny}
             onClick={() => setBatchConfirming(false)}
           >
@@ -855,33 +855,33 @@ export function TransferForm() {
 
   if (confirming) {
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Confirm Transfer</p>
-          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Review required</span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Transfer</p>
+          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
         </div>
-        <div className="space-y-3 border-t border-slate-200 pt-4 text-sm text-slate-700">
+        <div className="space-y-3 border-t border-[--border-default] pt-4 text-sm text-[--text-secondary]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recipient</p>
-            <p className="mt-1 break-all rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient</p>
+            <p className="mt-1 break-all rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 font-mono text-xs text-[--text-primary]">
               {recipient}
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Amount</p>
-            <p className="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Amount</p>
+            <p className="mt-1 rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 font-mono text-sm text-[--text-primary]">
               {amount} pathUSD
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Memo</p>
-            <p className="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900">{memo || "-"}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Memo</p>
+            <p className="mt-1 rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 text-sm text-[--text-primary]">{memo || "-"}</p>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPendingAny}
             onClick={() => void handleConfirmTransfer()}
           >
@@ -889,7 +889,7 @@ export function TransferForm() {
           </button>
           <button
             type="button"
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 py-2 text-sm font-semibold text-[--text-primary] transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-subtle] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             disabled={isPendingAny}
             onClick={() => setConfirming(false)}
           >
@@ -901,13 +901,13 @@ export function TransferForm() {
   }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+    <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Send pathUSD</p>
-        <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">Gas sponsored</span>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Send pathUSD</p>
+        <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">Gas sponsored</span>
       </div>
 
-      <div className="grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2">
+      <div className="grid gap-2 border-t border-[--border-default] pt-4 sm:grid-cols-2">
         <button
           type="button"
           onClick={() => {
@@ -915,10 +915,10 @@ export function TransferForm() {
             setBatchConfirming(false);
             setBatchFormError("");
           }}
-          className={`h-11 rounded-xl border text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 ${
+          className={`h-11 rounded-xl border text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 ${
             mode === "single"
-              ? "border-slate-900 bg-slate-900 text-white"
-              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              ? "border-[--brand-primary] bg-[--brand-primary] text-[--text-inverse]"
+              : "border-[--border-default] bg-[--bg-elevated] text-[--text-secondary] hover:bg-[--bg-subtle]"
           }`}
         >
           Single Send
@@ -929,27 +929,27 @@ export function TransferForm() {
             setMode("batch");
             setConfirming(false);
           }}
-          className={`h-11 rounded-xl border text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 ${
+          className={`h-11 rounded-xl border text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 ${
             mode === "batch"
-              ? "border-slate-900 bg-slate-900 text-white"
-              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+              ? "border-[--brand-primary] bg-[--brand-primary] text-[--text-inverse]"
+              : "border-[--border-default] bg-[--bg-elevated] text-[--text-secondary] hover:bg-[--bg-subtle]"
           }`}
         >
           Batch Send
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-2 md:gap-5">
+      <form onSubmit={handleSubmit} className="grid gap-4 border-t border-[--border-default] pt-4 md:grid-cols-2 md:gap-5">
         {mode === "single" ? (
           <>
             <div className="space-y-1 md:col-span-2">
-              <label htmlFor="recipient" className="text-sm font-medium text-slate-900">
+              <label htmlFor="recipient" className="text-sm font-medium text-[--text-primary]">
                 Recipient Address
               </label>
               <input
                 id="recipient"
                 type="text"
-                className={`${inputBaseClass} ${recipientError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                className={`${inputBaseClass} ${recipientError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                 placeholder="0x..."
                 value={recipient}
                 onChange={(e) => {
@@ -958,19 +958,19 @@ export function TransferForm() {
                 }}
                 disabled={isPendingAny}
               />
-              {recipientError && <p className="text-xs text-rose-700">{recipientError}</p>}
+              {recipientError && <p className="text-xs text-[--status-error-text]">{recipientError}</p>}
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <label htmlFor="amount" className="text-sm font-medium text-slate-900">
+                <label htmlFor="amount" className="text-sm font-medium text-[--text-primary]">
                   Amount
                 </label>
                 <button
                   type="button"
                   onClick={handleMaxAmount}
                   disabled={maxDisabled}
-                  className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                  className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                 >
                   Max
                 </button>
@@ -979,7 +979,7 @@ export function TransferForm() {
                 id="amount"
                 type="text"
                 inputMode="decimal"
-                className={`${inputBaseClass} ${amountError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                className={`${inputBaseClass} ${amountError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => {
@@ -992,17 +992,17 @@ export function TransferForm() {
                 }}
                 disabled={isPendingAny}
               />
-              {amountError && <p className="text-xs text-rose-700">{amountError}</p>}
+              {amountError && <p className="text-xs text-[--status-error-text]">{amountError}</p>}
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="memo" className="text-sm font-medium text-slate-900">
+              <label htmlFor="memo" className="text-sm font-medium text-[--text-primary]">
                 Memo (optional)
               </label>
               <input
                 id="memo"
                 type="text"
-                className={`${inputBaseClass} ${memoError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                className={`${inputBaseClass} ${memoError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                 placeholder="Payment for..."
                 value={memo}
                 onChange={(e) => {
@@ -1011,26 +1011,26 @@ export function TransferForm() {
                 }}
                 disabled={isPendingAny}
               />
-              <p className={`text-xs ${memoRemaining < 0 ? "text-rose-700" : memoRemaining <= 6 ? "text-amber-700" : "text-slate-500"}`}>
+              <p className={`text-xs ${memoRemaining < 0 ? "text-[--status-error-text]" : memoRemaining <= 6 ? "text-[--status-warning-text]" : "text-[--text-tertiary]"}`}>
                 {memoByteLength}/32 bytes
               </p>
-              {memoError && <p className="text-xs text-rose-700">{memoError}</p>}
+              {memoError && <p className="text-xs text-[--status-error-text]">{memoError}</p>}
             </div>
 
             {transferError && (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 md:col-span-2">
+              <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text] md:col-span-2">
                 {singleTransferErrorMessage}
               </p>
             )}
 
             <button
               type="submit"
-              className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 md:col-span-2"
+              className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 md:col-span-2"
               disabled={isPendingAny}
             >
               {isPendingAny ? "Processing..." : "Send"}
             </button>
-            <p className="text-xs text-slate-500 md:col-span-2">Network fees are sponsored during testnet usage.</p>
+            <p className="text-xs text-[--text-tertiary] md:col-span-2">Network fees are sponsored during testnet usage.</p>
           </>
         ) : (
           <>
@@ -1040,13 +1040,13 @@ export function TransferForm() {
                 const memoRemainingForRow = 32 - memoBytes;
 
                 return (
-                  <div key={row.id} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+                  <div key={row.id} className="space-y-3 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recipient {index + 1}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient {index + 1}</p>
                       <button
                         type="button"
                         onClick={() => removeBatchRow(row.id)}
-                        className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-2 text-xs font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                        className="inline-flex h-8 items-center rounded-lg border border-[--border-default] px-2 text-xs font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                         disabled={batchRows.length === 1 || isPendingAny}
                       >
                         Remove
@@ -1055,13 +1055,13 @@ export function TransferForm() {
 
                     <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                       <div className="space-y-1">
-                        <label htmlFor={`batch-recipient-${row.id}`} className="text-sm font-medium text-slate-900">
+                        <label htmlFor={`batch-recipient-${row.id}`} className="text-sm font-medium text-[--text-primary]">
                           Recipient Address
                         </label>
                         <input
                           id={`batch-recipient-${row.id}`}
                           type="text"
-                          className={`${inputBaseClass} break-all ${row.recipientError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                          className={`${inputBaseClass} break-all ${row.recipientError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                           placeholder="0x..."
                           value={row.recipient}
                           onChange={(e) => {
@@ -1073,19 +1073,19 @@ export function TransferForm() {
                           }}
                           disabled={isPendingAny}
                         />
-                        {row.recipientError && <p className="text-xs text-rose-700">{row.recipientError}</p>}
+                        {row.recipientError && <p className="text-xs text-[--status-error-text]">{row.recipientError}</p>}
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                          <label htmlFor={`batch-amount-${row.id}`} className="text-sm font-medium text-slate-900">
+                          <label htmlFor={`batch-amount-${row.id}`} className="text-sm font-medium text-[--text-primary]">
                             Amount
                           </label>
                           <button
                             type="button"
                             onClick={() => handleBatchMaxAmount(row.id)}
                             disabled={maxDisabled}
-                            className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                            className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                           >
                             Max
                           </button>
@@ -1094,7 +1094,7 @@ export function TransferForm() {
                           id={`batch-amount-${row.id}`}
                           type="text"
                           inputMode="decimal"
-                          className={`${inputBaseClass} ${row.amountError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                          className={`${inputBaseClass} ${row.amountError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                           placeholder="0.00"
                           value={row.amount}
                           onChange={(e) => {
@@ -1111,18 +1111,18 @@ export function TransferForm() {
                           }}
                           disabled={isPendingAny}
                         />
-                        {row.amountError && <p className="text-xs text-rose-700">{row.amountError}</p>}
+                        {row.amountError && <p className="text-xs text-[--status-error-text]">{row.amountError}</p>}
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label htmlFor={`batch-memo-${row.id}`} className="text-sm font-medium text-slate-900">
+                      <label htmlFor={`batch-memo-${row.id}`} className="text-sm font-medium text-[--text-primary]">
                         Memo (optional)
                       </label>
                       <input
                         id={`batch-memo-${row.id}`}
                         type="text"
-                        className={`${inputBaseClass} ${row.memoError ? "border-rose-300 focus-visible:ring-rose-300/50" : "border-slate-300"}`}
+                        className={`${inputBaseClass} ${row.memoError ? "border-[--status-error-border] focus-visible:ring-[--status-error-border]" : "border-[--border-default]"}`}
                         placeholder="Payment for..."
                         value={row.memo}
                         onChange={(e) => {
@@ -1137,15 +1137,15 @@ export function TransferForm() {
                       <p
                         className={`text-xs ${
                           memoRemainingForRow < 0
-                            ? "text-rose-700"
+                            ? "text-[--status-error-text]"
                             : memoRemainingForRow <= 6
-                              ? "text-amber-700"
-                              : "text-slate-500"
+                              ? "text-[--status-warning-text]"
+                              : "text-[--text-tertiary]"
                         }`}
                       >
                         {memoBytes}/32 bytes
                       </p>
-                      {row.memoError && <p className="text-xs text-rose-700">{row.memoError}</p>}
+                      {row.memoError && <p className="text-xs text-[--status-error-text]">{row.memoError}</p>}
                     </div>
                   </div>
                 );
@@ -1155,37 +1155,37 @@ export function TransferForm() {
                 type="button"
                 onClick={addBatchRow}
                 disabled={batchRows.length >= MAX_BATCH_RECIPIENTS || isPendingAny}
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 transition-colors duration-150 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 text-sm font-semibold text-[--text-primary] transition-colors duration-150 hover:bg-[--bg-subtle] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
               >
                 Add Recipient
               </button>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 md:col-span-2">
-              <p className="font-medium text-slate-900">{batchRows.length} recipients</p>
+            <div className="rounded-xl border border-[--border-default] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary] md:col-span-2">
+              <p className="font-medium text-[--text-primary]">{batchRows.length} recipients</p>
               <p>Total: {batchTotalFormatted} pathUSD</p>
             </div>
 
             {batchFormError && (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 md:col-span-2">
+              <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text] md:col-span-2">
                 {batchFormError}
               </p>
             )}
 
             {batchError && (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 md:col-span-2">
+              <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text] md:col-span-2">
                 {batchTransferErrorMessage}
               </p>
             )}
 
             <button
               type="submit"
-              className="h-11 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 md:col-span-2"
+              className="h-11 w-full rounded-xl bg-[--brand-primary] px-4 py-2 text-sm font-semibold text-[--text-inverse] transition-all duration-200 hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2 md:col-span-2"
               disabled={isPendingAny}
             >
               {isPendingAny ? "Processing..." : "Review Batch"}
             </button>
-            <p className="text-xs text-slate-500 md:col-span-2">
+            <p className="text-xs text-[--text-tertiary] md:col-span-2">
               Batch uses native Tempo atomic calls. Network fees remain sponsored during testnet usage.
             </p>
           </>

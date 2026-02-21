@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ShieldCheck, DollarSign, Globe, Code } from "lucide-react"
+import { ShieldCheck, CurrencyDollar, Globe, Code } from "@phosphor-icons/react"
 import { useMotionSafe } from "@/lib/motion"
 
 const trustItems = [
@@ -11,7 +11,7 @@ const trustItems = [
     description: "WebAuthn passkeys are cryptographically bound to your device. No passwords to steal, no seed phrases to lose.",
   },
   {
-    icon: DollarSign,
+    icon: CurrencyDollar,
     title: "Sponsored Gas",
     description: "Every transfer is gas-sponsored by the Tempo fee sponsorship system. You never pay transaction fees.",
   },

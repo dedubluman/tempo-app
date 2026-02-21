@@ -113,15 +113,15 @@ export function TransactionHistory() {
 
   if (isLoading && localSnapshot.entries.length === 0) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+      <div className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Transaction History
         </p>
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse space-y-2 rounded-xl border border-slate-200 bg-white p-4">
-              <div className="h-4 w-20 rounded bg-slate-200"></div>
-              <div className="h-3 w-32 rounded bg-slate-100"></div>
+            <div key={i} className="animate-pulse space-y-2 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-4">
+              <div className="h-4 w-20 rounded bg-[--bg-elevated]"></div>
+              <div className="h-3 w-32 rounded bg-[--bg-elevated]"></div>
             </div>
           ))}
         </div>
@@ -131,15 +131,15 @@ export function TransactionHistory() {
 
   if (isError && localSnapshot.entries.length === 0) {
     return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+      <div className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Transaction History
         </p>
         <div className="space-y-3 py-8 text-center">
-          <p className="text-sm text-rose-600">Network is slow. Please try again. We could not load your transaction history.</p>
+          <p className="text-sm text-[--status-error-text]">Network is slow. Please try again. We could not load your transaction history.</p>
           <button
             onClick={() => void refetch()}
-            className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-teal-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--brand-primary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             type="button"
           >
             Try again
@@ -152,33 +152,33 @@ export function TransactionHistory() {
   if (!mergedLogs || mergedLogs.length === 0) {
     return (
       <motion.div
-        className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+        className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]"
         variants={variants.scaleIn}
         initial="hidden"
         animate="visible"
       >
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Transaction History
         </p>
         <div className="space-y-2 py-8 text-center">
-          <p className="text-sm text-slate-600">No transactions yet</p>
-          <p className="text-xs text-slate-500">Your transfer history will appear here</p>
+          <p className="text-sm text-[--text-tertiary]">No transactions yet</p>
+          <p className="text-xs text-[--text-tertiary]">Your transfer history will appear here</p>
         </div>
       </motion.div>
     );
   }
 
   return (
-      <div className="space-y-4 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/50 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Transaction History
         </p>
         <a
           href={`${EXPLORER_URL}/address/${address}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-medium text-teal-600 transition-colors hover:text-teal-700"
+          className="text-xs font-medium text-[--brand-primary] transition-colors hover:text-[--brand-primary]"
         >
           View All
         </a>
@@ -198,24 +198,24 @@ export function TransactionHistory() {
           return (
             <motion.div
               key={`${log.transactionHash}-${log.blockNumber}`}
-              className="flex flex-col items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all duration-150 hover:border-slate-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col items-start gap-3 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-4 transition-all duration-150 hover:border-[--border-default] hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
               variants={variants.fadeUp}
             >
               <div className="flex w-full flex-col gap-2 sm:flex-1 sm:flex-row sm:items-center sm:gap-3">
                 <span
                   className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
                     isOutbound
-                      ? "bg-rose-50 text-rose-700"
+                      ? "bg-[--status-error-bg] text-[--status-error-text]"
                       : "bg-emerald-50 text-emerald-700"
                   }`}
                 >
                   {isOutbound ? "Sent" : "Received"}
                 </span>
                 <div className="flex flex-col gap-1">
-                  <p className="font-mono text-sm font-medium text-slate-800">
+                  <p className="font-mono text-sm font-medium text-[--text-primary]">
                     {formatAddress(counterparty, 6, 4)}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[--text-tertiary]">
                     {log.blockNumber ? `Block ${log.blockNumber.toString()}` : "Pending confirmation"}
                   </p>
                 </div>
@@ -223,16 +223,16 @@ export function TransactionHistory() {
 
                <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
                 <div className="text-right">
-                  <p className="font-mono text-sm font-semibold text-slate-900">
+                  <p className="font-mono text-sm font-semibold text-[--text-primary]">
                     {formattedAmount}
                   </p>
-                  <p className="text-xs text-slate-500">pathUSD</p>
+                  <p className="text-xs text-[--text-tertiary]">pathUSD</p>
                 </div>
                 <a
                   href={`${EXPLORER_URL}/tx/${log.transactionHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                   className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+                   className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
                 >
                   View
                 </a>

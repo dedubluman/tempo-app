@@ -1,12 +1,14 @@
+"use client";
+
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 
 export default function NotFoundPage() {
   return (
     <main className="min-h-screen bg-[--bg-base] flex items-center justify-center px-4">
       <div className="max-w-md w-full flex flex-col items-center gap-6 text-center">
         <div className="w-16 h-16 rounded-[--radius-2xl] bg-[--bg-elevated] flex items-center justify-center text-[--text-muted]">
-          <SearchX size={28} />
+          <MagnifyingGlass size={28} />
         </div>
         <div className="space-y-2">
           <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">Page not found</h1>

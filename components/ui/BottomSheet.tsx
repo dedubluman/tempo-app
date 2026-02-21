@@ -49,7 +49,7 @@ function BottomSheet({ open, onClose, title, children, className }: BottomSheetP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 z-40"
+            className="fixed inset-0 bg-black/85 z-40"
             onClick={onClose}
             aria-hidden="true"
           />

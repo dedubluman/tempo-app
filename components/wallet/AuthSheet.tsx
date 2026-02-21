@@ -18,7 +18,7 @@ import { formatAddress } from "@/lib/utils";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { ConfirmationSheet } from "@/components/ui/ConfirmationSheet";
 import { Button } from "@/components/ui/Button";
-import { ShieldCheck, KeyRound } from "lucide-react";
+import { ShieldCheck, Key } from "@phosphor-icons/react";
 
 const WALLET_CREATED_FLAG = "tempo.walletCreated";
 const LAST_ADDRESS_KEY = "tempo.lastAddress";
@@ -189,7 +189,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
 
   if (!supportsWebAuthn) {
     return (
-      <BottomSheet open={open} onClose={onClose} title="Connect Wallet">
+      <BottomSheet open={open} onClose={onClose} title="Connect Wallet" className="bg-[--bg-elevated] backdrop-blur-sm border border-white/10 shadow-[var(--shadow-xl),inset_0_1px_0_rgba(255,255,255,0.05)]">
         <p className="text-sm text-[--status-warning-text] bg-[--status-warning-bg] rounded-[--radius-md] px-3 py-2">
           Unsupported browser. Use Chrome or Safari.
         </p>
@@ -199,11 +199,11 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
 
   return (
     <>
-      <BottomSheet open={open} onClose={onClose} title="Connect Wallet">
+      <BottomSheet open={open} onClose={onClose} title="Connect Wallet" className="bg-[--bg-elevated] backdrop-blur-sm border border-white/10 shadow-[var(--shadow-xl),inset_0_1px_0_rgba(255,255,255,0.05)]">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-center gap-2 py-2">
             <div className="w-12 h-12 rounded-[--radius-xl] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-              <KeyRound size={22} className="text-white" />
+              <Key size={22} className="text-white" />
             </div>
             <p className="text-[--text-secondary] text-sm text-center">
               {hasWalletHistory ? "Welcome back. Use your passkey to continue." : "Create a new wallet secured by your device passkey."}
@@ -213,14 +213,14 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
           {isConnected && address ? (
             <div className="flex flex-col gap-3">
               <p className="text-xs text-[--text-secondary]">Connected as <span className="font-mono">{formatAddress(address, 8, 6)}</span></p>
-              <Button variant="secondary" onClick={() => disconnect()} data-testid="auth-signout">Sign Out</Button>
+              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" onClick={() => disconnect()} data-testid="auth-signout">Sign Out</Button>
             </div>
           ) : hasWalletHistory ? (
             <div className="flex flex-col gap-3">
               <Button loading={isPending} onClick={() => void handleConnect("sign-in")} data-testid="auth-signin">
                 {isPending ? "Waiting for passkey…" : "Sign In"}
               </Button>
-              <Button variant="secondary" disabled={isPending} onClick={() => void handleCreateWallet()} data-testid="auth-create-new">
+              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" disabled={isPending} onClick={() => void handleCreateWallet()} data-testid="auth-create-new">
                 Create New Wallet
               </Button>
             </div>
@@ -229,7 +229,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
               <Button loading={isPending} onClick={() => void handleCreateWallet()} data-testid="auth-create">
                 {isPending ? "Waiting for passkey…" : "Create Wallet"}
               </Button>
-              <Button variant="secondary" disabled={isPending} onClick={() => void handleConnect("sign-in")} data-testid="auth-have-wallet">
+              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" disabled={isPending} onClick={() => void handleConnect("sign-in")} data-testid="auth-have-wallet">
                 I Already Have a Wallet
               </Button>
             </div>

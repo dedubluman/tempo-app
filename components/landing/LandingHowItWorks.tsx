@@ -1,12 +1,12 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { KeyRound, Wallet, Zap } from "lucide-react"
+import { Key, Wallet, Lightning } from "@phosphor-icons/react"
 import { useMotionSafe } from "@/lib/motion"
 
 const steps = [
   {
-    icon: KeyRound,
+    icon: Key,
     step: "01",
     title: "Create Your Wallet",
     description: "Register a passkey on your device. No app download, no seed phrase, no password. Your device is your key.",
@@ -18,7 +18,7 @@ const steps = [
     description: "Share your wallet address to receive pathUSD or other Tempo stablecoins. Funded from any compatible source.",
   },
   {
-    icon: Zap,
+    icon: Lightning,
     step: "03",
     title: "Send Instantly",
     description: "Enter a recipient and amount. Confirm with your passkey. Done — finalized on-chain in under half a second.",

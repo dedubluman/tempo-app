@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Monitor } from "lucide-react";
+import { Moon, Sun, Desktop } from "@phosphor-icons/react";
 import { useTheme, type Theme } from "./ThemeProvider";
 
 const CYCLE: Theme[] = ["light", "dark", "system"];
@@ -12,7 +12,7 @@ const LABELS: Record<Theme, string> = {
 const ICONS: Record<Theme, typeof Sun> = {
   light: Sun,
   dark: Moon,
-  system: Monitor,
+  system: Desktop,
 };
 
 export function ThemeToggle({ className }: { className?: string }) {

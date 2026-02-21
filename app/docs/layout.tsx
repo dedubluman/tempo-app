@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { Zap, ChevronRight } from "lucide-react";
+import { CaretRight } from "@phosphor-icons/react";
+import { FluxusLogo } from "@/components/ui/FluxusLogo";
 import type { ReactNode } from "react";
 
 const docLinks = [
@@ -17,12 +20,9 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
       <header className="border-b border-[--border-subtle] bg-[--bg-surface]/80 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 mr-4">
-            <div className="w-7 h-7 rounded-[--radius-md] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-              <Zap size={14} className="text-white" />
-            </div>
-            <span className="font-bold text-[--text-primary] font-[--font-display]">Fluxus</span>
+            <FluxusLogo size="sm" showText />
           </Link>
-          <ChevronRight size={14} className="text-[--text-muted]" />
+          <CaretRight size={14} className="text-[--text-muted]" />
           <span className="text-sm text-[--text-secondary] font-medium">Docs</span>
         </div>
       </header>

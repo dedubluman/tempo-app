@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { type LucideIcon } from "lucide-react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/cn";
 
 export interface EmptyStateProps {
-  icon: LucideIcon;
+  icon: Icon;
   title: string;
   description?: string;
   action?: {
@@ -30,7 +30,7 @@ function EmptyState({
       )}
     >
       <div className="w-12 h-12 rounded-[--radius-xl] bg-[--bg-subtle] flex items-center justify-center text-[--text-tertiary]">
-        <Icon size={20} />
+        <Icon size={20} weight="regular" />
       </div>
       <p className="text-[--text-primary] font-semibold text-base">{title}</p>
       {description && (

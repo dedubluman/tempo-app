@@ -294,7 +294,7 @@ export function getSessionForTransfer(parameters: { recipient: string; amount: b
     if (hasRecipientPolicy && !session.allowedRecipients.includes(recipient)) {
       return false;
     }
-    return remainingSpend(session) >= parameters.amount;
+    return remainingSpend(session) > parameters.amount;
   });
 }
 
@@ -307,7 +307,7 @@ export function getSessionForBatch(parameters: { recipients: string[]; amount: b
     if (session.expiresAtSec <= current) {
       return false;
     }
-    if (remainingSpend(session) < parameters.amount) {
+    if (remainingSpend(session) <= parameters.amount) {
       return false;
     }
     const hasRecipientPolicy = session.allowedRecipients.length > 0;

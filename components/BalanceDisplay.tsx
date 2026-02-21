@@ -87,38 +87,38 @@ export function BalanceDisplay() {
 
   if (!hasForcedBalance && isLoading) {
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
             Available Balance
           </p>
-          <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+          <span className="inline-flex rounded-full bg-[--bg-elevated] px-2.5 py-1 text-xs font-medium text-[--text-secondary]">
             Loading
           </span>
         </div>
         <div className="space-y-2">
-          <div className="h-10 w-40 animate-pulse rounded-lg bg-slate-200 sm:w-52" />
-          <div className="h-3 w-36 animate-pulse rounded-full bg-slate-100" />
+          <div className="h-10 w-40 animate-pulse rounded-lg bg-[--bg-elevated] sm:w-52" />
+          <div className="h-3 w-36 animate-pulse rounded-full bg-[--bg-elevated]" />
         </div>
-        <p className="text-sm text-slate-500">Reading your latest on-chain balance...</p>
+        <p className="text-sm text-[--text-tertiary]">Reading your latest on-chain balance...</p>
       </div>
     );
   }
 
   if (!hasForcedBalance && (forcedError || isError || isRefetchError)) {
     return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
             Available Balance
           </p>
-          <span className="inline-flex rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700">
+          <span className="inline-flex rounded-full bg-[--status-error-bg] px-2.5 py-1 text-xs font-medium text-[--status-error-text]">
             RPC Error
           </span>
         </div>
-        <p className="text-base text-rose-700">Network is slow. Please try again. We could not load your latest balance.</p>
+        <p className="text-base text-[--status-error-text]">Network is slow. Please try again. We could not load your latest balance.</p>
         <button
-          className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+          className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
           onClick={() => refetch()}
           type="button"
         >
@@ -135,22 +135,22 @@ export function BalanceDisplay() {
   const isZeroBalance = !balance || formattedFull === "0";
 
   return (
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/60 p-4 sm:p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Available Balance
         </p>
         <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
-          <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">pathUSD</span>
+          <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">pathUSD</span>
           <span
             className={`inline-flex min-h-6 items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
-              showRefreshing ? "bg-slate-100 text-slate-600" : "invisible"
+              showRefreshing ? "bg-[--bg-elevated] text-[--text-tertiary]" : "invisible"
             }`}
           >
             Refreshing
           </span>
           <button
-            className="inline-flex h-11 shrink-0 items-center rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2"
+            className="inline-flex h-11 shrink-0 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             onClick={() => refetch()}
             type="button"
           >
@@ -158,28 +158,28 @@ export function BalanceDisplay() {
           </button>
         </div>
       </div>
-      <p className="font-mono text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-[2.75rem]">{twoDecimals}</p>
-      <div className="flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-mono break-all">Raw: {formattedFull} pathUSD</span>
-        <span className="inline-flex rounded-full bg-teal-50 px-2.5 py-1 font-medium text-teal-700">
+      <p className="font-mono text-3xl font-semibold tracking-tight text-[--text-primary] sm:text-4xl lg:text-[2.75rem]">{twoDecimals}</p>
+      <div className="flex flex-col gap-2 text-xs text-[--text-tertiary] sm:flex-row sm:items-center sm:justify-between">
+        <span className="font-mono whitespace-nowrap overflow-hidden text-ellipsis">Raw: {formattedFull} pathUSD</span>
+        <span className="inline-flex flex-shrink-0 whitespace-nowrap rounded-full bg-[--brand-subtle] px-2.5 py-1 font-medium text-[--brand-primary]">
           6 decimals
         </span>
       </div>
       {isZeroBalance ? (
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-[--text-tertiary]">
           No funds yet. Get testnet tokens from the faucet to start.{" "}
           <a
             href="https://docs.tempo.xyz/quickstart/faucet"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-teal-700 underline decoration-teal-300 underline-offset-2"
+            className="text-sm px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"
           >
             Open faucet
           </a>
           .
         </p>
       ) : null}
-      <p className="border-t border-slate-200 pt-3 text-sm text-slate-600">Sponsored gas keeps transfers at $0 for users.</p>
+      <p className="border-t border-[--border-default] pt-3 text-sm text-[--text-tertiary]">Sponsored gas keeps transfers at $0 for users.</p>
     </div>
   );
 }

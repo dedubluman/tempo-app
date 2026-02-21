@@ -1,15 +1,33 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ThemeProvider, themeScript } from "@/components/ui/ThemeProvider";
 import { Toaster } from "sonner";
 
-const manrope = Manrope({
+const satoshi = localFont({
+  src: [
+    { path: "../public/fonts/satoshi/Satoshi-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../public/fonts/satoshi/Satoshi-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../public/fonts/satoshi/Satoshi-Bold.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-body",
-  subsets: ["latin"],
+  display: "swap",
+});
+
+const satoshiDisplay = localFont({
+  src: [
+    { path: "../public/fonts/satoshi/Satoshi-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../public/fonts/satoshi/Satoshi-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const jetbrainsMono = localFont({
+  src: "../public/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2",
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${GeistSans.variable} ${manrope.variable} ${GeistMono.variable}`}
+      className={`${satoshi.variable} ${satoshiDisplay.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

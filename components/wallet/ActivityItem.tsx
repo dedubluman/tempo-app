@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft } from "@phosphor-icons/react";
 import { formatUnits } from "viem";
 import { AddressAvatar } from "@/components/ui/AddressAvatar";
 import { Badge } from "@/components/ui/Badge";

@@ -1,6 +1,6 @@
 "use client";
 
-import { History } from "lucide-react";
+import { ClockCounterClockwise } from "@phosphor-icons/react";
 import { ActivityItem } from "./ActivityItem";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { LocalTransferHistoryEntry } from "@/lib/transactionHistoryStore";
@@ -24,7 +24,7 @@ export function ActivityTimeline({ transactions, className }: ActivityTimelinePr
   if (transactions.length === 0) {
     return (
       <EmptyState
-        icon={History}
+        icon={ClockCounterClockwise}
         title="No activity yet"
         description="Your transactions will appear here after your first transfer."
         className={className}

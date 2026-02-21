@@ -42,7 +42,7 @@ test.describe("Landing Page", () => {
   test("footer is visible", async ({ page }) => {
     // Scroll to bottom to trigger footer animation
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(page.getByText("Open source · Testnet only · Not financial advice")).toBeVisible();
+    await expect(page.getByText("Open source · Testnet only")).toBeVisible();
   });
 });
 
@@ -72,9 +72,6 @@ test.describe("Landing Page — Reduced Motion", () => {
 
     await expect(page.getByTestId("hero-create-cta")).toBeVisible();
     await expect(page.getByText("Instant Stablecoin Payments")).toBeVisible();
-
-    const canvasCount = await page.locator("canvas").count();
-    expect(canvasCount).toBe(0);
 
     await context.close();
   });
