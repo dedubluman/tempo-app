@@ -31,6 +31,31 @@ export default function DocsPage() {
         ))}
       </div>
 
+      <div>
+        <h2 className="text-xl font-bold text-[--text-primary] font-[--font-display] mb-4">Advanced Features</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {[
+            { href: "/docs/swap", title: "Stablecoin Swap", desc: "Swap between four stablecoins instantly via the enshrined DEX." },
+            { href: "/docs/payment-requests", title: "Payment Requests", desc: "Create shareable payment links with pre-filled amount and memo." },
+            { href: "/docs/token-forge", title: "Token Forge", desc: "Create your own TIP-20 stablecoin with compliance policies and DEX listing." },
+            { href: "/docs/scheduled-payments", title: "Scheduled Payments", desc: "Set up time-locked transfers with validAfter/validBefore windows." },
+            { href: "/docs/ai-agent", title: "AI Agent Wallet", desc: "Connect an LLM to execute payments via natural language commands." },
+            { href: "/docs/portfolio", title: "Portfolio", desc: "View balances across all Tempo stablecoins in a unified dashboard." },
+            { href: "/docs/pos-terminal", title: "POS Terminal", desc: "Turn any device into a point-of-sale terminal with QR code payments." },
+            { href: "/docs/streaming", title: "Streaming Payments", desc: "Send micro-payments every 5 seconds with real on-chain transactions." },
+          ].map(({ href, title, desc }) => (
+            <Link
+              key={href}
+              href={href}
+              className="block p-4 rounded-[--radius-xl] border border-[--border-default] bg-[--bg-surface] hover:bg-[--bg-elevated] transition-colors"
+            >
+              <h2 className="font-semibold text-[--text-primary] mb-1">{title}</h2>
+              <p className="text-sm text-[--text-secondary]">{desc}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <div className="rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-subtle] p-5">
         <h2 className="font-semibold text-[--text-primary] mb-2">About Tempo Testnet</h2>
         <p className="text-sm text-[--text-secondary] leading-relaxed">

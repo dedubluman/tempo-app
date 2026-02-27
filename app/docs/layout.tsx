@@ -12,6 +12,14 @@ const docLinks = [
   { href: "/docs/session-keys", label: "Session Keys" },
   { href: "/docs/transaction-history", label: "Transaction History" },
   { href: "/docs/security", label: "Security" },
+  { href: "/docs/swap", label: "Stablecoin Swap" },
+  { href: "/docs/payment-requests", label: "Payment Requests" },
+  { href: "/docs/token-forge", label: "Token Forge" },
+  { href: "/docs/scheduled-payments", label: "Scheduled Payments" },
+  { href: "/docs/ai-agent", label: "AI Agent Wallet" },
+  { href: "/docs/portfolio", label: "Portfolio" },
+  { href: "/docs/pos-terminal", label: "POS Terminal" },
+  { href: "/docs/streaming", label: "Streaming Payments" },
 ];
 
 export default function DocsLayout({ children }: { children: ReactNode }) {

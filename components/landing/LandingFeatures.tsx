@@ -2,14 +2,28 @@
 
 import { useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { PaperPlaneTilt, QrCode, ClockCounterClockwise, Key } from "@phosphor-icons/react"
+import {
+  PaperPlaneTilt, QrCode, ClockCounterClockwise, Key,
+  ArrowsLeftRight, LinkSimple, Fire, Timer, Robot, ChartPieSlice, Storefront, Broadcast,
+} from "@phosphor-icons/react"
 import { calculateTilt, useMotionSafe } from "@/lib/motion"
 
-const features = [
+const coreFeatures = [
   { icon: PaperPlaneTilt, title: "Instant Send", description: "Transfer pathUSD stablecoins to any Tempo address in under a second. Single or batch — up to 10 recipients at once." },
   { icon: QrCode, title: "Easy Receive", description: "Share your wallet address or QR code. Funds arrive instantly with 6-decimal precision and zero fees." },
   { icon: ClockCounterClockwise, title: "Activity Feed", description: "Track every transfer with a clear activity timeline. View transaction details on the Tempo explorer." },
   { icon: Key, title: "Session Keys", description: "Authorize spending policies for seamless transfers within defined limits — no passkey prompt every time." },
+]
+
+const advancedFeatures = [
+  { icon: ArrowsLeftRight, title: "Stablecoin Swap", description: "Swap between pathUSD, AlphaUSD, BetaUSD and ThetaUSD instantly via the enshrined DEX with atomic execution." },
+  { icon: LinkSimple, title: "Payment Requests", description: "Create shareable payment links with pre-filled amount and memo. Recipients pay with a single tap." },
+  { icon: Fire, title: "Token Forge", description: "Create your own TIP-20 stablecoin, mint supply, attach compliance policies, and list on the DEX — no code required." },
+  { icon: Timer, title: "Scheduled Payments", description: "Set up time-locked transfers with validAfter/validBefore windows. Payments execute automatically when the window opens." },
+  { icon: Robot, title: "AI Agent Wallet", description: "Connect any OpenAI-compatible LLM to execute payments via natural language. Built-in sanitization and spend limits." },
+  { icon: ChartPieSlice, title: "Multi-Token Portfolio", description: "View balances across all four Tempo stablecoins in a single dashboard powered by Multicall3 batch queries." },
+  { icon: Storefront, title: "QR POS Terminal", description: "Turn any device into a point-of-sale terminal. Display QR codes, detect incoming payments in real-time." },
+  { icon: Broadcast, title: "Streaming Payments", description: "Send micro-payments every 5 seconds with real on-chain transactions. Track progress with a live streaming dashboard." },
 ]
 
 interface FeatureCardProps {
@@ -80,30 +94,58 @@ export function LandingFeatures() {
   const variants = useMotionSafe()
 
   return (
-    <motion.section
-      id="features"
-      variants={variants.staggerContainer}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.1 }}
-      className="py-20 px-4"
-    >
-      <div className="max-w-6xl mx-auto">
-        <motion.div variants={variants.fadeUp} className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
-            Everything you need, nothing you don&apos;t
-          </h2>
-          <p className="text-[--text-secondary] max-w-xl mx-auto">
-            A focused wallet built for fast stablecoin payments on Tempo.
-          </p>
-        </motion.div>
+    <>
+      <motion.section
+        id="features"
+        variants={variants.staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="py-20 px-4"
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={variants.fadeUp} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
+              Everything you need, nothing you don&apos;t
+            </h2>
+            <p className="text-[--text-secondary] max-w-xl mx-auto">
+              A focused wallet built for fast stablecoin payments on Tempo.
+            </p>
+          </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} {...feature} />
-          ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {coreFeatures.map((feature) => (
+              <FeatureCard key={feature.title} {...feature} />
+            ))}
+          </div>
         </div>
-      </div>
-    </motion.section>
+      </motion.section>
+
+      <motion.section
+        id="advanced-features"
+        variants={variants.staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="pb-20 px-4"
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={variants.fadeUp} className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
+              Powered by Tempo
+            </h2>
+            <p className="text-[--text-secondary] max-w-xl mx-auto">
+              Eight advanced features showcasing every Tempo blockchain primitive — DEX, Factory, TIP-403, scheduled transactions, and more.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {advancedFeatures.map((feature) => (
+              <FeatureCard key={feature.title} {...feature} />
+            ))}
+          </div>
+        </div>
+      </motion.section>
+    </>
   )
 }
