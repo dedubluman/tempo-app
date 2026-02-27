@@ -86,3 +86,32 @@ export const pathUsdAbi = [
     type: "event",
   },
 ] as const;
+// Multicall3 aggregate3 function ABI fragment
+export const multicall3Abi = [
+  {
+    inputs: [
+      {
+        components: [
+          { name: "target", type: "address" },
+          { name: "allowFailure", type: "bool" },
+          { name: "callData", type: "bytes" },
+        ],
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "aggregate3",
+    outputs: [
+      {
+        components: [
+          { name: "success", type: "bool" },
+          { name: "returnData", type: "bytes" },
+        ],
+        name: "returnData",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+] as const;
