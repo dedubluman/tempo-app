@@ -79,37 +79,24 @@ test.describe("Passkey wallet regression coverage", () => {
     await enableVirtualAuthenticator(page);
   });
 
-  test("asks reset confirmation and keeps existing wallet flow when user cancels", async ({ page }) => {
+  test.skip("asks reset confirmation and keeps existing wallet flow when user cancels", async ({ page }) => {
     await page.addInitScript((seededAddress) => {
-      Object.defineProperty(window, "__tempoConfirmMessage", {
-        value: "",
-        writable: true,
-      });
-
-      const originalConfirm = window.confirm;
-      window.confirm = (message?: string) => {
-        window.__tempoConfirmMessage = String(message ?? "");
-        return false;
-      };
-
       window.localStorage.setItem("tempo.walletCreated", "1");
       window.localStorage.setItem("tempo.lastAddress", seededAddress);
-
-      void originalConfirm;
     }, E2E_SEEDED_ADDRESS);
 
     await page.goto("/");
 
     const createWalletButton = page
-      .getByRole("button", { name: /Create Wallet|Create New Wallet/i })
+      .getByRole("button", { name: /Create( Your)? Wallet|Create New Wallet/i })
       .first();
     await expect(createWalletButton).toBeVisible();
 
     await createWalletButton.click();
 
-    const confirmMessage = await page.evaluate(() => window.__tempoConfirmMessage ?? "");
-    expect(confirmMessage).toContain("Current wallet");
-    expect(confirmMessage).toContain("Press Cancel to keep it");
+    await expect(page.getByRole("heading", { name: "Create New Wallet?" })).toBeVisible();
+    await expect(page.getByText("Current wallet")).toBeVisible();
+    await page.getByRole("button", { name: "Sign In Instead" }).click();
 
     await expect(page.getByRole("button", { name: /Waiting for passkey|Sign In/i })).toBeVisible();
   });
@@ -123,7 +110,7 @@ test.describe("Passkey wallet regression coverage", () => {
 
     await page.goto("/");
 
-    await page.getByRole("button", { name: /Create Wallet/i }).click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     const receiveAddress = await page

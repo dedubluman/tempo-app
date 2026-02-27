@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import { useCountUp } from "@/hooks/useCountUp"
-import { useMotionSafe } from "@/lib/motion"
 
 const metrics = [
   { value: "< 0.5s", label: "Transaction Finality", sublabel: "Faster than a credit card swipe" },

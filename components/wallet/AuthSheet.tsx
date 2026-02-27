@@ -11,8 +11,6 @@ import {
   getServerMappedAddress,
   hasAnyServerWalletMappings,
   hasAnyWalletMappings,
-  saveServerWalletMapping,
-  saveWalletMapping,
 } from "@/lib/passkeyRegistry";
 import { formatAddress } from "@/lib/utils";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -87,7 +85,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
           if (!window.localStorage.getItem(LAST_ADDRESS_KEY)) {
             window.localStorage.setItem(LAST_ADDRESS_KEY, restoredAddress);
           }
-        } catch (_) {}
+        } catch {}
       }
 
       setHasWalletHistory(
@@ -104,7 +102,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
     try {
       window.localStorage.setItem(WALLET_CREATED_FLAG, "1");
       window.localStorage.setItem(LAST_ADDRESS_KEY, address);
-    } catch (_) {}
+    } catch {}
 
     setMappedAddress(address);
     setHasWalletHistory(true);
@@ -137,12 +135,12 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
     setIsPending(true);
 
     if (mode === "sign-in" && typeof window !== "undefined") {
-      try { window.localStorage.removeItem(ACTIVE_CREDENTIAL_KEY); } catch (_) {}
+      try { window.localStorage.removeItem(ACTIVE_CREDENTIAL_KEY); } catch {}
     }
 
     try {
       await connectAccount(config, { connector: passkeyConnector, capabilities: { type: mode } });
-      try { window.localStorage.setItem(WALLET_CREATED_FLAG, "1"); } catch (_) {}
+      try { window.localStorage.setItem(WALLET_CREATED_FLAG, "1"); } catch {}
       if (mode === "sign-up") setHasWalletHistory(true);
     } catch (error) {
       setAuthMessage(getErrorMessage(mode, error));

@@ -2,7 +2,6 @@ import { expect, test, type Page } from "@playwright/test";
 import { enableVirtualAuthenticator } from "./helpers/passkey";
 
 const MOCK_USER_ADDRESS = "0xAbcdEF1234567890AbcdEF1234567890aBcdef12";
-const AUTH_BASE_URL = (process.env.E2E_BASE_URL || "http://127.0.0.1:3000").replace("127.0.0.1", "localhost");
 const RUN_DASHBOARD_SCENARIOS = process.env.E2E_ENABLE_DASHBOARD_AUTH === "1";
 
 async function navigateToDashboardWithMockWallet(page: Page, userAddress: string) {
@@ -12,7 +11,7 @@ async function navigateToDashboardWithMockWallet(page: Page, userAddress: string
     window.localStorage.setItem("tempo.lastAddress", address);
   }, userAddress);
 
-  await page.goto(`${AUTH_BASE_URL}/app`);
+  await page.goto("/app");
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { name: /Wallet Dashboard/i })).toBeVisible();
 }
@@ -26,11 +25,11 @@ test.describe("Session Keys", () => {
   });
 
   test("auth baseline redirects unauthenticated /app to landing", async ({ page }) => {
-    await page.goto(`${AUTH_BASE_URL}/app`);
+    await page.goto("/app");
 
-    await expect(page).toHaveURL(`${AUTH_BASE_URL}/`);
-    await expect(page.getByRole("heading", { name: /Passkey P2P Wallet/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Create Wallet|Create New Wallet/i }).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("heading", { name: /Instant Stablecoin/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Create( Your)? Wallet|Create New Wallet/i }).first()).toBeVisible();
   });
 
   test("creates and revokes a session key without localStorage session keys", async ({ page }) => {

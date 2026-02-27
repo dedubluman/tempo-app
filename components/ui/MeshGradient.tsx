@@ -1,18 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 export function MeshGradient() {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
       <style>{`
@@ -43,7 +31,7 @@ export function MeshGradient() {
           background: "#fbbf24",
           opacity: 0.2,
           filter: "blur(80px)",
-          animation: reduced ? "none" : "blob-drift-1 25s ease-in-out infinite",
+          animation: "blob-drift-1 25s ease-in-out infinite",
           willChange: "transform",
         }}
       />
@@ -55,7 +43,7 @@ export function MeshGradient() {
           background: "#d97706",
           opacity: 0.15,
           filter: "blur(80px)",
-          animation: reduced ? "none" : "blob-drift-2 22s ease-in-out infinite",
+          animation: "blob-drift-2 22s ease-in-out infinite",
           animationDelay: "-7s",
           willChange: "transform",
         }}
@@ -68,7 +56,7 @@ export function MeshGradient() {
           background: "#92400e",
           opacity: 0.1,
           filter: "blur(80px)",
-          animation: reduced ? "none" : "blob-drift-3 28s ease-in-out infinite",
+          animation: "blob-drift-3 28s ease-in-out infinite",
           animationDelay: "-14s",
           willChange: "transform",
         }}

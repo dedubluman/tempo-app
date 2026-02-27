@@ -46,6 +46,18 @@ export default function PosPage() {
   // Track balance for payment detection
   const currentBalance = balances.find((b) => b.token.address === selectedToken.address)?.balance;
 
+  function handleReset() {
+    setState("keypad");
+    setAmount("0");
+    setMemo("");
+    setPayUrl("");
+    setReceivedTxHash(null);
+    if (autoResetRef.current) {
+      clearTimeout(autoResetRef.current);
+      autoResetRef.current = null;
+    }
+  }
+
   useEffect(() => {
     if (state !== "qr") {
       prevBalanceRef.current = currentBalance;
@@ -57,7 +69,9 @@ export default function PosPage() {
       currentBalance !== undefined &&
       currentBalance > prevBalanceRef.current
     ) {
-      setState("success");
+      window.setTimeout(() => {
+        setState("success");
+      }, 0);
       // Auto-reset after 5 seconds
       autoResetRef.current = setTimeout(() => {
         handleReset();
@@ -101,18 +115,6 @@ export default function PosPage() {
     setPayUrl(url);
     prevBalanceRef.current = currentBalance;
     setState("qr");
-  };
-
-  const handleReset = () => {
-    setState("keypad");
-    setAmount("0");
-    setMemo("");
-    setPayUrl("");
-    setReceivedTxHash(null);
-    if (autoResetRef.current) {
-      clearTimeout(autoResetRef.current);
-      autoResetRef.current = null;
-    }
   };
 
   return (

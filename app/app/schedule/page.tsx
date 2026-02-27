@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Clock, Copy, Trash } from "@phosphor-icons/react";
-import { useAccount } from "wagmi";
+import { Clock, Trash } from "@phosphor-icons/react";
 import { Hooks } from "wagmi/tempo";
 import { isAddress, parseUnits } from "viem";
 import { TokenSelector } from "@/components/ui/TokenSelector";
@@ -15,7 +14,7 @@ import { Input } from "@/components/ui/Input";
 import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { EXPLORER_URL } from "@/lib/constants";
-import { dismissToast, showError, showLoading, showSuccess } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 import type { TokenInfo } from "@/types/token";
 
 const STORAGE_KEY = "tempo.scheduledPayments.v1";
@@ -79,7 +78,6 @@ function formatCountdown(seconds: number): string {
 }
 
 export default function SchedulePage() {
-  const { address } = useAccount();
   const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
@@ -87,7 +85,7 @@ export default function SchedulePage() {
   const [delayMinutes, setDelayMinutes] = useState("1");
   const [windowMinutes, setWindowMinutes] = useState("5");
   const [errorMessage, setErrorMessage] = useState("");
-  const [scheduled, setScheduled] = useState<ScheduledPayment[]>([]);
+  const [scheduled, setScheduled] = useState<ScheduledPayment[]>(() => loadScheduled());
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
 
   const { balances, isLoading: isBalanceLoading } = useTokenBalances();
@@ -98,11 +96,6 @@ export default function SchedulePage() {
     [balances, selectedToken.address],
   );
 
-  // Load scheduled payments from localStorage
-  useEffect(() => {
-    setScheduled(loadScheduled());
-  }, []);
-
   // Tick every second for countdown
   useEffect(() => {
     const interval = setInterval(() => {
@@ -110,22 +103,6 @@ export default function SchedulePage() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Auto-expire payments whose window has passed
-  useEffect(() => {
-    setScheduled((prev) => {
-      let changed = false;
-      const next = prev.map((p) => {
-        if (p.status === "pending" && now >= p.validBefore) {
-          changed = true;
-          return { ...p, status: "expired" as const };
-        }
-        return p;
-      });
-      if (changed) saveScheduled(next);
-      return changed ? next : prev;
-    });
-  }, [now]);
 
   // Execute pending payments when their window opens
   const executePending = useCallback(async () => {
@@ -175,9 +152,18 @@ export default function SchedulePage() {
     }
   }, [scheduled, now, transferSync]);
 
+  const executePendingRef = useRef(executePending);
+
   useEffect(() => {
-    void executePending();
+    executePendingRef.current = executePending;
   }, [executePending]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      void executePendingRef.current();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSchedule = () => {
     setErrorMessage("");
@@ -361,6 +347,8 @@ export default function SchedulePage() {
               const tokenInfo = TOKEN_REGISTRY.find((t) => t.address === payment.token);
               const secondsUntil = payment.validAfter - now;
               const isInWindow = now >= payment.validAfter && now < payment.validBefore;
+              const isWindowExpired = payment.status === "pending" && now >= payment.validBefore;
+              const displayStatus: ScheduledStatus = isWindowExpired ? "expired" : payment.status;
 
               return (
                 <Card key={payment.id} variant="elevated">
@@ -378,7 +366,7 @@ export default function SchedulePage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      {payment.status === "pending" && (
+                      {displayStatus === "pending" && (
                         <div className="text-right">
                           {isInWindow ? (
                             <p className="text-xs text-amber-400">Executing...</p>
@@ -389,7 +377,7 @@ export default function SchedulePage() {
                           )}
                         </div>
                       )}
-                      <StatusBadge status={payment.status === "confirmed" ? "success" : payment.status === "broadcasting" ? "pending" : payment.status === "expired" ? "failed" : payment.status} />
+                      <StatusBadge status={displayStatus === "confirmed" ? "success" : displayStatus === "broadcasting" ? "pending" : displayStatus === "expired" ? "failed" : displayStatus} />
                       {payment.txHash && (
                         <Link
                           href={`${EXPLORER_URL}/tx/${payment.txHash}`}
@@ -399,7 +387,7 @@ export default function SchedulePage() {
                           Tx
                         </Link>
                       )}
-                      {(payment.status === "confirmed" || payment.status === "expired" || payment.status === "failed") && (
+                      {(displayStatus === "confirmed" || displayStatus === "expired" || displayStatus === "failed") && (
                         <button
                           type="button"
                           onClick={() => handleDelete(payment.id)}

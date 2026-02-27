@@ -15,7 +15,7 @@ import {
   getSessionForTransfer,
 } from "@/lib/sessionManager";
 import { addTransferHistoryEntries } from "@/lib/transactionHistoryStore";
-import type { TransferMode, TransferStep, BatchRow } from "@/types/ui";
+import type { TransferMode, TransferStep } from "@/types/ui";
 
 type BatchRecipientRow = {
   id: string;

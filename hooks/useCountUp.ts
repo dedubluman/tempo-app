@@ -36,11 +36,7 @@ export function useCountUp({ raw, duration = 1.5 }: UseCountUpOptions) {
 
     const { prefix, value, suffix } = parseRaw(raw)
 
-    // Instant display for reduced motion or zero values
-    if (prefersReducedMotion || value === 0) {
-      setDisplayValue(raw)
-      return
-    }
+    if (prefersReducedMotion || value === 0) return
 
     const startTime = performance.now()
     const startValue = 0
@@ -60,7 +56,7 @@ export function useCountUp({ raw, duration = 1.5 }: UseCountUpOptions) {
       if (progress < 1) {
         rafId = requestAnimationFrame(animate)
       } else {
-        setDisplayValue(raw) // snap to exact original
+        setDisplayValue(`${prefix}${value.toFixed(decimals)}${suffix}`)
       }
     }
 

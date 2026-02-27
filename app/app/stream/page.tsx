@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Play, Stop, Waves } from "@phosphor-icons/react";
+import { Play, Stop, Waves } from "@phosphor-icons/react";
 import { useAccount } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 import { isAddress, parseUnits } from "viem";

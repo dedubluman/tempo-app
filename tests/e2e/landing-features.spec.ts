@@ -14,7 +14,8 @@ test.describe("Landing Page Feature Cards", () => {
   test("advanced features section renders 8 cards", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("Powered by Tempo")).toBeVisible();
+    await page.locator("#advanced-features").scrollIntoViewIfNeeded();
+    await expect(page.getByRole("heading", { name: "Powered by Tempo" })).toBeVisible();
     await expect(page.getByText("Stablecoin Swap")).toBeVisible();
     await expect(page.getByText("Payment Requests")).toBeVisible();
     await expect(page.getByText("Token Forge")).toBeVisible();

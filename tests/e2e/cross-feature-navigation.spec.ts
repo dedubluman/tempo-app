@@ -41,13 +41,12 @@ test.describe("Cross-Feature Navigation", () => {
     expect(errors).toHaveLength(0);
   });
 
-  test("portfolio page shows token balance cards", async ({ page }) => {
+  test("portfolio page shows summary and refresh controls", async ({ page }) => {
     await page.goto("/app/portfolio");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("pathUSD").first()).toBeVisible();
-    await expect(page.getByText("AlphaUSD").first()).toBeVisible();
-    await expect(page.getByText("BetaUSD").first()).toBeVisible();
-    await expect(page.getByText("ThetaUSD").first()).toBeVisible();
+    await expect(page.getByText("Portfolio").first()).toBeVisible();
+    await expect(page.getByText("Total Value").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Refresh" })).toBeVisible();
   });
 
   test("swap page shows token selectors", async ({ page }) => {

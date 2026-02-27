@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useAccount } from "wagmi";
@@ -22,7 +22,14 @@ const metrics = [
 
 export function LandingHero({ onAuthClick }: LandingHeroProps) {
   const { isConnected } = useAccount();
-  const [mockConnected, setMockConnected] = useState(false);
+  const [mockConnected] = useState(() => {
+    if (process.env.NEXT_PUBLIC_E2E_MOCK_AUTH !== "1") return false;
+    if (typeof window === "undefined") return false;
+    return (
+      window.localStorage.getItem("tempo.walletCreated") === "1" &&
+      Boolean(window.localStorage.getItem("tempo.lastAddress"))
+    );
+  });
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -35,14 +42,6 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const variants = useMotionSafe();
-
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_E2E_MOCK_AUTH !== "1") return;
-    setMockConnected(
-      window.localStorage.getItem("tempo.walletCreated") === "1" &&
-        Boolean(window.localStorage.getItem("tempo.lastAddress"))
-    );
-  }, []);
 
   const connected = isConnected || mockConnected;
 

@@ -55,7 +55,7 @@ export default function AppPage() {
       await navigator.clipboard.writeText(effectiveAddress);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1200);
-    } catch (_) {
+    } catch {
       setCopied(false);
     }
   };

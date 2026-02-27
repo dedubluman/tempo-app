@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAccount } from "wagmi";
@@ -13,15 +13,14 @@ interface LandingNavProps {
 
 export function LandingNav({ onAuthClick }: LandingNavProps) {
   const { isConnected } = useAccount();
-  const [mockConnected, setMockConnected] = useState(false);
-
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_E2E_MOCK_AUTH !== "1") return;
-    setMockConnected(
+  const [mockConnected] = useState(() => {
+    if (process.env.NEXT_PUBLIC_E2E_MOCK_AUTH !== "1") return false;
+    if (typeof window === "undefined") return false;
+    return (
       window.localStorage.getItem("tempo.walletCreated") === "1" &&
-        Boolean(window.localStorage.getItem("tempo.lastAddress"))
+      Boolean(window.localStorage.getItem("tempo.lastAddress"))
     );
-  }, []);
+  });
 
   const connected = isConnected || mockConnected;
 

@@ -2,7 +2,6 @@
 
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/cn";
 
 interface ConfirmationSheetProps {
   open: boolean;

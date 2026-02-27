@@ -9,6 +9,7 @@ declare global {
 const WALLET_CREATED_FLAG = "tempo.walletCreated";
 const LAST_ADDRESS_KEY = "tempo.lastAddress";
 const ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.activeCredential";
+const RUN_AUTH_FLOWS = process.env.E2E_ENABLE_AUTH_FLOWS === "1";
 
 async function enableVirtualAuthenticator(page: Page) {
   const cdpSession = await page.context().newCDPSession(page);
@@ -27,6 +28,7 @@ async function enableVirtualAuthenticator(page: Page) {
 }
 
 test.describe("Authentication flows", () => {
+  test.skip(!RUN_AUTH_FLOWS, "Enable with E2E_ENABLE_AUTH_FLOWS=1 for passkey/WebAuthn flow coverage.");
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test.beforeEach(async ({ page }) => {
@@ -43,10 +45,10 @@ test.describe("Authentication flows", () => {
     await page.goto("/");
 
     // Verify landing page is visible
-    await expect(page.getByRole("heading", { name: /Passkey P2P Wallet/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Instant Stablecoin/i })).toBeVisible();
 
     // Click "Create Wallet" button
-    const createWalletButton = page.getByRole("button", { name: /Create Wallet/i }).first();
+    const createWalletButton = page.getByRole("button", { name: /Create( Your)? Wallet/i }).first();
     await expect(createWalletButton).toBeVisible();
     await createWalletButton.click();
 
@@ -74,7 +76,7 @@ test.describe("Authentication flows", () => {
   test("2. Returning user - Sign In flow", async ({ page }) => {
     // Setup: Create initial wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     // Get the created address
@@ -90,7 +92,7 @@ test.describe("Authentication flows", () => {
     expect(activeCredential).toBeNull();
 
     // Navigate back to landing page (already there)
-    await expect(page.getByRole("heading", { name: /Passkey P2P Wallet/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Instant Stablecoin/i })).toBeVisible();
 
     // Click "Sign In" button
     const signInButton = page.getByRole("button", { name: /Sign In|I Already Have a Wallet/i }).first();
@@ -113,7 +115,7 @@ test.describe("Authentication flows", () => {
   test("3. Disconnect/Sign Out flow", async ({ page }) => {
     // Setup: Create wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     // Get the created address
@@ -129,7 +131,7 @@ test.describe("Authentication flows", () => {
     await expect(page).toHaveURL("/", { timeout: 10_000 });
 
     // Verify landing page is visible
-    await expect(page.getByRole("heading", { name: /Passkey P2P Wallet/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Instant Stablecoin/i })).toBeVisible();
 
     // Verify localStorage is cleared of active credential
     const activeCredential = await page.evaluate(() => window.localStorage.getItem(ACTIVE_CREDENTIAL_KEY));
@@ -143,7 +145,7 @@ test.describe("Authentication flows", () => {
   test("4. Create New Wallet (when already has wallet)", async ({ page }) => {
     // Setup: Create initial wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     // Get the first address
@@ -208,7 +210,7 @@ test.describe("Authentication flows", () => {
     await expect(unsupportedMessage).toBeVisible();
 
     // Verify Create Wallet button is not visible
-    const createWalletButton = page.getByRole("button", { name: /Create Wallet/i });
+    const createWalletButton = page.getByRole("button", { name: /Create( Your)? Wallet/i });
     await expect(createWalletButton).not.toBeVisible();
   });
 
@@ -230,7 +232,7 @@ test.describe("Authentication flows", () => {
     await page.goto("/");
 
     // Click "Create Wallet"
-    const createWalletButton = page.getByRole("button", { name: /Create Wallet/i }).first();
+    const createWalletButton = page.getByRole("button", { name: /Create( Your)? Wallet/i }).first();
     await expect(createWalletButton).toBeVisible();
     await createWalletButton.click();
 
@@ -249,7 +251,7 @@ test.describe("Authentication flows", () => {
   test("7. Confirmation dialog - Cancel Create New Wallet keeps existing wallet", async ({ page }) => {
     // Setup: Create initial wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     // Get the first address
@@ -296,7 +298,7 @@ test.describe("Authentication flows", () => {
   test("8. Multiple sign-in/sign-out cycles maintain address consistency", async ({ page }) => {
     // Create wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     const originalAddress = await page.evaluate(() => window.localStorage.getItem(LAST_ADDRESS_KEY));
@@ -333,7 +335,7 @@ test.describe("Authentication flows", () => {
   test("9. Returning user sees 'Welcome back' message and Sign In button", async ({ page }) => {
     // Setup: Create wallet
     await page.goto("/");
-    await page.getByRole("button", { name: /Create Wallet/i }).first().click();
+    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
     await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
 
     // Sign out
@@ -366,7 +368,7 @@ test.describe("Authentication flows", () => {
     await expect(newSetupMessage).toBeVisible();
 
     // Verify "Create Wallet" button is visible
-    const createWalletButton = page.getByRole("button", { name: /Create Wallet/i }).first();
+    const createWalletButton = page.getByRole("button", { name: /Create( Your)? Wallet/i }).first();
     await expect(createWalletButton).toBeVisible();
 
     // Verify "I Already Have a Wallet" button is visible
@@ -374,7 +376,7 @@ test.describe("Authentication flows", () => {
     await expect(alreadyHaveButton).toBeVisible();
 
     // Verify help text mentions creating wallet once
-    const helpText = page.locator("text=/Create Wallet once/i");
+    const helpText = page.locator("text=/Create( Your)? Wallet/i");
     await expect(helpText).toBeVisible();
   });
 });

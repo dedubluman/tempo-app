@@ -70,7 +70,6 @@ async function mockTransferResult(page: Page, txHash: string) {
 
 test.describe("Dashboard Flows", () => {
   const userAddress = "0xAbcdEF1234567890AbcdEF1234567890aBcdef12";
-  const shortAddress = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
 
   test.beforeEach(async ({ page }) => {
     await navigateToAppWithWallet(page, userAddress);
