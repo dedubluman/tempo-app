@@ -15,6 +15,7 @@ import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { EXPLORER_URL } from "@/lib/constants";
 import { dismissToast, showError, showLoading, showSuccess } from "@/lib/toast";
+import { createRateLimiter } from "@/lib/rateLimiter";
 import type { TokenInfo } from "@/types/token";
 
 const INTERVAL_MS = 5000; // 5 seconds
@@ -47,6 +48,9 @@ function prettyError(error: unknown): string {
   return message.split("\n")[0] || "Transfer failed";
 }
 
+// Module-level rate limiter (persists across renders, resets on page reload)
+const rateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 });
+
 export default function StreamPage() {
   const { address } = useAccount();
   const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
@@ -62,6 +66,12 @@ export default function StreamPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [microTxs, setMicroTxs] = useState<MicroTx[]>([]);
   const [failCount, setFailCount] = useState(0);
+
+  // Rate limiter UI state
+  const [rateLimitRemaining, setRateLimitRemaining] = useState(10);
+  const [rateLimitResumeIn, setRateLimitResumeIn] = useState(0);
+  const [rateLimitStatus, setRateLimitStatus] = useState<"ok" | "warn" | "limited" | "throttled">("ok");
+  const [lastPaymentAt, setLastPaymentAt] = useState(0);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -90,8 +100,44 @@ export default function StreamPage() {
     return cleanup;
   }, [cleanup]);
 
+  // Sync rate limiter UI state
+  const syncRateLimitState = useCallback(() => {
+    const remaining = rateLimiter.remaining();
+    const resetIn = rateLimiter.resetIn();
+    setRateLimitRemaining(remaining);
+    setRateLimitResumeIn(Math.ceil(resetIn / 1000));
+    if (remaining === 0) {
+      setRateLimitStatus("limited");
+    } else if (remaining <= 2) {
+      setRateLimitStatus("warn");
+    } else {
+      setRateLimitStatus("ok");
+    }
+  }, []);
+
   const executeMicroPayment = useCallback(async () => {
     if (!address) return;
+
+    // Enforce minimum 5-second interval between payments
+    const now = Date.now();
+    if (now - lastPaymentAt < INTERVAL_MS) {
+      setRateLimitStatus("throttled");
+      return;
+    }
+
+    // Check rate limit
+    if (!rateLimiter.canProceed()) {
+      const resetIn = rateLimiter.resetIn();
+      setRateLimitStatus("limited");
+      setRateLimitResumeIn(Math.ceil(resetIn / 1000));
+      return;
+    }
+
+    // Record and proceed
+    rateLimiter.record();
+    setLastPaymentAt(now);
+    syncRateLimitState();
+
     const loadingId = showLoading("Sending micro-payment...");
     try {
       const response = await transferSync({
@@ -118,7 +164,7 @@ export default function StreamPage() {
         return;
       }
     }
-  }, [address, selectedToken.address, recipient, amountPerTick, transferSync, cleanup]);
+  }, [address, selectedToken.address, recipient, amountPerTick, transferSync, cleanup, lastPaymentAt, syncRateLimitState]);
 
   const handleStart = () => {
     setErrorMessage("");
@@ -138,13 +184,16 @@ export default function StreamPage() {
     setElapsedSeconds(0);
     setMicroTxs([]);
     setFailCount(0);
+    setLastPaymentAt(0);
     setStreamState("active");
     startTimeRef.current = Date.now();
+    syncRateLimitState();
 
     // Timer for elapsed seconds
     timerRef.current = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
       setElapsedSeconds(elapsed);
+      syncRateLimitState();
 
       // Auto-stop when duration reached
       if (elapsed >= durationSeconds) {
@@ -174,6 +223,33 @@ export default function StreamPage() {
   };
 
   const progressPct = durationSeconds > 0 ? Math.min(100, (elapsedSeconds / durationSeconds) * 100) : 0;
+
+  // Rate limit banner content
+  const rateLimitBanner = (() => {
+    if (streamState !== "active") return null;
+    if (rateLimitStatus === "limited") {
+      return (
+        <div className="rounded-[--radius-md] border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
+          Rate limit reached. Pausing stream for {rateLimitResumeIn}s.
+        </div>
+      );
+    }
+    if (rateLimitStatus === "throttled") {
+      return (
+        <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
+          Throttled (min 5s interval)
+        </div>
+      );
+    }
+    if (rateLimitStatus === "warn") {
+      return (
+        <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
+          Approaching rate limit ({10 - rateLimitRemaining}/10)
+        </div>
+      );
+    }
+    return null;
+  })();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
@@ -270,6 +346,16 @@ export default function StreamPage() {
                   </div>
                 </div>
 
+                {/* Rate limit banner */}
+                {rateLimitBanner}
+
+                {/* Rate limit counter */}
+                {streamState === "active" && (
+                  <p className="text-xs text-[--text-secondary]">
+                    {10 - rateLimitRemaining}/10 sponsor requests this minute
+                  </p>
+                )}
+
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3 text-center">
@@ -338,6 +424,7 @@ export default function StreamPage() {
                         setElapsedSeconds(0);
                         setMicroTxs([]);
                         setFailCount(0);
+                        setRateLimitStatus("ok");
                       }}
                     >
                       New Stream
@@ -384,6 +471,10 @@ export default function StreamPage() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-[--text-secondary]">Est. fees</span>
               <span className="font-mono text-sm text-[--text-primary]">~${(totalTicks * 0.001).toFixed(4)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[--text-secondary]">Sponsor limit</span>
+              <span className="font-mono text-sm text-[--text-primary]">{rateLimitRemaining}/10 remaining</span>
             </div>
             <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2 text-xs text-[--status-success-text]">
               Each micro-payment uses 2D nonces (nonceKey) for parallel execution. Gas is sponsored.

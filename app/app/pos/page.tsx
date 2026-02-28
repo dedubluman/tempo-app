@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle, Backspace, Storefront } from "@phosphor-icons/react";
 import { useAccount, useBlockNumber } from "wagmi";
+import { maxUint256, parseUnits } from "viem";
 import { QRCodeDisplay } from "@/components/ui/QRCodeDisplay";
 import { TokenSelector } from "@/components/ui/TokenSelector";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -13,19 +14,52 @@ import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { EXPLORER_URL } from "@/lib/constants";
 import type { TokenInfo } from "@/types/token";
+import { createPaymentDetector } from "@/lib/paymentDetector";
 
 type PosState = "keypad" | "qr" | "success";
 
 const KEYPAD_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"] as const;
+/** TIP-1009: max expiry window is 30s; we use 15s to stay well within limit */
+const PAYMENT_WINDOW_SECS = 15;
+const DEBOUNCE_SECS = 3;
+const MAX_RECENT_TXS = 10;
 
-function buildPayUrl(to: string, amount: string, token: string, memo: string): string {
+function buildPayUrl(
+  to: string,
+  amount: string,
+  token: string,
+  memo: string,
+  validBefore: number,
+): string {
   const base = typeof window !== "undefined" ? window.location.origin : "";
   const params = new URLSearchParams();
   params.set("to", to);
   params.set("amount", amount);
   params.set("token", token);
   if (memo) params.set("memo", memo);
+  // TIP-1009 expiring nonce: nonceKey=maxUint256 signals expiring-nonce mode
+  params.set("nonceKey", maxUint256.toString());
+  params.set("validBefore", validBefore.toString());
   return `${base}/pay?${params.toString()}`;
+}
+
+function playSuccessSound(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const ctx = new AudioContext();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.frequency.value = 880;
+    oscillator.type = "sine";
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.5);
+  } catch {
+    // AudioContext unavailable or blocked — skip sound
+  }
 }
 
 export default function PosPage() {
@@ -37,6 +71,21 @@ export default function PosPage() {
   const [payUrl, setPayUrl] = useState("");
   const [receivedTxHash, setReceivedTxHash] = useState<string | null>(null);
   const autoResetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [paymentDetected, setPaymentDetected] = useState(false);
+
+  // Debounce: prevent rapid QR regeneration
+  const [isDebounced, setIsDebounced] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Duplicate TX tracking (last MAX_RECENT_TXS payment events)
+  const [recentTxHashes, setRecentTxHashes] = useState<string[]>([]);
+  const recentTxHashesRef = useRef<string[]>([]);
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
+
+  // Payment window countdown
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { balances, refetch: refetchBalances } = useTokenBalances();
   const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -46,38 +95,85 @@ export default function PosPage() {
   // Track balance for payment detection
   const currentBalance = balances.find((b) => b.token.address === selectedToken.address)?.balance;
 
-  function handleReset() {
+  function stopCountdown() {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+  }
+
+  const handleReset = useCallback(() => {
     setState("keypad");
     setAmount("0");
     setMemo("");
     setPayUrl("");
     setReceivedTxHash(null);
+    setDuplicateWarning(false);
+    setCountdown(null);
+    setIsExpired(false);
+    setPaymentDetected(false);
+    stopCountdown();
     if (autoResetRef.current) {
       clearTimeout(autoResetRef.current);
       autoResetRef.current = null;
     }
-  }
+  }, []);
 
+  // Countdown interval — starts/stops with QR state
+  useEffect(() => {
+    if (state !== "qr") {
+      stopCountdown();
+      return;
+    }
+    stopCountdown();
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) return 0;
+        return prev - 1;
+      });
+    }, 1000);
+    return stopCountdown;
+  }, [state]);
+
+  // Mark expired when countdown reaches 0
+  useEffect(() => {
+    if (countdown === 0 && state === "qr") {
+      stopCountdown();
+      setIsExpired(true);
+    }
+  }, [countdown, state]);
+
+  // Payment detection via balance monitoring
   useEffect(() => {
     if (state !== "qr") {
       prevBalanceRef.current = currentBalance;
       return;
     }
-    // Detect incoming payment: balance increased
     if (
       prevBalanceRef.current !== undefined &&
       currentBalance !== undefined &&
       currentBalance > prevBalanceRef.current
     ) {
-      window.setTimeout(() => {
-        setState("success");
-      }, 0);
-      // Auto-reset after 5 seconds
-      autoResetRef.current = setTimeout(() => {
-        handleReset();
-      }, 5000);
+      // Detection ID: token address + exact new balance (unique per payment event)
+      const detectionId = `${selectedToken.address}:${currentBalance.toString()}`;
+
+      if (recentTxHashesRef.current.includes(detectionId)) {
+        setDuplicateWarning(true);
+      } else {
+        const updated = [detectionId, ...recentTxHashesRef.current].slice(0, MAX_RECENT_TXS);
+        recentTxHashesRef.current = updated;
+        setRecentTxHashes(updated);
+        window.setTimeout(() => {
+          setState("success");
+        }, 0);
+        autoResetRef.current = setTimeout(() => {
+          handleReset();
+        }, 5000);
+      }
     }
     prevBalanceRef.current = currentBalance;
+    // selectedToken.address intentionally omitted — ref access avoids stale closure
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentBalance, state]);
 
   useEffect(() => {
@@ -85,11 +181,45 @@ export default function PosPage() {
     void refetchBalances();
   }, [blockNumber, refetchBalances]);
 
+  // Cleanup all timers on unmount
   useEffect(() => {
     return () => {
       if (autoResetRef.current) clearTimeout(autoResetRef.current);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      stopCountdown();
     };
   }, []);
+
+  // WebSocket payment detector — starts when QR is displayed, cleans up on exit
+  useEffect(() => {
+    if (state !== "qr" || !address) return;
+
+    let expectedAmount: bigint;
+    try {
+      expectedAmount = parseUnits(amount, selectedToken.decimals);
+    } catch {
+      return;
+    }
+    if (expectedAmount === BigInt(0)) return;
+
+    const detector = createPaymentDetector({
+      merchantAddress: address,
+      expectedToken: selectedToken.address,
+      expectedAmount,
+      onPaymentDetected: (txHash) => {
+        setReceivedTxHash(txHash);
+        setPaymentDetected(true);
+        playSuccessSound();
+      },
+      onTimeout: handleReset,
+    });
+
+    detector.start();
+
+    return () => {
+      detector.stop();
+    };
+  }, [state, address, amount, selectedToken, handleReset]);
 
   const handleKeyPress = useCallback((key: string) => {
     setAmount((prev) => {
@@ -111,10 +241,22 @@ export default function PosPage() {
 
   const handleGenerateQR = () => {
     if (!address || !amount || Number.parseFloat(amount) <= 0) return;
-    const url = buildPayUrl(address, amount, selectedToken.symbol, memo);
+    // TIP-1009: validBefore = now + 15s (well within the 30s Tempo protocol limit)
+    const validBefore = Math.floor(Date.now() / 1000) + PAYMENT_WINDOW_SECS;
+    const url = buildPayUrl(address, amount, selectedToken.symbol, memo, validBefore);
     setPayUrl(url);
     prevBalanceRef.current = currentBalance;
+    setIsExpired(false);
+    setDuplicateWarning(false);
+    setCountdown(PAYMENT_WINDOW_SECS);
     setState("qr");
+
+    // Debounce: disable button for DEBOUNCE_SECS seconds to prevent rapid regeneration
+    setIsDebounced(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setIsDebounced(false);
+    }, DEBOUNCE_SECS * 1000);
   };
 
   return (
@@ -167,9 +309,9 @@ export default function PosPage() {
               <Button
                 type="button"
                 onClick={handleGenerateQR}
-                disabled={!address || amount === "0" || Number.parseFloat(amount) <= 0}
+                disabled={!address || amount === "0" || Number.parseFloat(amount) <= 0 || isDebounced}
               >
-                Generate QR Code
+                {isDebounced ? "Wait..." : "Generate QR Code"}
               </Button>
             </CardContent>
           </Card>
@@ -217,10 +359,34 @@ export default function PosPage() {
                 <p className="text-sm text-[--text-secondary]">{selectedToken.symbol}</p>
                 {memo && <p className="text-xs text-[--text-tertiary]">Ref: {memo}</p>}
               </div>
-              <div className="flex items-center justify-center gap-2 text-xs text-[--text-secondary]">
-                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-amber-500" />
-                Waiting for payment...
-              </div>
+
+              {/* Payment window countdown / expiry indicator */}
+              {isExpired ? (
+                <div className="rounded-[--radius-md] border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
+                  Expired — Generate new QR
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2 text-xs text-[--text-secondary]">
+                  <span
+                    className={`inline-block h-2 w-2 animate-pulse rounded-full ${
+                      paymentDetected ? "bg-emerald-400" : "bg-amber-500"
+                    }`}
+                  />
+                  {paymentDetected
+                    ? "Payment detected! Confirming..."
+                    : countdown !== null
+                    ? `Payment window: ${countdown}s`
+                    : "Waiting for payment..."}
+                </div>
+              )}
+
+              {/* Duplicate payment warning */}
+              {duplicateWarning && (
+                <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
+                  Payment already processed
+                </div>
+              )}
+
               <Button type="button" variant="secondary" onClick={handleReset}>
                 Cancel
               </Button>

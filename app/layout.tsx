@@ -5,6 +5,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ThemeProvider, themeScript } from "@/components/ui/ThemeProvider";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { FeatureFlag, isFeatureEnabled } from "@/lib/featureFlags";
 import { Toaster } from "sonner";
 
 const satoshi = localFont({
@@ -44,6 +46,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const messages = await getMessages();
+  const offlineModeEnabled = isFeatureEnabled(FeatureFlag.OFFLINE_MODE);
 
   return (
     <html
@@ -52,13 +55,22 @@ export default async function RootLayout({
       className={`${satoshi.variable} ${satoshiDisplay.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        {offlineModeEnabled ? <link rel="manifest" href="/manifest.json" /> : null}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {offlineModeEnabled ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `if (typeof window !== "undefined" && "serviceWorker" in navigator) { window.addEventListener("load", function() { navigator.serviceWorker.register("/sw.js").catch(function(error) { console.error("[PWA] Service worker registration failed", error); }); }); }`,
+            }}
+          />
+        ) : null}
       </head>
       <body className="bg-[--bg-base] text-[--text-primary] antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <ThemeProvider>
               {children}
+              <OfflineBanner />
               <Toaster position="bottom-center" richColors />
             </ThemeProvider>
           </Providers>
