@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -36,11 +38,13 @@ export const metadata: Metadata = {
     "Gasless pathUSD transfers with Passkey authentication. Zero passwords. Zero gas fees.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
+
   return (
     <html
       lang="en"
@@ -51,12 +55,14 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="bg-[--bg-base] text-[--text-primary] antialiased">
-        <Providers>
-          <ThemeProvider>
-            {children}
-            <Toaster position="bottom-center" richColors />
-          </ThemeProvider>
-        </Providers>
+        <NextIntlClientProvider messages={messages}>
+          <Providers>
+            <ThemeProvider>
+              {children}
+              <Toaster position="bottom-center" richColors />
+            </ThemeProvider>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

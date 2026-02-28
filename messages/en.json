@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "title": "Fluxus — Instant Stablecoin Payments",
+    "description": "Gasless pathUSD transfers with Passkey authentication. Zero passwords. Zero gas fees."
+  },
+  "common": {
+    "network": "Tempo Testnet",
+    "wallet": "Wallet",
+    "docs": "Docs",
+    "copyAddress": "Copy Address",
+    "copied": "Copied",
+    "disconnect": "Disconnect Wallet",
+    "cancel": "Cancel",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "status": "Status",
+    "viewOnExplorer": "View on Explorer",
+    "activeWallet": "Active wallet"
+  },
+  "dashboard": {
+    "heading": "Wallet Dashboard",
+    "subtitle": "Send pathUSD with sponsored fees and passkey security.",
+    "tagline": "Stablecoin transfers with instant finality",
+    "account": {
+      "title": "Account",
+      "disconnectMessage": "Disconnect logs you out and clears the active session."
+    },
+    "receive": {
+      "title": "Receive",
+      "badge": "Wallet Address",
+      "faucetLink": "Get testnet tokens"
+    },
+    "balance": {
+      "title": "Balance"
+    },
+    "send": {
+      "title": "Send"
+    },
+    "sessionKeys": {
+      "title": "Session Keys"
+    },
+    "activity": {
+      "title": "Activity",
+      "viewAll": "View all"
+    },
+    "bottomNav": {
+      "wallet": "Wallet",
+      "docs": "Docs"
+    }
+  },
+  "agent": {
+    "heading": "AI Agent",
+    "subtitle": "Natural language payments — tell the agent what you want to do.",
+    "settings": {
+      "title": "Settings",
+      "apiSettings": "API Settings",
+      "endpoint": "API Endpoint",
+      "endpointPlaceholder": "https://api.openai.com/v1/chat/completions",
+      "endpointHelper": "Any OpenAI-compatible API endpoint",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "sk-...",
+      "apiKeyHelper": "Stored in localStorage only — never sent to our server",
+      "model": "Model",
+      "modelPlaceholder": "gpt-4o-mini",
+      "save": "Save Settings",
+      "securityWarning": "Your API key is forwarded to the external LLM endpoint only. It is never stored or logged on our server."
+    },
+    "chat": {
+      "title": "Chat",
+      "configureMessage": "Configure your API settings to get started.",
+      "openSettings": "Open Settings",
+      "placeholder": "Try: \"Send 5 pathUSD to 0x1234...\"",
+      "characterCount": "{current}/{max} characters",
+      "parsedIntent": "Parsed Intent",
+      "action": "Action",
+      "recipient": "Recipient",
+      "amount": "Amount",
+      "memo": "Memo",
+      "balanceCheckRequest": "Balance Check Request",
+      "unknownAction": "Cannot process this request. Try: 'Send 5 pathUSD to 0x...'",
+      "confirmExecute": "Confirm & Execute",
+      "transferExecuted": "Transfer executed",
+      "newCommand": "New Command"
+    },
+    "info": {
+      "title": "Agent Info",
+      "modelLabel": "Model",
+      "notSet": "Not set",
+      "walletLabel": "Wallet",
+      "notConnected": "Not connected",
+      "gasSponsored": "Gas is sponsored. Each command requires explicit confirmation before execution.",
+      "supportedCommands": "Supported Commands",
+      "commands": {
+        "send": "\"Send 5 pathUSD to 0x...\"",
+        "transfer": "\"Transfer 10 AlphaUSD to 0x...\"",
+        "balance": "\"Check my balance\""
+      },
+      "security": "Security",
+      "securityItems": {
+        "sanitized": "Input sanitized (HTML/system tags stripped)",
+        "validated": "Output validated (Zod schema)",
+        "confirmation": "Confirmation required before execution",
+        "localOnly": "API key stored locally only"
+      }
+    },
+    "errors": {
+      "cancelled": "Action cancelled in passkey confirmation.",
+      "insufficientBalance": "Insufficient balance or fee sponsorship issue.",
+      "unauthorized": "Invalid API key or unauthorized. Check your settings.",
+      "network": "Network issue. Please retry.",
+      "aiProcessingFailed": "AI processing failed",
+      "transferFailed": "Transfer failed"
+    }
+  },
+  "swap": {
+    "heading": "Swap",
+    "subtitle": "Atomic stablecoin swap on Tempo DEX.",
+    "form": {
+      "from": "From",
+      "to": "To",
+      "balance": "Balance",
+      "estimatedOutput": "Estimated output ({symbol})",
+      "flipPair": "Flip Pair",
+      "swapButton": "Swap",
+      "swapping": "Swapping..."
+    },
+    "details": {
+      "title": "Swap Details",
+      "rate": "Rate",
+      "slippage": "Slippage",
+      "slippageValue": "0.50%",
+      "minReceived": "Min received",
+      "gasSponsored": "Gas is sponsored and paid in stablecoin.",
+      "swapSuccessful": "Swap successful",
+      "copy": "Copy"
+    },
+    "errors": {
+      "cancelled": "Swap cancelled in passkey confirmation.",
+      "insufficientLiquidity": "Insufficient liquidity for this pair and amount.",
+      "insufficientBalance": "Insufficient balance or fee sponsorship issue. Try a smaller amount.",
+      "network": "Network is slow. Please retry in a moment.",
+      "enterValidAmount": "Enter a valid amount.",
+      "insufficientBalanceForToken": "Insufficient balance for selected token.",
+      "quoteUnavailable": "Quote unavailable. Try refresh.",
+      "swapFailed": "Swap failed",
+      "quoteWarning": "Quote warning"
+    },
+    "toasts": {
+      "preparingSwap": "Preparing atomic approve + swap...",
+      "swapCompleted": "Swap completed"
+    }
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "security": "Security",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "title": "Instant Stablecoin Payments",
+      "subtitle": "Send and receive pathUSD with zero gas fees and passkey security.",
+      "cta": "Launch App"
+    },
+    "metrics": {
+      "instantFinality": "Instant Finality",
+      "zeroGas": "Zero Gas Fees",
+      "passkeySecurity": "Passkey Security"
+    }
+  },
+  "auth": {
+    "createWallet": "Create Wallet",
+    "signIn": "Sign In",
+    "passkeyPrompt": "Use your device passkey to authenticate",
+    "processing": "Processing..."
+  },
+  "errors": {
+    "generic": "Operation failed",
+    "userRejected": "User rejected the request",
+    "networkError": "Network error occurred",
+    "insufficientFunds": "Insufficient funds"
+  },
+  "toasts": {
+    "success": "Success",
+    "error": "Error",
+    "settingsSaved": "Settings saved",
+    "apiConfigStored": "API configuration stored locally",
+    "processingWithAI": "Processing with AI...",
+    "intentParsed": "Intent parsed",
+    "executingTransfer": "Executing transfer..."
+  }
+}

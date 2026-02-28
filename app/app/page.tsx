@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
 import { motion } from "framer-motion";
@@ -21,6 +22,7 @@ import Link from "next/link";
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 
 export default function AppPage() {
+  const t = useTranslations();
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
@@ -82,7 +84,7 @@ export default function AppPage() {
             <FluxusLogo size="sm" showText />
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="brand" size="sm" data-testid="network-badge">Tempo Testnet</Badge>
+            <Badge variant="brand" size="sm" data-testid="network-badge">{t("common.network")}</Badge>
             {effectiveAddress && (
               <AddressAvatar address={effectiveAddress} size="sm" />
             )}
@@ -98,7 +100,7 @@ export default function AppPage() {
       >
         <div className="mb-6">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-[--text-primary] font-[--font-display]" data-testid="dashboard-heading">Wallet Dashboard</h1>
+            <h1 className="text-2xl font-bold text-[--text-primary] font-[--font-display]" data-testid="dashboard-heading">{t("dashboard.heading")}</h1>
             <Badge variant="brand" size="sm">Stablecoin transfers with instant finality</Badge>
           </div>
           <p className="text-sm text-[--text-secondary] mt-1">Send pathUSD with sponsored fees and passkey security.</p>
@@ -113,7 +115,7 @@ export default function AppPage() {
           <motion.div variants={variants.fadeUp} className="lg:col-span-4 space-y-4">
             <Card variant="elevated" data-testid="account-card">
               <CardHeader>
-                <CardTitle>Account</CardTitle>
+                <CardTitle>{t("dashboard.account.title")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -134,7 +136,7 @@ export default function AppPage() {
                     data-testid="copy-address-btn"
                   >
                     {copied ? <Check size={14} /> : <Copy size={14} />}
-                    {copied ? "Copied" : "Copy Address"}
+                    {copied ? t("common.copied") : t("common.copyAddress")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -143,7 +145,7 @@ export default function AppPage() {
                     data-testid="disconnect-btn"
                   >
                     <SignOut size={14} />
-                    Disconnect Wallet
+                    {t("common.disconnect")}
                   </Button>
                   <p className="text-xs text-[--text-muted]">Disconnect logs you out and clears the active session.</p>
                 </div>
@@ -153,8 +155,8 @@ export default function AppPage() {
             <Card variant="elevated" data-testid="receive-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Receive</CardTitle>
-                  <Badge variant="success" size="sm">Wallet Address</Badge>
+                  <CardTitle>{t("dashboard.receive.title")}</CardTitle>
+                  <Badge variant="success" size="sm">{t("dashboard.receive.badge")}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -182,7 +184,7 @@ export default function AppPage() {
               transition={{ delay: 0.3, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] as [number, number, number, number] }}
             >
               <Card variant="elevated">
-                <CardHeader><CardTitle>Balance</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t("dashboard.balance.title")}</CardTitle></CardHeader>
                 <CardContent>
                   <BalanceDisplay />
                 </CardContent>
@@ -192,7 +194,7 @@ export default function AppPage() {
 
           <motion.div variants={variants.fadeUp} className="lg:col-span-8 space-y-4">
             <Card variant="elevated" data-testid="transfer-card">
-              <CardHeader><CardTitle>Send</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t("dashboard.send.title")}</CardTitle></CardHeader>
               <CardContent>
                 <TransferForm />
               </CardContent>
@@ -224,11 +226,11 @@ export default function AppPage() {
         <div className="flex items-center justify-around h-16 max-w-md mx-auto px-4">
           <Link href="/app" className="flex flex-col items-center gap-0.5 text-[--brand-primary]" data-testid="nav-home">
             <FluxusLogo size="sm" />
-            <span className="text-[10px] font-medium">Wallet</span>
+            <span className="text-[10px] font-medium">{t("common.wallet")}</span>
           </Link>
           <Link href="/docs" className="flex flex-col items-center gap-0.5 text-[--text-muted]" data-testid="nav-docs">
             <BookOpen size={20} />
-            <span className="text-[10px] font-medium">Docs</span>
+            <span className="text-[10px] font-medium">{t("common.docs")}</span>
           </Link>
         </div>
       </nav>
