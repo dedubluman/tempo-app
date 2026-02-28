@@ -6,6 +6,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ClockCounterClockwise } from "@phosphor-icons/react";
+import { FeatureGate } from "@/components/ui/FeatureGate";
+import { FeatureFlag } from "@/lib/featureFlags";
 
 export default function TestComponentsPage() {
   return (
@@ -60,6 +62,52 @@ export default function TestComponentsPage() {
           description="Your activity will appear here."
           data-testid="empty-state"
         />
+      </section>
+
+      <section data-testid="feature-flags-test">
+        <h2 className="text-lg font-semibold mb-4">Feature Flags</h2>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-[--text-secondary] mb-2">ANALYTICS (enabled by default):</p>
+            <FeatureGate flag={FeatureFlag.ANALYTICS}>
+              <Badge variant="success" dot data-testid="feature-gate-analytics">
+                Analytics Enabled
+              </Badge>
+            </FeatureGate>
+          </div>
+
+          <div>
+            <p className="text-sm text-[--text-secondary] mb-2">PASSKEY_RECOVERY (disabled by default):</p>
+            <FeatureGate
+              flag={FeatureFlag.PASSKEY_RECOVERY}
+              fallback={
+                <Badge variant="warning" dot data-testid="feature-gate-fallback-passkey">
+                  Passkey Recovery Coming Soon
+                </Badge>
+              }
+            >
+              <Badge variant="success" dot data-testid="feature-gate-passkey-recovery">
+                Passkey Recovery Enabled
+              </Badge>
+            </FeatureGate>
+          </div>
+
+          <div>
+            <p className="text-sm text-[--text-secondary] mb-2">OFFLINE_MODE (disabled by default):</p>
+            <FeatureGate
+              flag={FeatureFlag.OFFLINE_MODE}
+              fallback={
+                <Badge variant="warning" dot data-testid="feature-gate-fallback-offline">
+                  Offline Mode Coming Soon
+                </Badge>
+              }
+            >
+              <Badge variant="success" dot data-testid="feature-gate-offline-mode">
+                Offline Mode Enabled
+              </Badge>
+            </FeatureGate>
+          </div>
+        </div>
       </section>
     </div>
   );

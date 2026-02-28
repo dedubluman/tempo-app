@@ -1,5 +1,7 @@
 "use client";
 
+import { useBalanceStore } from "@/lib/store";
+
 import { useCallback, useEffect, useState } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { decodeFunctionResult, encodeFunctionData, formatUnits, getAddress, isAddress } from "viem";
@@ -25,9 +27,12 @@ export function useTokenBalances(): UseTokenBalancesReturn {
   const normalizedAddress = address && isAddress(address) ? getAddress(address) : undefined;
   const effectiveAddress: Address | undefined = normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
 
-  const [balances, setBalances] = useState<TokenBalance[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | undefined>();
+  // Use Zustand store for balances
+  const { balances, isLoading, error } = useBalanceStore();
+  const setBalances = useBalanceStore((state) => state.setBalances);
+  const setIsLoading = useBalanceStore((state) => state.setIsLoading);
+  const setError = useBalanceStore((state) => state.setError);
+  const markFetched = useBalanceStore((state) => state.markFetched);
 
   const fetchBalances = useCallback(async () => {
     if (!effectiveAddress || !publicClient) {
@@ -36,7 +41,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
     }
 
     setIsLoading(true);
-    setError(undefined);
+    setError(null);
 
     try {
       const calls = TOKEN_REGISTRY.map((token) => ({
@@ -75,8 +80,9 @@ export function useTokenBalances(): UseTokenBalancesReturn {
       });
 
       setBalances(newBalances);
+      markFetched();
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch balances"));
+      setError(err instanceof Error ? err.message : "Failed to fetch balances");
       setBalances([]);
     } finally {
       setIsLoading(false);
@@ -91,7 +97,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
   return {
     balances,
     isLoading,
-    error,
+    error: error ? new Error(error) : undefined,
     refetch: fetchBalances,
   };
 }
