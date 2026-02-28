@@ -6,6 +6,7 @@ const REGISTRY_API_ROUTE = "/api/passkey-mappings";
 
 const ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.activeCredential";
 const LAST_ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.lastActiveCredential";
+const BACKUP_METADATA_KEY = "tempo.passkeyRegistry.backups";
 
 type WalletMappingRecord = {
   credentialHash: string;
@@ -14,6 +15,65 @@ type WalletMappingRecord = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type BackupCredentialMetadata = {
+  credentialHash: string;
+  accountAddress: string;
+  label: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function normalizeAddress(address: string): string {
+  return address.trim().toLowerCase();
+}
+
+function getBackupMetadataList(): BackupCredentialMetadata[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(BACKUP_METADATA_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((item) => {
+      if (!item || typeof item !== "object") {
+        return false;
+      }
+
+      return (
+        "credentialHash" in item &&
+        typeof item.credentialHash === "string" &&
+        "accountAddress" in item &&
+        typeof item.accountAddress === "string" &&
+        "createdAt" in item &&
+        typeof item.createdAt === "string" &&
+        "updatedAt" in item &&
+        typeof item.updatedAt === "string"
+      );
+    }) as BackupCredentialMetadata[];
+  } catch {
+    return [];
+  }
+}
+
+function setBackupMetadataList(records: BackupCredentialMetadata[]): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(BACKUP_METADATA_KEY, JSON.stringify(records));
+  } catch {}
+}
 
 function canUseRegistry(): boolean {
   return (
@@ -257,6 +317,47 @@ export async function saveWalletMapping(credentialId: string, address: string): 
   };
 
   await withStoreRequest("readwrite", (store) => store.put(nextRecord));
+}
+
+export async function saveBackupCredentialMetadata(
+  credentialId: string,
+  accountAddress: string,
+  label: string | null = null,
+): Promise<void> {
+  if (typeof window === "undefined" || typeof window.crypto?.subtle === "undefined") {
+    return;
+  }
+
+  const credentialHash = await hashCredentialId(credentialId);
+  const normalizedAddress = normalizeAddress(accountAddress);
+  const allRecords = getBackupMetadataList();
+  const now = new Date().toISOString();
+  const existing = allRecords.find((record) => record.credentialHash === credentialHash);
+
+  const nextRecord: BackupCredentialMetadata = {
+    credentialHash,
+    accountAddress: normalizedAddress,
+    label,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+
+  const remaining = allRecords.filter((record) => record.credentialHash !== credentialHash);
+  setBackupMetadataList([nextRecord, ...remaining]);
+}
+
+export function getBackupCredentialMetadata(accountAddress?: string): BackupCredentialMetadata[] {
+  const allRecords = getBackupMetadataList();
+  if (!accountAddress) {
+    return allRecords;
+  }
+
+  const normalizedAddress = normalizeAddress(accountAddress);
+  return allRecords.filter((record) => normalizeAddress(record.accountAddress) === normalizedAddress);
+}
+
+export function hasBackupCredentialMetadata(accountAddress: string): boolean {
+  return getBackupCredentialMetadata(accountAddress).length > 0;
 }
 
 async function postRegistryAction(payload: Record<string, unknown>): Promise<unknown> {

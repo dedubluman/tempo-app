@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { connect as connectAccount } from "@wagmi/core";
 import { useAccount, useDisconnect } from "wagmi";
 import { config } from "@/lib/config";
+import { FeatureFlag, isFeatureEnabled } from "@/lib/featureFlags";
 import {
   getActiveCredentialId,
   getMappedAddress,
@@ -21,6 +22,7 @@ import { ShieldCheck, Key } from "@phosphor-icons/react";
 const WALLET_CREATED_FLAG = "tempo.walletCreated";
 const LAST_ADDRESS_KEY = "tempo.lastAddress";
 const ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.activeCredential";
+const PASSKEY_RECOVERY_ENABLED = isFeatureEnabled(FeatureFlag.PASSKEY_RECOVERY);
 
 interface AuthSheetProps {
   open: boolean;
@@ -41,6 +43,8 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
+  const [lastAuthMode, setLastAuthMode] = useState<"sign-up" | "sign-in" | null>(null);
+  const [showBackupPrompt, setShowBackupPrompt] = useState(false);
 
   const passkeyConnector = useMemo(
     () => config.connectors.find((c) => c.id === "webAuthn"),
@@ -107,12 +111,17 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
     setMappedAddress(address);
     setHasWalletHistory(true);
 
+    if (lastAuthMode === "sign-up" && PASSKEY_RECOVERY_ENABLED) {
+      setShowBackupPrompt(true);
+      return;
+    }
+
     if (onSuccess) {
       onSuccess();
     } else {
       router.push("/app");
     }
-  }, [address, isConnected, router, onSuccess]);
+  }, [address, isConnected, lastAuthMode, router, onSuccess]);
 
   const getErrorMessage = (mode: "sign-up" | "sign-in", error: unknown) => {
     if (!(error instanceof Error)) return "Authentication failed. Try again.";
@@ -133,6 +142,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
     if (!passkeyConnector) { setAuthMessage("Passkey connector unavailable."); return; }
     setAuthMessage(null);
     setIsPending(true);
+    setLastAuthMode(mode);
 
     if (mode === "sign-in" && typeof window !== "undefined") {
       try { window.localStorage.removeItem(ACTIVE_CREDENTIAL_KEY); } catch {}
@@ -183,6 +193,20 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
   const handleConfirmCancel = async () => {
     setConfirmOpen(false);
     if (mappedAddress) await handleConnect("sign-in");
+  };
+
+  const handleContinueAfterPrompt = () => {
+    setShowBackupPrompt(false);
+    if (onSuccess) {
+      onSuccess();
+      return;
+    }
+    router.push("/app");
+  };
+
+  const handleOpenBackupSetup = () => {
+    setShowBackupPrompt(false);
+    router.push("/app/settings/recovery");
   };
 
   if (!supportsWebAuthn) {
@@ -237,6 +261,23 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
             <p className="text-sm text-[--status-error-text] bg-[--status-error-bg] rounded-[--radius-md] px-3 py-2">
               {authMessage}
             </p>
+          )}
+
+          {showBackupPrompt && (
+            <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] p-3" data-testid="backup-passkey-prompt">
+              <p className="text-sm font-semibold text-[--status-warning-text]">Add a backup passkey now</p>
+              <p className="mt-1 text-xs text-[--status-warning-text]">
+                Device loss without backup can lock your wallet permanently.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <Button className="h-9 px-3 text-xs" onClick={handleOpenBackupSetup}>
+                  Add Backup
+                </Button>
+                <Button variant="secondary" className="h-9 px-3 text-xs" onClick={handleContinueAfterPrompt}>
+                  Maybe Later
+                </Button>
+              </div>
+            </div>
           )}
 
           <div className="flex items-center gap-2 text-xs text-[--text-muted] border-t border-[--border-subtle] pt-3">

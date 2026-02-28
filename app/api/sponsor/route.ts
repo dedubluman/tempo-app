@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 10;
 const MAX_BODY_BYTES = 10 * 1024;
-const sponsorUrl = process.env.NEXT_PUBLIC_FEE_SPONSOR_URL || 'https://sponsor.moderato.tempo.xyz';
+const sponsorUrl = process.env.FEE_SPONSOR_URL || 'https://sponsor.moderato.tempo.xyz';
 
 type RateLimitEntry = {
   count: number;

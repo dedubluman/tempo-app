@@ -1,4 +1,4 @@
-import { http } from "viem";
+import { fallback, http } from "viem";
 import { tempoModerato } from "viem/chains";
 import { withFeePayer } from "viem/tempo";
 import { createConfig } from "wagmi";
@@ -10,7 +10,22 @@ export const config = createConfig({
   multiInjectedProviderDiscovery: false,
   transports: {
     [tempoModerato.id]: withFeePayer(
-      http(process.env.NEXT_PUBLIC_TEMPO_RPC_URL),
+      fallback([
+        http(process.env.NEXT_PUBLIC_TEMPO_RPC_URL, {
+          retryCount: 3,
+          retryDelay: 150,
+        }),
+        http("https://rpc.moderato.tempo.xyz", {
+          retryCount: 3,
+          retryDelay: 150,
+        }),
+        ...(process.env.NEXT_PUBLIC_TEMPO_RPC_FALLBACK
+          ? [http(process.env.NEXT_PUBLIC_TEMPO_RPC_FALLBACK, {
+              retryCount: 3,
+              retryDelay: 150,
+            })]
+          : []),
+      ]),
       http("/api/sponsor"),
     ),
   },

@@ -28,7 +28,7 @@ export default defineConfig({
   webServer: {
     command: "NEXT_PUBLIC_E2E_MOCK_AUTH=1 npm run dev -- --port 3100",
     url: baseURL,
-    timeout: 120_000,
-    reuseExistingServer: false,
+    timeout: 240_000,
+    reuseExistingServer: true,
   },
 });
