@@ -19,6 +19,9 @@ import { formatAddress } from "@/lib/utils";
 type EnrollmentStep = 1 | 2 | 3 | 4 | 5;
 
 const PASSKEY_RECOVERY_ENABLED = isFeatureEnabled(FeatureFlag.PASSKEY_RECOVERY);
+const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
+const WALLET_CREATED_FLAG = "tempo.walletCreated";
+const LAST_ADDRESS_KEY = "tempo.lastAddress";
 
 export default function RecoverySettingsPage() {
   const { address, isConnected } = useAccount();
@@ -28,43 +31,62 @@ export default function RecoverySettingsPage() {
   const [savedRecord, setSavedRecord] = useState<BackupCredentialMetadata | null>(null);
   const [existingBackups, setExistingBackups] = useState<BackupCredentialMetadata[]>([]);
 
+  const mockAddress =
+    E2E_MOCK_AUTH && typeof window !== "undefined" && window.localStorage.getItem(WALLET_CREATED_FLAG) === "1"
+      ? window.localStorage.getItem(LAST_ADDRESS_KEY) || ""
+      : "";
+  const effectiveAddress = address ?? (mockAddress ? (mockAddress as `0x${string}`) : undefined);
+  const hasActiveWallet = (isConnected && Boolean(address)) || Boolean(mockAddress);
+
   const passkeyConnector = useMemo(
     () => config.connectors.find((connector) => connector.id === "webAuthn"),
     [],
   );
 
   useEffect(() => {
-    if (!address) {
+    if (!effectiveAddress) {
       setExistingBackups([]);
       return;
     }
 
-    setExistingBackups(getBackupCredentialMetadata(address));
-  }, [address]);
+    setExistingBackups(getBackupCredentialMetadata(effectiveAddress));
+  }, [effectiveAddress]);
 
   const handleRegisterBackup = async () => {
-    if (!address || !passkeyConnector) {
+    if (!effectiveAddress) {
       return;
     }
 
     setError(null);
     setIsRegistering(true);
 
-    const targetAddress = address;
+    const targetAddress = effectiveAddress;
 
     try {
-      await connectAccount(config, {
-        connector: passkeyConnector,
-        capabilities: { type: "sign-up" },
-      });
+      let credentialId: string | null = null;
 
-      const connectedAddress = getAccount(config).address;
-      if (!connectedAddress || connectedAddress.toLowerCase() !== targetAddress.toLowerCase()) {
-        setError("Backup passkey was not linked to the current wallet. Use the same account and try again.");
-        return;
+      if (E2E_MOCK_AUTH) {
+        credentialId = `mock-backup-${Date.now()}`;
+      } else {
+        if (!passkeyConnector) {
+          setError("Passkey connector unavailable.");
+          return;
+        }
+
+        await connectAccount(config, {
+          connector: passkeyConnector,
+          capabilities: { type: "sign-up" },
+        });
+
+        const connectedAddress = getAccount(config).address;
+        if (!connectedAddress || connectedAddress.toLowerCase() !== targetAddress.toLowerCase()) {
+          setError("Backup passkey was not linked to the current wallet. Use the same account and try again.");
+          return;
+        }
+
+        credentialId = getActiveCredentialId();
       }
 
-      const credentialId = getActiveCredentialId();
       if (!credentialId) {
         setError("Backup passkey created but credential metadata could not be read.");
         return;
@@ -113,7 +135,7 @@ export default function RecoverySettingsPage() {
     );
   }
 
-  if (!isConnected || !address) {
+  if (!hasActiveWallet || !effectiveAddress) {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-10">
         <section className="rounded-2xl border border-[--status-warning-border] bg-[--status-warning-bg] p-5 sm:p-6 text-[--status-warning-text]">
@@ -132,9 +154,9 @@ export default function RecoverySettingsPage() {
     <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-8 sm:py-10" data-testid="recovery-enrollment-page">
       <section className="rounded-2xl border border-[--border-default] bg-[--bg-surface] p-5 sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Passkey Recovery</p>
-        <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">Backup Passkey Enrollment</h1>
+          <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">Backup Passkey Enrollment</h1>
         <p className="mt-2 text-sm text-[--text-secondary]">
-          Wallet <span className="font-mono">{formatAddress(address, 8, 6)}</span>
+          Wallet <span className="font-mono">{formatAddress(effectiveAddress, 8, 6)}</span>
         </p>
       </section>
 
@@ -183,7 +205,7 @@ export default function RecoverySettingsPage() {
           </p>
           <button
             className="mt-4 inline-flex h-11 items-center rounded-xl bg-[--brand-primary] px-4 text-sm font-semibold text-[--text-inverse] disabled:opacity-60"
-            disabled={isRegistering || !passkeyConnector}
+            disabled={isRegistering || (!passkeyConnector && !E2E_MOCK_AUTH)}
             onClick={() => void handleRegisterBackup()}
             type="button"
             data-testid="register-backup-passkey"

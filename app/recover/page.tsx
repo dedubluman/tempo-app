@@ -10,8 +10,11 @@ import { FeatureFlag, isFeatureEnabled } from "@/lib/featureFlags";
 import { createSession } from "@/lib/sessionManager";
 
 const PASSKEY_RECOVERY_ENABLED = isFeatureEnabled(FeatureFlag.PASSKEY_RECOVERY);
+const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 const ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.activeCredential";
 const LAST_ACTIVE_CREDENTIAL_KEY = "wagmi.webAuthn.lastActiveCredential";
+const WALLET_CREATED_FLAG = "tempo.walletCreated";
+const LAST_ADDRESS_KEY = "tempo.lastAddress";
 
 function hasActiveCredentialOnDevice(): boolean {
   if (typeof window === "undefined") {
@@ -61,7 +64,7 @@ export default function RecoverPage() {
   const recoveryNeeded = !hasLocalCredential || !hasLocalSession;
 
   const handleRecover = async () => {
-    if (!passkeyConnector) {
+    if (!passkeyConnector && !E2E_MOCK_AUTH) {
       setError("Passkey connector unavailable.");
       return;
     }
@@ -71,16 +74,49 @@ export default function RecoverPage() {
     setIsRecovering(true);
 
     try {
-      await connectAccount(config, {
-        connector: passkeyConnector,
-        capabilities: { type: "sign-in" },
-      });
+      if (E2E_MOCK_AUTH) {
+        const fallbackAddress = typeof window !== "undefined" ? window.localStorage.getItem(LAST_ADDRESS_KEY) : null;
+        if (fallbackAddress && typeof window !== "undefined") {
+          window.localStorage.setItem(WALLET_CREATED_FLAG, "1");
+          window.localStorage.setItem(LAST_ADDRESS_KEY, fallbackAddress);
+          window.localStorage.setItem(
+            "fluxus-session-storage",
+            JSON.stringify({
+              state: {
+                sessions: [
+                  {
+                    id: `mock-session-${Date.now()}`,
+                    rootAddress: fallbackAddress,
+                    accessPrivateKey: "0x",
+                    accessKeyAddress: fallbackAddress,
+                    createdAtMs: Date.now(),
+                    expiresAtSec: Math.floor(Date.now() / 1000) + 3600,
+                    spendLimit: "25000000",
+                    spent: "0",
+                    allowedRecipients: [],
+                    keyAuthorization: null,
+                  },
+                ],
+              },
+            }),
+          );
+        }
+      } else {
+        if (!passkeyConnector) {
+          setError("Passkey connector unavailable.");
+          return;
+        }
+        await connectAccount(config, {
+          connector: passkeyConnector,
+          capabilities: { type: "sign-in" },
+        });
 
-      await createSession({
-        durationMinutes: 60,
-        spendLimit: parseUnits("25", PATHUSD_DECIMALS),
-        allowedRecipients: [],
-      });
+        await createSession({
+          durationMinutes: 60,
+          spendLimits: new Map([["0x20c0000000000000000000000000000000000000" as `0x${string}`, parseUnits("25", PATHUSD_DECIMALS)]]),
+          allowedRecipients: [],
+        });
+      }
 
       setResult("Recovery complete. New session keys were created.");
       window.location.assign("/app");

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { migrateSessionToMultiToken } from "@/lib/sessionManager";
 import type { TokenBalance } from "@/types/token";
 import type { SessionRecord } from "@/lib/sessionManager";
 import type { LocalTransferHistoryEntry } from "@/lib/transactionHistoryStore";
@@ -320,6 +321,7 @@ const initialSessionState = {
 };
 
 // Custom serializer for sessions (bigint handling)
+// Custom serializer for sessions (bigint and Map handling)
 const sessionStorage = {
   getItem: (name: string) => {
     const str = localStorage.getItem(name);
@@ -327,12 +329,41 @@ const sessionStorage = {
     try {
       const parsed = JSON.parse(str);
       if (parsed.state?.sessions) {
-        parsed.state.sessions = parsed.state.sessions.map((s: any) => ({
-          ...s,
-          spendLimit: typeof s.spendLimit === "string" ? BigInt(s.spendLimit) : s.spendLimit,
-          spent: typeof s.spent === "string" ? BigInt(s.spent) : s.spent,
-          keyAuthorization: null,
-        }));
+        parsed.state.sessions = parsed.state.sessions.map((s: any) => {
+          // Migrate old format if needed
+          const migrated = migrateSessionToMultiToken(s);
+          
+          // Convert serialized maps back to Map instances
+          const spendLimits = new Map<`0x${string}`, bigint>();
+          const spent = new Map<`0x${string}`, bigint>();
+          
+          if (Array.isArray(migrated.spendLimits)) {
+            for (const [token, limit] of migrated.spendLimits) {
+              spendLimits.set(token as `0x${string}`, typeof limit === 'string' ? BigInt(limit) : limit);
+            }
+          } else if (migrated.spendLimits instanceof Map) {
+            for (const [token, limit] of migrated.spendLimits.entries()) {
+              spendLimits.set(token, typeof limit === 'string' ? BigInt(limit) : limit);
+            }
+          }
+          
+          if (Array.isArray(migrated.spent)) {
+            for (const [token, amount] of migrated.spent) {
+              spent.set(token as `0x${string}`, typeof amount === 'string' ? BigInt(amount) : amount);
+            }
+          } else if (migrated.spent instanceof Map) {
+            for (const [token, amount] of migrated.spent.entries()) {
+              spent.set(token, typeof amount === 'string' ? BigInt(amount) : amount);
+            }
+          }
+          
+          return {
+            ...migrated,
+            spendLimits,
+            spent,
+            keyAuthorization: null,
+          };
+        });
       }
       return JSON.stringify(parsed);
     } catch {
@@ -345,8 +376,13 @@ const sessionStorage = {
       if (parsed.state?.sessions) {
         parsed.state.sessions = parsed.state.sessions.map((s: any) => ({
           ...s,
-          spendLimit: typeof s.spendLimit === "bigint" ? s.spendLimit.toString() : s.spendLimit,
-          spent: typeof s.spent === "bigint" ? s.spent.toString() : s.spent,
+          // Convert Map → Array of [key, value] tuples with bigint → string
+          spendLimits: s.spendLimits instanceof Map
+            ? Array.from(s.spendLimits.entries()).map((entry: any) => [entry[0], typeof entry[1] === 'bigint' ? entry[1].toString() : entry[1]])
+            : s.spendLimits,
+          spent: s.spent instanceof Map
+            ? Array.from(s.spent.entries()).map((entry: any) => [entry[0], typeof entry[1] === 'bigint' ? entry[1].toString() : entry[1]])
+            : s.spent,
           keyAuthorization: null,
         }));
       }

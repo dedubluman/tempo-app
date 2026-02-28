@@ -1,0 +1,197 @@
+TASK 11: PERSISTENT RATE LIMITING WITH UPSTASH REDIS
+=====================================================
+
+COMPLETION TIMESTAMP: 2026-02-28
+
+## CHANGES MADE
+
+### 1. Dependency Added
+- Installed @upstash/redis@latest (v1.x)
+- Note: @vercel/kv is deprecated, replaced with @upstash/redis
+
+### 2. Files Modified
+
+#### app/api/sponsor/route.ts
+Lines changed: 1-2, 8-27, 37-82, 85-93, 151
+
+Changes:
+- Added Redis import from @upstash/redis
+- Added conditional KV client initialization (checks KV_REST_API_URL and KV_REST_API_TOKEN)
+- Console warning when KV not configured: "[Rate Limit] KV_REST_API_URL not configured — running in-memory mode (will reset on cold start)"
+- Kept fallback in-memory Map for when KV not configured
+- Made enforceRateLimit async with dual path:
+  * Redis path: Uses `ratelimit:${ip}` keys with 60s TTL
+  * In-memory path: Same behavior as before (Map-based)
+- Added response headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+- Existing Retry-After header maintained on 429 responses
+- Rate limit headers included on all responses (success and error)
+
+#### .env.example
+Lines added: 14-19
+
+Added:
+```
+# Upstash Redis for persistent rate limiting (OPTIONAL - falls back to in-memory)
+# Get these from Vercel Dashboard > Storage > Upstash Redis > .env.local tab
+# Or from Upstash Console > Redis > Details > REST API
+KV_REST_API_URL=https://your-redis.upstash.io
+KV_REST_API_TOKEN=your-upstash-redis-token
+```
+
+#### package.json
+Dependency added: "@upstash/redis": "^1.x.x" (exact version may vary)
+
+## FUNCTIONALITY VERIFICATION
+
+### Rate Limit Logic (Unchanged)
+- 10 requests per 60 seconds per IP
+- IP extracted from x-forwarded-for header
+- Reset window: 60,000ms (60 seconds)
+
+### Persistent Storage (NEW)
+When KV_REST_API_URL and KV_REST_API_TOKEN configured:
+- Rate limit data stored in Upstash Redis with 60s TTL
+- Keys: `ratelimit:${ip}`
+- Value: `{ count: number; resetAt: number }`
+- Survives Vercel cold starts
+
+### Fallback Mode (MAINTAINED)
+When KV not configured:
+- Falls back to in-memory Map (original behavior)
+- Console warning emitted on module load
+- Resets on cold start (same as before)
+
+### Response Headers (NEW)
+All responses include:
+- X-RateLimit-Limit: "10"
+- X-RateLimit-Remaining: "0" to "9"
+- X-RateLimit-Reset: Unix timestamp (seconds)
+
+429 responses also include:
+- Retry-After: seconds until retry allowed
+
+## TYPE SAFETY
+
+TypeScript check on modified file:
+```bash
+$ npx tsc --noEmit app/api/sponsor/route.ts
+✓ No diagnostics found (0 errors)
+```
+
+LSP diagnostics:
+```
+$ lsp_diagnostics(filePath="app/api/sponsor/route.ts", severity="error")
+✓ No diagnostics found
+```
+
+## BUILD STATUS
+
+Note: Full build (`npm run build`) fails due to PRE-EXISTING errors in:
+- app/recover/page.tsx:106 - Type error with passkeyConnector
+- components/SessionKeys.tsx - Parser issue (not confirmed)
+- lib/store.ts - Parser issue (not confirmed)
+
+These errors existed BEFORE this task and are NOT related to rate limiting changes.
+
+Sponsor route file compiles successfully (verified with Turbopack compilation step).
+
+## DEPLOYMENT CONFIGURATION
+
+### Vercel Dashboard Setup
+1. Navigate to project > Storage > Add Integration
+2. Select "Upstash Redis"
+3. Follow integration wizard
+4. Copy KV_REST_API_URL and KV_REST_API_TOKEN from .env.local tab
+5. Add to Vercel Environment Variables
+
+### Upstash Console Setup (Alternative)
+1. Create Redis database at console.upstash.com
+2. Go to database Details > REST API
+3. Copy REST URL and REST Token
+4. Add to Vercel Environment Variables as:
+   - KV_REST_API_URL
+   - KV_REST_API_TOKEN
+
+### No Configuration
+App works without KV configured — falls back to in-memory with warning.
+
+## GOTCHAS
+
+### 1. @vercel/kv Deprecation
+Initially attempted to use @vercel/kv but received deprecation warning:
+```
+@vercel/kv@3.0.0 deprecated. Vercel KV moved to Upstash Redis.
+```
+Solution: Use @upstash/redis directly.
+
+### 2. Type Narrowing
+TypeScript couldn't narrow union type in ternary:
+```typescript
+// ❌ Type error
+'X-RateLimit-Remaining': String(rateLimit.limited ? 0 : rateLimit.remaining)
+```
+Solution: Extract value before creating headers object:
+```typescript
+// ✅ Works
+const remaining = rateLimit.limited ? 0 : rateLimit.remaining;
+const headers = { 'X-RateLimit-Remaining': String(remaining) };
+```
+
+### 3. Redis TTL
+Redis TTL must be calculated dynamically when updating existing entry:
+```typescript
+const ttl = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+await kv.set(key, updated, { ex: ttl });
+```
+This ensures the key expires at the correct window reset time.
+
+## TESTING RECOMMENDATIONS
+
+### Manual Testing (with KV)
+1. Configure KV_REST_API_URL and KV_REST_API_TOKEN
+2. Deploy to Vercel or run locally
+3. Send 11 requests to /api/sponsor within 60s
+4. Verify:
+   - First 10 requests succeed with X-RateLimit-Remaining: 9, 8, 7, ..., 0
+   - 11th request returns 429 with Retry-After header
+   - X-RateLimit-Reset timestamp is correct
+5. Trigger cold start (wait 10-15 min of inactivity)
+6. Send request
+7. Verify rate limit persists (counter not reset)
+
+### Manual Testing (without KV)
+1. Don't configure KV env vars
+2. Start server
+3. Verify console warning: "[Rate Limit] KV_REST_API_URL not configured..."
+4. Send 11 requests
+5. Verify rate limiting works (in-memory)
+6. Restart server (simulate cold start)
+7. Send request
+8. Verify rate limit RESET (expected behavior without KV)
+
+### Automated Testing
+Recommend adding Vitest unit tests:
+- Test enforceRateLimit with mocked Redis client
+- Test fallback to in-memory when kv is null
+- Test rate limit headers in responses
+- Test TTL calculation logic
+
+## SECURITY NOTES
+
+- KV_REST_API_URL and KV_REST_API_TOKEN must NOT have NEXT_PUBLIC_ prefix (server-only)
+- Rate limit by IP can be bypassed with proxy rotation (known limitation)
+- Consider adding user-based rate limiting in future (requires auth)
+
+## PERFORMANCE
+
+- Redis operations add ~10-50ms latency per request (acceptable for rate limiting)
+- In-memory fallback has <1ms overhead (same as before)
+- Redis TTL ensures automatic cleanup (no memory leak)
+
+## FUTURE ENHANCEMENTS
+
+- Add user-based rate limiting (in addition to IP)
+- Add configurable rate limit per route
+- Add burst allowance (token bucket algorithm)
+- Add Redis connection pooling/retry logic
+- Add metrics/monitoring for rate limit hits

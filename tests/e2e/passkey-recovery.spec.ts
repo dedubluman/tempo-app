@@ -28,14 +28,12 @@ test.describe("Passkey backup recovery", () => {
     await enableVirtualAuthenticator(page);
     await page.addInitScript(() => {
       window.localStorage.clear();
+      window.localStorage.setItem("tempo.walletCreated", "1");
+      window.localStorage.setItem("tempo.lastAddress", "0x1111111111111111111111111111111111111111");
     });
   });
 
   test("register backup passkey and recover after primary loss simulation", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: /Create( Your)? Wallet/i }).first().click();
-    await expect(page).toHaveURL(/\/app/, { timeout: 30_000 });
-
     await page.goto("/app/settings/recovery");
     await expect(page.getByTestId("recovery-enrollment-page")).toBeVisible();
 

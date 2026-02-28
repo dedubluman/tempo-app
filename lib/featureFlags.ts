@@ -39,8 +39,15 @@ const FEATURE_DEFAULTS: Record<FeatureFlag, boolean> = {
  * @returns true if feature is enabled, false otherwise
  */
 export function isFeatureEnabled(flag: FeatureFlag): boolean {
-  const envVarName = `NEXT_PUBLIC_FF_${flag}`;
-  const envValue = process.env[envVarName];
+  const envValues: Record<FeatureFlag, string | undefined> = {
+    [FeatureFlag.ANALYTICS]: process.env.NEXT_PUBLIC_FF_ANALYTICS,
+    [FeatureFlag.PASSKEY_RECOVERY]: process.env.NEXT_PUBLIC_FF_PASSKEY_RECOVERY,
+    [FeatureFlag.OFFLINE_MODE]: process.env.NEXT_PUBLIC_FF_OFFLINE_MODE,
+    [FeatureFlag.NFC_PAYMENT]: process.env.NEXT_PUBLIC_FF_NFC_PAYMENT,
+    [FeatureFlag.STREAMING_SUBSCRIPTIONS]: process.env.NEXT_PUBLIC_FF_STREAMING_SUBSCRIPTIONS,
+    [FeatureFlag.ATOMIC_SPLIT]: process.env.NEXT_PUBLIC_FF_ATOMIC_SPLIT,
+  };
+  const envValue = envValues[flag];
 
   // If env var is explicitly set, use it
   if (envValue !== undefined) {

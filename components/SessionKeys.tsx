@@ -12,6 +12,7 @@ import {
   type SessionDuration,
 } from "@/lib/sessionManager";
 import { formatUnits, isAddress } from "viem";
+import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { PATHUSD_DECIMALS } from "@/lib/constants";
 
 const DURATION_OPTIONS: { label: string; value: SessionDuration }[] = [
@@ -51,7 +52,8 @@ export function SessionKeys() {
   const [nowSec, setNowSec] = useState(Math.floor(Date.now() / 1000));
 
   const [duration, setDuration] = useState<SessionDuration>(60);
-  const [spendLimitInput, setSpendLimitInput] = useState("50");
+  const [selectedTokens, setSelectedTokens] = useState<Set<string>>(new Set([TOKEN_REGISTRY[0].address]));
+  const [spendLimitInputs, setSpendLimitInputs] = useState<Record<string, string>>({ [TOKEN_REGISTRY[0].address]: "50" });
   const [allowedRecipientsInput, setAllowedRecipientsInput] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,16 +84,28 @@ export function SessionKeys() {
     setError(null);
     setExpiredSessionNotice(null);
 
-    let spendLimit: bigint;
-    try {
-      spendLimit = parseSpendLimitFromInput(spendLimitInput);
-    } catch {
-      setError("Enter a valid spend limit with up to 6 decimals.");
-      return;
+    const spendLimits = new Map<`0x${string}`, bigint>();
+    
+    for (const tokenAddr of selectedTokens) {
+      const inputValue = spendLimitInputs[tokenAddr] || "0";
+      const token = TOKEN_REGISTRY.find(t => t.address === tokenAddr);
+      if (!token) continue;
+      
+      try {
+        const limit = parseSpendLimitFromInput(inputValue, token.decimals);
+        if (limit <= BigInt(0)) {
+          setError(`Spend limit for ${token.symbol} must be greater than 0.`);
+          return;
+        }
+        spendLimits.set(tokenAddr as `0x${string}`, limit);
+      } catch {
+        setError(`Invalid spend limit for ${token.symbol}.`);
+        return;
+      }
     }
 
-    if (spendLimit <= BigInt(0)) {
-      setError("Spend limit must be greater than 0.");
+    if (spendLimits.size === 0) {
+      setError("Select at least one token with a spend limit.");
       return;
     }
 
@@ -106,7 +120,7 @@ export function SessionKeys() {
     try {
       await createSession({
         durationMinutes: duration,
-        spendLimit,
+        spendLimits,
         allowedRecipients: recipients,
       });
       setAllowedRecipientsInput("");
@@ -148,19 +162,43 @@ export function SessionKeys() {
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="session-limit" className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
-            Spend Limit (pathUSD)
-          </label>
-          <input
-            id="session-limit"
-            type="text"
-            inputMode="decimal"
-            value={spendLimitInput}
-            onChange={(event) => setSpendLimitInput(event.target.value)}
-            className="h-11 w-full rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm text-[--text-primary] placeholder:text-[--text-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40"
-            placeholder="50"
-          />
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Token Limits</p>
+          {TOKEN_REGISTRY.map((token) => {
+            const isSelected = selectedTokens.has(token.address);
+            return (
+              <div key={token.address} className="space-y-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(e) => {
+                      const newSelected = new Set(selectedTokens);
+                      if (e.target.checked) {
+                        newSelected.add(token.address);
+                        setSpendLimitInputs(prev => ({ ...prev, [token.address]: "50" }));
+                      } else {
+                        newSelected.delete(token.address);
+                      }
+                      setSelectedTokens(newSelected);
+                    }}
+                    className="h-4 w-4 rounded border-[--border-default] text-[--brand-primary] focus:ring-2 focus:ring-[--brand-primary]/40"
+                  />
+                  <span className="text-sm font-medium text-[--text-primary]">{token.symbol}</span>
+                </label>
+                {isSelected && (
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={spendLimitInputs[token.address] || ""}
+                    onChange={(e) => setSpendLimitInputs(prev => ({ ...prev, [token.address]: e.target.value }))}
+                    className="h-11 w-full rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm text-[--text-primary] placeholder:text-[--text-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40"
+                    placeholder="50"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="space-y-1">
@@ -204,7 +242,6 @@ export function SessionKeys() {
         ) : (
           activeSessions.map((session) => {
             const secondsLeft = Math.max(session.expiresAtSec - nowSec, 0);
-            const remaining = getSessionRemainingSpend(session);
             return (
               <div key={session.id} className="space-y-2 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-3">
                 <div className="flex items-center justify-between gap-2">
@@ -218,9 +255,20 @@ export function SessionKeys() {
                   </button>
                 </div>
                 <p className="text-xs text-[--text-tertiary]">Expires in: {formatCountdown(secondsLeft)}</p>
-                <p className="text-xs text-[--text-tertiary]">
-                  Spend remaining: {formatUnits(remaining, PATHUSD_DECIMALS)} pathUSD
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Spend Remaining</p>
+                  {Array.from(session.spendLimits.entries()).map(([tokenAddr, limit]) => {
+                    const token = TOKEN_REGISTRY.find(t => t.address === tokenAddr);
+                    if (!token) return null;
+                    const spent = session.spent.get(tokenAddr) || BigInt(0);
+                    const remaining = limit > spent ? limit - spent : BigInt(0);
+                    return (
+                      <p key={tokenAddr} className="text-xs text-[--text-tertiary]">
+                        {token.symbol}: {formatUnits(remaining, token.decimals)}
+                      </p>
+                    );
+                  })}
+                </div>
                 {session.allowedRecipients.length > 0 ? (
                   <p className="text-xs text-[--text-tertiary]">Allowed recipients: {session.allowedRecipients.length}</p>
                 ) : (

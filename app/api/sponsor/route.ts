@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Redis } from '@upstash/redis';
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 10;
@@ -10,6 +11,19 @@ type RateLimitEntry = {
   resetAt: number;
 };
 
+// Initialize Redis client (conditional)
+let kv: Redis | null = null;
+
+if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  kv = new Redis({
+    url: process.env.KV_REST_API_URL,
+    token: process.env.KV_REST_API_TOKEN,
+  });
+} else {
+  console.warn('[Rate Limit] KV_REST_API_URL not configured — running in-memory mode (will reset on cold start)');
+}
+
+// Fallback in-memory store (used when KV not configured)
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 function getClientIp(request: NextRequest): string {
@@ -20,34 +34,71 @@ function getClientIp(request: NextRequest): string {
   return forwardedFor.split(',')[0]?.trim() || 'unknown';
 }
 
-function enforceRateLimit(ip: string): { limited: false } | { limited: true; retryAfterSeconds: number } {
+async function enforceRateLimit(ip: string): Promise<
+  | { limited: false; remaining: number; resetAt: number }
+  | { limited: true; retryAfterSeconds: number; resetAt: number }
+> {
   const now = Date.now();
-  const existing = rateLimitStore.get(ip);
 
-  if (!existing || now >= existing.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return { limited: false };
+  if (kv) {
+    // Use persistent Redis storage
+    const key = `ratelimit:${ip}`;
+    const existing = await kv.get<RateLimitEntry>(key);
+
+    if (!existing || now >= existing.resetAt) {
+      const resetAt = now + WINDOW_MS;
+      await kv.set(key, { count: 1, resetAt }, { ex: 60 });
+      return { limited: false, remaining: MAX_REQUESTS - 1, resetAt };
+    }
+
+    if (existing.count >= MAX_REQUESTS) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+      return { limited: true, retryAfterSeconds, resetAt: existing.resetAt };
+    }
+
+    const updated = { count: existing.count + 1, resetAt: existing.resetAt };
+    const ttl = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+    await kv.set(key, updated, { ex: ttl });
+    return { limited: false, remaining: MAX_REQUESTS - updated.count, resetAt: updated.resetAt };
+  } else {
+    // Fallback to in-memory (resets on cold start)
+    const existing = rateLimitStore.get(ip);
+
+    if (!existing || now >= existing.resetAt) {
+      const resetAt = now + WINDOW_MS;
+      rateLimitStore.set(ip, { count: 1, resetAt });
+      return { limited: false, remaining: MAX_REQUESTS - 1, resetAt };
+    }
+
+    if (existing.count >= MAX_REQUESTS) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+      return { limited: true, retryAfterSeconds, resetAt: existing.resetAt };
+    }
+
+    existing.count += 1;
+    rateLimitStore.set(ip, existing);
+    return { limited: false, remaining: MAX_REQUESTS - existing.count, resetAt: existing.resetAt };
   }
-
-  if (existing.count >= MAX_REQUESTS) {
-    const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
-    return { limited: true, retryAfterSeconds };
-  }
-
-  existing.count += 1;
-  rateLimitStore.set(ip, existing);
-  return { limited: false };
 }
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  const rateLimit = enforceRateLimit(ip);
+  const rateLimit = await enforceRateLimit(ip);
+
+  const remaining = rateLimit.limited ? 0 : rateLimit.remaining;
+  const rateLimitHeaders = {
+    'X-RateLimit-Limit': String(MAX_REQUESTS),
+    'X-RateLimit-Remaining': String(remaining),
+    'X-RateLimit-Reset': String(Math.ceil(rateLimit.resetAt / 1000)),
+  };
+
   if (rateLimit.limited) {
     return NextResponse.json(
       { error: 'Too many requests. Please retry later.' },
       {
         status: 429,
         headers: {
+          ...rateLimitHeaders,
           'Retry-After': String(rateLimit.retryAfterSeconds),
         },
       },
@@ -98,7 +149,7 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data, { status: response.status, headers: rateLimitHeaders });
   } catch {
     return NextResponse.json(
       { error: 'Fee sponsorship unavailable, try again' },
