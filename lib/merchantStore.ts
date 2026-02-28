@@ -16,16 +16,27 @@ export interface MerchantReceipt {
   memo: string;
 }
 
+export interface SplitConfig {
+  enabled: boolean;
+  taxPercent: number;
+  taxWallet: string;
+  tipPercent: number;
+  tipWallet: string;
+}
+
 interface MerchantStore {
   receipts: MerchantReceipt[];
   addReceipt: (receipt: Omit<MerchantReceipt, "id" | "timestamp">) => void;
   clearReceipts: () => void;
+  splitConfig: SplitConfig;
+  setSplitConfig: (config: SplitConfig) => void;
 }
 
 export const useMerchantStore = create<MerchantStore>()(
   persist(
     (set) => ({
       receipts: [],
+      splitConfig: { enabled: false, taxPercent: 0, taxWallet: "", tipPercent: 0, tipWallet: "" },
 
       addReceipt: (receipt) =>
         set((state) => {
@@ -39,6 +50,8 @@ export const useMerchantStore = create<MerchantStore>()(
         }),
 
       clearReceipts: () => set({ receipts: [] }),
+
+      setSplitConfig: (config) => set({ splitConfig: config }),
     }),
     {
       name: "fluxus-merchant-receipts",

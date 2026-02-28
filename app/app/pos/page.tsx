@@ -15,6 +15,9 @@ import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { EXPLORER_URL } from "@/lib/constants";
 import type { TokenInfo } from "@/types/token";
 import { createPaymentDetector } from "@/lib/paymentDetector";
+import { isNfcSupported, writeNfcPaymentUrl } from "@/lib/nfcWriter";
+import { FeatureGate } from "@/components/ui/FeatureGate";
+import { FeatureFlag } from "@/lib/featureFlags";
 
 type PosState = "keypad" | "qr" | "success";
 
@@ -354,6 +357,23 @@ export default function PosPage() {
               <div className="flex justify-center">
                 <QRCodeDisplay data={payUrl} size={280} />
               </div>
+              <FeatureGate flag={FeatureFlag.NFC_PAYMENT}>
+                {isNfcSupported() && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      writeNfcPaymentUrl({
+                        paymentUrl: payUrl,
+                        onSuccess: () => { /* NFC write success handled silently */ },
+                        onError: () => { /* NFC errors are non-critical */ },
+                      });
+                    }}
+                  >
+                    Tap to Pay (NFC)
+                  </Button>
+                )}
+              </FeatureGate>
               <div className="space-y-1">
                 <p className="font-mono text-3xl font-bold text-[--text-primary]">{amount}</p>
                 <p className="text-sm text-[--text-secondary]">{selectedToken.symbol}</p>
