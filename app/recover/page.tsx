@@ -7,7 +7,7 @@ import { parseUnits } from "viem";
 import { config } from "@/lib/config";
 import { PATHUSD_DECIMALS } from "@/lib/constants";
 import { FeatureFlag, isFeatureEnabled } from "@/lib/featureFlags";
-import { createSession } from "@/lib/sessionManager";
+import { createSession, revokeAllSessions } from "@/lib/sessionManager";
 
 const PASSKEY_RECOVERY_ENABLED = isFeatureEnabled(FeatureFlag.PASSKEY_RECOVERY);
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
@@ -110,6 +110,8 @@ export default function RecoverPage() {
           connector: passkeyConnector,
           capabilities: { type: "sign-in" },
         });
+
+        revokeAllSessions();
 
         await createSession({
           durationMinutes: 60,

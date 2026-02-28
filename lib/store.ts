@@ -3,6 +3,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { migrateSessionToMultiToken } from "@/lib/sessionManager";
+import {
+  decryptPrivateKey,
+  encryptPrivateKey,
+  getOrCreateSessionEncryptionKey,
+} from "@/lib/sessionCrypto";
 import type { TokenBalance } from "@/types/token";
 import type { SessionRecord } from "@/lib/sessionManager";
 import type { LocalTransferHistoryEntry } from "@/lib/transactionHistoryStore";
@@ -73,6 +78,28 @@ export interface UIState {
   reset: () => void;
 }
 
+export interface OfflineState {
+  isOnline: boolean;
+  setIsOnline: (online: boolean) => void;
+  reset: () => void;
+}
+
+export interface PendingTx {
+  id: string;
+  to: `0x${string}`;
+  token: `0x${string}`;
+  amount: string;
+  createdAt: number;
+}
+
+export interface TxQueueState {
+  pendingTxs: PendingTx[];
+  addPendingTx: (tx: PendingTx) => void;
+  removePendingTx: (id: string) => void;
+  clearQueue: () => void;
+  reset: () => void;
+}
+
 // Combined Store
 export interface AppStore {
   wallet: WalletState;
@@ -80,6 +107,8 @@ export interface AppStore {
   session: SessionState;
   txHistory: TxHistoryState;
   ui: UIState;
+  offline: OfflineState;
+  txQueue: TxQueueState;
 }
 
 // ============================================================================
@@ -322,14 +351,26 @@ const initialSessionState = {
 
 // Custom serializer for sessions (bigint handling)
 // Custom serializer for sessions (bigint and Map handling)
+function isEncryptedPrivateKey(value: unknown): value is { ciphertext: string; iv: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "ciphertext" in value &&
+    typeof value.ciphertext === "string" &&
+    "iv" in value &&
+    typeof value.iv === "string"
+  );
+}
+
 const sessionStorage = {
-  getItem: (name: string) => {
+  getItem: async (name: string) => {
     const str = localStorage.getItem(name);
     if (!str) return null;
     try {
       const parsed = JSON.parse(str);
       if (parsed.state?.sessions) {
-        parsed.state.sessions = parsed.state.sessions.map((s: any) => {
+        const encryptionKey = await getOrCreateSessionEncryptionKey();
+        const hydratedSessions = await Promise.all(parsed.state.sessions.map(async (s: any) => {
           // Migrate old format if needed
           const migrated = migrateSessionToMultiToken(s);
           
@@ -357,33 +398,61 @@ const sessionStorage = {
             }
           }
           
+          let accessPrivateKey = migrated.accessPrivateKey;
+          if (isEncryptedPrivateKey(accessPrivateKey)) {
+            try {
+              const decrypted = await decryptPrivateKey(
+                accessPrivateKey.ciphertext,
+                accessPrivateKey.iv,
+                encryptionKey,
+              );
+              if (!decrypted.startsWith("0x")) {
+                return null;
+              }
+              accessPrivateKey = decrypted as `0x${string}`;
+            } catch {
+              return null;
+            }
+          }
+
           return {
             ...migrated,
+            accessPrivateKey,
             spendLimits,
             spent,
             keyAuthorization: null,
           };
-        });
+        }));
+        parsed.state.sessions = hydratedSessions.filter((session: SessionRecord | null) => session !== null);
       }
       return JSON.stringify(parsed);
     } catch {
       return str;
     }
   },
-  setItem: (name: string, value: string) => {
+  setItem: async (name: string, value: string) => {
     try {
       const parsed = JSON.parse(value);
       if (parsed.state?.sessions) {
-        parsed.state.sessions = parsed.state.sessions.map((s: any) => ({
-          ...s,
-          // Convert Map → Array of [key, value] tuples with bigint → string
-          spendLimits: s.spendLimits instanceof Map
-            ? Array.from(s.spendLimits.entries()).map((entry: any) => [entry[0], typeof entry[1] === 'bigint' ? entry[1].toString() : entry[1]])
-            : s.spendLimits,
-          spent: s.spent instanceof Map
-            ? Array.from(s.spent.entries()).map((entry: any) => [entry[0], typeof entry[1] === 'bigint' ? entry[1].toString() : entry[1]])
-            : s.spent,
-          keyAuthorization: null,
+        const encryptionKey = await getOrCreateSessionEncryptionKey();
+        parsed.state.sessions = await Promise.all(parsed.state.sessions.map(async (s: any) => {
+          let accessPrivateKey = s.accessPrivateKey;
+          if (typeof accessPrivateKey === "string" && accessPrivateKey.startsWith("0x")) {
+            accessPrivateKey = await encryptPrivateKey(accessPrivateKey, encryptionKey);
+          }
+
+          return {
+            ...s,
+            accessPrivateKey,
+            // Convert Map → Array of [key, value] tuples with bigint → string
+            spendLimits: s.spendLimits instanceof Map
+              ? Array.from(s.spendLimits.entries()).map((entry: any) => [entry[0], typeof entry[1] === "bigint" ? entry[1].toString() : entry[1]])
+              : s.spendLimits,
+            spent: s.spent instanceof Map
+              ? Array.from(s.spent.entries()).map((entry: any) => [entry[0], typeof entry[1] === "bigint" ? entry[1].toString() : entry[1]])
+              : s.spent,
+            keyAuthorization: null,
+          };
         }));
       }
       localStorage.setItem(name, JSON.stringify(parsed));
@@ -391,7 +460,7 @@ const sessionStorage = {
       localStorage.setItem(name, value);
     }
   },
-  removeItem: (name: string) => {
+  removeItem: async (name: string) => {
     localStorage.removeItem(name);
   },
 };
@@ -591,6 +660,80 @@ if (broadcastChannel) {
   });
 }
 
+const initialOfflineState = {
+  isOnline: true,
+};
+
+export const useOfflineStore = create<OfflineState>()(
+  persist(
+    (set, get) => ({
+      ...initialOfflineState,
+      setIsOnline: (online) => {
+        set({ isOnline: online });
+        broadcastStoreUpdate("offline", get());
+      },
+      reset: () => {
+        set(initialOfflineState);
+        broadcastStoreUpdate("offline", get());
+      },
+    }),
+    {
+      name: "fluxus-offline-storage",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+
+if (broadcastChannel) {
+  broadcastChannel.addEventListener("message", (event) => {
+    if (event.data.storeName === "offline") {
+      useOfflineStore.setState(event.data.state, true);
+    }
+  });
+}
+
+const initialTxQueueState = {
+  pendingTxs: [] as PendingTx[],
+};
+
+export const useTxQueueStore = create<TxQueueState>()(
+  persist(
+    (set, get) => ({
+      ...initialTxQueueState,
+      addPendingTx: (tx) => {
+        set((state) => ({ pendingTxs: [tx, ...state.pendingTxs] }));
+        broadcastStoreUpdate("txQueue", get());
+      },
+      removePendingTx: (id) => {
+        set((state) => ({
+          pendingTxs: state.pendingTxs.filter((tx) => tx.id !== id),
+        }));
+        broadcastStoreUpdate("txQueue", get());
+      },
+      clearQueue: () => {
+        set({ pendingTxs: [] });
+        broadcastStoreUpdate("txQueue", get());
+      },
+      reset: () => {
+        set(initialTxQueueState);
+        broadcastStoreUpdate("txQueue", get());
+      },
+    }),
+    {
+      name: "fluxus-txqueue-storage",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+
+if (broadcastChannel) {
+  broadcastChannel.addEventListener("message", (event) => {
+    if (event.data.storeName === "txQueue") {
+      useTxQueueStore.setState(event.data.state, true);
+    }
+  });
+}
+
 // ============================================================================
 // GLOBAL RESET
 // ============================================================================
@@ -601,4 +744,6 @@ export function resetAllStores() {
   useSessionStore.getState().reset();
   useTxHistoryStore.getState().reset();
   useUIStore.getState().reset();
+  useOfflineStore.getState().reset();
+  useTxQueueStore.getState().reset();
 }

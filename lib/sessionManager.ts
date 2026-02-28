@@ -7,7 +7,11 @@ import { Account } from "viem/tempo";
 import { getAddress, isAddress, parseUnits } from "viem";
 import { config } from "@/lib/config";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS } from "@/lib/constants";
-import { TOKEN_REGISTRY } from "@/lib/tokens";
+import {
+  decryptPrivateKey,
+  encryptPrivateKey,
+  getOrCreateSessionEncryptionKey,
+} from "@/lib/sessionCrypto";
 import { useSessionStore } from "@/lib/store";
 
 export type SessionDuration = 15 | 60 | 1440;
@@ -21,7 +25,7 @@ export type SessionPolicy = {
 export type SessionRecord = {
   id: string;
   rootAddress: `0x${string}`;
-  accessPrivateKey: `0x${string}`;
+  accessPrivateKey: `0x${string}` | EncryptedPrivateKey;
   accessKeyAddress: `0x${string}`;
   createdAtMs: number;
   expiresAtSec: number;
@@ -31,9 +35,29 @@ export type SessionRecord = {
   keyAuthorization: KeyAuthorization.Signed | null;
 };
 
+export type EncryptedPrivateKey = {
+  ciphertext: string;
+  iv: string;
+};
+
 type SessionSnapshot = {
   sessions: SessionRecord[];
 };
+
+const sessionPrivateKeyCache = new Map<string, `0x${string}`>();
+
+function isEncryptedPrivateKey(
+  value: SessionRecord["accessPrivateKey"],
+): value is EncryptedPrivateKey {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "ciphertext" in value &&
+    typeof value.ciphertext === "string" &&
+    "iv" in value &&
+    typeof value.iv === "string"
+  );
+}
 
 function nowSec() {
   return Math.floor(Date.now() / 1000);
@@ -100,10 +124,13 @@ export async function createSession(policy: SessionPolicy) {
     },
   );
 
+  const sessionEncryptionKey = await getOrCreateSessionEncryptionKey();
+  const encryptedPrivateKey = await encryptPrivateKey(accessPrivateKey, sessionEncryptionKey);
+
   const session: SessionRecord = {
     id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
     rootAddress: getAddress(rootAccount.address),
-    accessPrivateKey,
+    accessPrivateKey: encryptedPrivateKey,
     accessKeyAddress: getAddress(accessAccount.accessKeyAddress),
     createdAtMs: Date.now(),
     expiresAtSec: expiry,
@@ -113,15 +140,18 @@ export async function createSession(policy: SessionPolicy) {
     keyAuthorization,
   };
 
+  sessionPrivateKeyCache.set(session.id, accessPrivateKey);
   useSessionStore.getState().addSession(session);
   return session;
 }
 
 export function revokeSession(sessionId: string) {
+  sessionPrivateKeyCache.delete(sessionId);
   useSessionStore.getState().removeSession(sessionId);
 }
 
 export function revokeAllSessions() {
+  sessionPrivateKeyCache.clear();
   useSessionStore.getState().clearAllSessions();
 }
 
@@ -131,6 +161,11 @@ export function cleanupExpiredSessions() {
   const next = sessions.filter((session) => session.expiresAtSec > current);
   const removedCount = sessions.length - next.length;
   if (removedCount > 0) {
+    for (const session of sessions) {
+      if (session.expiresAtSec <= current) {
+        sessionPrivateKeyCache.delete(session.id);
+      }
+    }
     useSessionStore.getState().setSessions(next);
   }
   return removedCount;
@@ -218,7 +253,45 @@ export function getSessionForBatch(parameters: { recipients: string[]; token?: `
 }
 
 export function getAccessAccountForSession(session: SessionRecord) {
-  return Account.fromSecp256k1(session.accessPrivateKey, { access: session.rootAddress });
+  if (!isEncryptedPrivateKey(session.accessPrivateKey)) {
+    sessionPrivateKeyCache.set(session.id, session.accessPrivateKey);
+    return Account.fromSecp256k1(session.accessPrivateKey, { access: session.rootAddress });
+  }
+
+  const cachedPrivateKey = sessionPrivateKeyCache.get(session.id);
+  if (cachedPrivateKey) {
+    return Account.fromSecp256k1(cachedPrivateKey, { access: session.rootAddress });
+  }
+
+  throw new Error("Session key is locked. Refresh and recover session access.");
+}
+
+export async function decryptSessionPrivateKey(
+  session: SessionRecord,
+): Promise<`0x${string}` | null> {
+  if (!isEncryptedPrivateKey(session.accessPrivateKey)) {
+    sessionPrivateKeyCache.set(session.id, session.accessPrivateKey);
+    return session.accessPrivateKey;
+  }
+
+  try {
+    const encryptionKey = await getOrCreateSessionEncryptionKey();
+    const decrypted = await decryptPrivateKey(
+      session.accessPrivateKey.ciphertext,
+      session.accessPrivateKey.iv,
+      encryptionKey,
+    );
+
+    if (!decrypted.startsWith("0x")) {
+      return null;
+    }
+
+    const privateKey = decrypted as `0x${string}`;
+    sessionPrivateKeyCache.set(session.id, privateKey);
+    return privateKey;
+  } catch {
+    return null;
+  }
 }
 
 export function getSessionRemainingSpend(session: SessionRecord, token?: `0x${string}`) {
