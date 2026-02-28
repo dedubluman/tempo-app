@@ -46,6 +46,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:outline-none"
+      >
+        Skip to content
+      </a>
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
         <aside className="hidden md:block md:w-56 md:shrink-0">
           <nav role="navigation" className="sticky top-20 rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-surface] p-2">
@@ -77,7 +83,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </nav>
         </aside>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        <main id="main-content" className="min-w-0 flex-1">{children}</main>
       </div>
 
       <nav

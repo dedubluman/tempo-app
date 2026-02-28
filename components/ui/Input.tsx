@@ -55,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "w-full h-10 rounded-[--radius-md] border bg-[--bg-surface] text-[--text-primary]",
               "px-3 outline-none transition-all duration-[--duration-fast]",
               "placeholder:text-[--text-muted]",
-              "focus:border-[--border-focus] focus:ring-2 focus:ring-[--brand-subtle]",
+              "focus-visible:border-[--border-focus] focus-visible:ring-2 focus-visible:ring-[--brand-subtle]",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               leftElement && "pl-10",
               rightElement && "pr-10",
@@ -64,6 +64,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 : "border-[--border-default]",
               className
             )}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
             {...props}
           />
 
@@ -75,10 +77,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error && (
-          <p className="text-sm text-[--status-error-text]">{error}</p>
+          <p id={`${inputId}-error`} role="alert" className="text-sm text-[--status-error-text]">{error}</p>
         )}
         {!error && helperText && (
-          <p className="text-sm text-[--text-muted]">{helperText}</p>
+          <p id={`${inputId}-helper`} className="text-sm text-[--text-muted]">{helperText}</p>
         )}
       </div>
     );

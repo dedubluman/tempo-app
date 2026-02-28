@@ -347,7 +347,7 @@ export default function StreamPage() {
                 </div>
 
                 {/* Rate limit banner */}
-                {rateLimitBanner}
+                <div aria-live="polite">{rateLimitBanner}</div>
 
                 {/* Rate limit counter */}
                 {streamState === "active" && (

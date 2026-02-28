@@ -361,6 +361,7 @@ export default function PosPage() {
               </div>
 
               {/* Payment window countdown / expiry indicator */}
+              <div aria-live="polite" aria-atomic="true">
               {isExpired ? (
                 <div className="rounded-[--radius-md] border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
                   Expired — Generate new QR
@@ -379,6 +380,7 @@ export default function PosPage() {
                     : "Waiting for payment..."}
                 </div>
               )}
+              </div>
 
               {/* Duplicate payment warning */}
               {duplicateWarning && (
