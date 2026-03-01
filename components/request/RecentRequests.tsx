@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Copy, QrCode } from "@phosphor-icons/react";
+import { Copy, QrCode, Trash } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
 
 export type RequestHistoryEntry = {
@@ -17,6 +17,7 @@ export type RequestHistoryEntry = {
 type RecentRequestsProps = {
   entries: RequestHistoryEntry[];
   onCopy: (url: string) => Promise<void>;
+  onDelete: (id: string) => void;
 };
 
 function formatDate(value: number): string {
@@ -30,7 +31,7 @@ function shortAddress(value: string): string {
   return `${value.slice(0, 8)}...${value.slice(-6)}`;
 }
 
-export function RecentRequests({ entries, onCopy }: RecentRequestsProps) {
+export function RecentRequests({ entries, onCopy, onDelete }: RecentRequestsProps) {
   if (entries.length === 0) {
     return (
       <p className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary]">
@@ -67,6 +68,10 @@ export function RecentRequests({ entries, onCopy }: RecentRequestsProps) {
               <QrCode size={12} />
               Open
             </Link>
+            <Button type="button" size="sm" variant="ghost" onClick={() => onDelete(entry.id)}>
+              <Trash size={12} />
+              Delete
+            </Button>
           </div>
         </article>
       ))}

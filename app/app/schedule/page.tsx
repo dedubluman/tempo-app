@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Clock, Trash } from "@phosphor-icons/react";
 import { Hooks } from "wagmi/tempo";
-import { isAddress, parseUnits } from "viem";
+import { getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
 import { TokenSelector } from "@/components/ui/TokenSelector";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -14,6 +14,13 @@ import { Input } from "@/components/ui/Input";
 import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { EXPLORER_URL } from "@/lib/constants";
+import {
+  applySessionSpend,
+  clearSessionAuthorization,
+  createSession,
+  getAccessAccountForSession,
+  getSessionById,
+} from "@/lib/sessionManager";
 import { showError, showSuccess } from "@/lib/toast";
 import type { TokenInfo } from "@/types/token";
 
@@ -27,6 +34,7 @@ interface ScheduledPayment {
   amount: string;
   token: string;
   memo: string;
+  sessionId?: string;
   validAfter: number; // Unix seconds
   validBefore: number; // Unix seconds
   status: ScheduledStatus;
@@ -85,11 +93,13 @@ export default function SchedulePage() {
   const [delayMinutes, setDelayMinutes] = useState("1");
   const [windowMinutes, setWindowMinutes] = useState("5");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [scheduled, setScheduled] = useState<ScheduledPayment[]>(() => loadScheduled());
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
 
   const { balances, isLoading: isBalanceLoading } = useTokenBalances();
   const { mutateAsync: transferSync, isPending: isScheduling } = Hooks.token.useTransferSync();
+  const isSchedulingAction = isScheduling || isAuthorizing;
 
   const balanceEntry = useMemo(
     () => balances.find((b) => b.token.address === selectedToken.address),
@@ -122,12 +132,59 @@ export default function SchedulePage() {
       });
 
       try {
-        const response = await transferSync({
+        if (!payment.sessionId) {
+          throw new Error("Session key not found for scheduled payment.");
+        }
+
+        const session = getSessionById(payment.sessionId);
+        if (!session) {
+          throw new Error("Session key is unavailable. Recreate the schedule.");
+        }
+
+        const tokenInfo = TOKEN_REGISTRY.find((token) => token.address === payment.token);
+        const tokenDecimals = tokenInfo?.decimals ?? 6;
+        const amountUnits = parseUnits(payment.amount, tokenDecimals);
+        const memoBytes32 = payment.memo.trim()
+          ? pad(stringToHex(payment.memo.trim()), { size: 32 })
+          : undefined;
+        const accessAccount = getAccessAccountForSession(session);
+        const baseRequest = {
           token: payment.token as `0x${string}`,
           to: payment.recipient as `0x${string}`,
-          amount: parseUnits(payment.amount, 6),
-        });
+          amount: amountUnits,
+          ...(memoBytes32 ? { memo: memoBytes32 } : {}),
+        };
+
+        const response = await (async () => {
+          try {
+            return await transferSync({
+              ...baseRequest,
+              account: accessAccount,
+              ...(session.keyAuthorization ? { keyAuthorization: session.keyAuthorization } : {}),
+            });
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            if (session.keyAuthorization && message.includes("KeyAlreadyExists")) {
+              clearSessionAuthorization(session.id);
+              return transferSync({
+                ...baseRequest,
+                account: accessAccount,
+              });
+            }
+            throw error;
+          }
+        })();
+
         const hash = response?.receipt?.transactionHash;
+        if (!hash) {
+          throw new Error("Transaction hash missing from scheduled execution.");
+        }
+
+        applySessionSpend(session.id, payment.token as `0x${string}`, amountUnits);
+        if (session.keyAuthorization) {
+          clearSessionAuthorization(session.id);
+        }
+
         setScheduled((prev) => {
           const next = prev.map((p) =>
             p.id === payment.id
@@ -165,7 +222,7 @@ export default function SchedulePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleSchedule = () => {
+  const handleSchedule = async () => {
     setErrorMessage("");
 
     if (!recipient || !isAddress(recipient)) {
@@ -183,31 +240,68 @@ export default function SchedulePage() {
       setErrorMessage("Delay must be at least 1 minute.");
       return;
     }
+    if (!window_ || window_ < 1) {
+      setErrorMessage("Execution window must be at least 1 minute.");
+      return;
+    }
+
+    let amountUnits: bigint;
+    try {
+      amountUnits = parseUnits(amount, selectedToken.decimals);
+    } catch {
+      setErrorMessage("Amount format is invalid for selected token.");
+      return;
+    }
+
+    const checksummedRecipient = getAddress(recipient);
+    const sessionDuration = delay + window_;
+
+    setIsAuthorizing(true);
+
+    let sessionId: string;
+    try {
+      const session = await createSession({
+        durationMinutes: sessionDuration,
+        spendLimits: new Map([[selectedToken.address, amountUnits]]),
+        allowedRecipients: [checksummedRecipient],
+      });
+      sessionId = session.id;
+    } catch (error) {
+      const message = prettyError(error);
+      setErrorMessage(message);
+      showError("Scheduling failed", message);
+      setIsAuthorizing(false);
+      return;
+    }
 
     const validAfter = now + delay * 60;
     const validBefore = validAfter + window_ * 60;
 
     const payment: ScheduledPayment = {
       id: `sched_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      recipient,
+      recipient: checksummedRecipient,
       amount,
       token: selectedToken.address,
       memo: memoText,
+      sessionId,
       validAfter,
       validBefore,
       status: "pending",
       createdAt: now,
     };
 
-    const next = [payment, ...scheduled];
-    setScheduled(next);
-    saveScheduled(next);
+    setScheduled((prev) => {
+      const next = [payment, ...prev];
+      saveScheduled(next);
+      return next;
+    });
 
     // Reset form
     setRecipient("");
     setAmount("");
     setMemoText("");
-    showSuccess("Payment scheduled", `Will execute in ${delayMinutes} minute(s)`);
+    showSuccess("Payment scheduled", `Authorized now, will execute in ${delayMinutes} minute(s)`);
+    setIsAuthorizing(false);
   };
 
   const handleDelete = (id: string) => {
@@ -240,7 +334,7 @@ export default function SchedulePage() {
                 setRecipient(e.target.value);
                 setErrorMessage("");
               }}
-              disabled={isScheduling}
+              disabled={isSchedulingAction}
             />
 
             <TokenSelector selectedToken={selectedToken} onSelect={setSelectedToken} />
@@ -253,7 +347,7 @@ export default function SchedulePage() {
               }}
               token={selectedToken}
               max={balanceEntry?.formatted}
-              disabled={isScheduling}
+              disabled={isSchedulingAction}
             />
             <p className="text-xs text-[--text-secondary]">
               Balance: {isBalanceLoading ? "..." : balanceEntry?.formatted ?? "0"} {selectedToken.symbol}
@@ -264,7 +358,7 @@ export default function SchedulePage() {
               placeholder="e.g. rent-march"
               value={memoText}
               onChange={(e) => setMemoText(e.target.value)}
-              disabled={isScheduling}
+              disabled={isSchedulingAction}
             />
 
             <div className="grid grid-cols-2 gap-3">
@@ -284,7 +378,7 @@ export default function SchedulePage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-[--text-tertiary]">Valid for (minutes)</label>
+                <label className="mb-1 block text-xs text-[--text-tertiary]">Execution window</label>
                 <select
                   value={windowMinutes}
                   onChange={(e) => setWindowMinutes(e.target.value)}
@@ -295,6 +389,9 @@ export default function SchedulePage() {
                   <option value="30">30 min</option>
                   <option value="60">1 hour</option>
                 </select>
+                <p className="mt-1 text-xs text-[--text-tertiary]">
+                  How long after the delay the payment can execute. If the window expires, payment is cancelled.
+                </p>
               </div>
             </div>
 
@@ -306,9 +403,9 @@ export default function SchedulePage() {
 
             <Button
               type="button"
-              onClick={handleSchedule}
-              loading={isScheduling}
-              disabled={isScheduling || !recipient || !amount}
+              onClick={() => void handleSchedule()}
+              loading={isSchedulingAction}
+              disabled={isSchedulingAction || !recipient || !amount}
             >
               <Clock size={14} />
               Schedule Payment

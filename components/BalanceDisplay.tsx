@@ -140,7 +140,7 @@ export function BalanceDisplay() {
   const isZeroBalance = !balance || formattedFull === "0";
 
   return (
-      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+      <div className="overflow-hidden space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Available Balance
@@ -163,7 +163,7 @@ export function BalanceDisplay() {
           </button>
         </div>
       </div>
-      <p className="font-mono text-3xl font-semibold tracking-tight text-[--text-primary] sm:text-4xl lg:text-[2.75rem]">{twoDecimals}</p>
+      <p className="overflow-hidden text-ellipsis max-w-full font-mono text-3xl font-semibold tracking-tight text-[--text-primary] sm:text-4xl lg:text-[2.75rem]">{twoDecimals}</p>
       <div className="flex flex-col gap-2 text-xs text-[--text-tertiary] sm:flex-row sm:items-center sm:justify-between">
         <span className="font-mono whitespace-nowrap overflow-hidden text-ellipsis">Raw: {formattedFull} pathUSD</span>
         <span className="inline-flex flex-shrink-0 whitespace-nowrap rounded-full bg-[--brand-subtle] px-2.5 py-1 font-medium text-[--brand-primary]">
@@ -174,7 +174,7 @@ export function BalanceDisplay() {
         <p className="text-sm text-[--text-tertiary]">
           No funds yet. Get testnet tokens from the faucet to start.{" "}
           <a
-            href="https://docs.tempo.xyz/quickstart/faucet"
+            href="https://docs.tempo.xyz/quickstart/faucet?tab-1=fund-an-address"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"

@@ -7,7 +7,6 @@ import { useAccount, useDisconnect } from "wagmi";
 import { motion } from "framer-motion";
 import { useMotionSafe } from "@/lib/motion";
 import { BalanceDisplay } from "@/components/BalanceDisplay";
-import { SessionKeys } from "@/components/SessionKeys";
 import { TransferForm } from "@/components/TransferForm";
 import { TransactionHistory } from "@/components/TransactionHistory";
 import { formatAddress } from "@/lib/utils";
@@ -176,10 +175,10 @@ export default function AppPage() {
                   <p className="font-mono text-xs text-[--text-muted]">{shortAddress}</p>
                 )}
                 <a
-                  href="https://docs.tempo.xyz/quickstart/faucet"
+                  href="https://docs.tempo.xyz/quickstart/faucet?tab-1=fund-an-address"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-[--brand-primary] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"
                 >
                   <ArrowSquareOut size={12} />
                   Get testnet tokens
@@ -209,12 +208,6 @@ export default function AppPage() {
               </CardContent>
             </Card>
 
-            <Card variant="elevated" data-testid="session-keys-card">
-              <CardHeader><CardTitle>Session Keys</CardTitle></CardHeader>
-              <CardContent>
-                <SessionKeys />
-              </CardContent>
-            </Card>
 
             <Card variant="elevated" data-testid="activity-card">
               <CardHeader>

@@ -6,6 +6,14 @@ export interface TokenInfo {
   faucetAmount: string;
 }
 
+export interface CustomToken {
+  address: `0x${string}`;
+  name: string;
+  symbol: string;
+  decimals: number;
+  createdAt: number;
+}
+
 export interface TokenBalance {
   token: TokenInfo;
   balance: bigint;

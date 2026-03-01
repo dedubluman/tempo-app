@@ -53,7 +53,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
-        <aside className="hidden md:block md:w-56 md:shrink-0">
+        <aside className="hidden md:block md:w-64 md:shrink-0">
           <nav role="navigation" className="sticky top-20 rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-surface] p-2">
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
@@ -64,7 +64,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="relative flex items-center gap-2.5 rounded-[--radius-md] px-3 py-2 text-sm text-[--text-secondary] hover:bg-[--bg-subtle] hover:text-[--text-primary]"
+                      className="relative flex items-center gap-2.5 rounded-[--radius-md] px-4 py-2.5 text-sm text-[--text-secondary] hover:bg-[--bg-subtle] hover:text-[--text-primary]"
                     >
                       {active ? (
                         <motion.span
@@ -100,7 +100,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="relative flex min-w-[78px] flex-col items-center gap-1 rounded-[--radius-md] px-2 py-1.5 text-[11px] text-[--text-secondary]"
+                    className="relative flex min-w-[88px] flex-col items-center gap-1 rounded-[--radius-md] px-2 py-1.5 text-[11px] text-[--text-secondary]"
                   >
                     {active ? (
                       <motion.span

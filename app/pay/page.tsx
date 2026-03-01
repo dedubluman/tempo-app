@@ -221,8 +221,8 @@ function PayPageContent() {
               </Link>
             </div>
           ) : (
-            <Button type="button" onClick={() => void handlePayNow()} disabled={isPending} loading={isPending}>
-              {isPending ? "Paying..." : "Pay Now"}
+            <Button type="button" onClick={() => void handlePayNow()} disabled={isPending || !!txHash} loading={isPending}>
+              {isPending ? "Paying..." : txHash ? "Payment Sent ✓" : "Pay Now"}
             </Button>
           )}
 

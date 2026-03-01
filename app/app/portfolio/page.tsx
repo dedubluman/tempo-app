@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { ArrowsClockwise, ArrowSquareOut } from "@phosphor-icons/react";
-import { useBlockNumber } from "wagmi";
 import { useTokenBalances } from "@/hooks/useTokenBalances";
 
 const TOKEN_ACCENT: Record<string, string> = {
@@ -18,14 +17,6 @@ function tokenAccent(symbol: string): string {
 
 export default function PortfolioPage() {
   const { balances, isLoading, error, refetch } = useTokenBalances();
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-
-  useEffect(() => {
-    if (!blockNumber) {
-      return;
-    }
-    void refetch();
-  }, [blockNumber, refetch]);
 
   const totalValue = useMemo(
     () => balances.reduce((total, item) => total + Number(item.formatted), 0),
@@ -82,10 +73,10 @@ export default function PortfolioPage() {
             <p className="mt-1 text-xs text-[--text-tertiary]">USD Value: ${isLoading ? "..." : Number(entry.formatted).toFixed(6)}</p>
 
             <a
-              href="https://docs.tempo.xyz/quickstart/faucet"
+              href="https://docs.tempo.xyz/quickstart/faucet?tab-1=fund-an-address"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-xs text-[--brand-primary] hover:underline"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"
             >
               <ArrowSquareOut size={12} />
               Get from Faucet

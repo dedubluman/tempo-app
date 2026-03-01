@@ -14,7 +14,7 @@ import {
 } from "@/lib/sessionCrypto";
 import { useSessionStore } from "@/lib/store";
 
-export type SessionDuration = 15 | 60 | 1440;
+export type SessionDuration = number;
 
 export type SessionPolicy = {
   durationMinutes: SessionDuration;

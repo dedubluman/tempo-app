@@ -97,7 +97,7 @@ export function TransactionHistory() {
     const remoteLogs = logs ?? [];
     const deduped = new Map<string, TransferLog>();
 
-    for (const entry of [...localLogs, ...remoteLogs]) {
+    for (const entry of [...remoteLogs, ...localLogs]) {
       const key = `${entry.transactionHash}-${entry.args.from.toLowerCase()}-${entry.args.to.toLowerCase()}-${entry.args.value.toString()}`;
       if (!deduped.has(key)) {
         deduped.set(key, entry);
@@ -216,7 +216,7 @@ export function TransactionHistory() {
                     {formatAddress(counterparty, 6, 4)}
                   </p>
                   <p className="text-xs text-[--text-tertiary]">
-                    {log.blockNumber ? `Block ${log.blockNumber.toString()}` : "Pending confirmation"}
+                    {log.blockNumber ? `Block ${log.blockNumber.toString()}` : log.transactionHash ? "Confirming..." : "Pending confirmation"}
                   </p>
                 </div>
               </div>

@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EXPLORER_URL, PATHUSD_ADDRESS } from "@/lib/constants";
+import { useCustomTokenStore } from "@/lib/store";
 import { dismissToast, showError, showLoading, showSuccess } from "@/lib/toast";
 
 type StepStatus = "idle" | "pending" | "success" | "failed";
@@ -75,6 +76,7 @@ const STEPS = [
 
 export default function ForgePage() {
   const { address } = useAccount();
+  const addCustomToken = useCustomTokenStore((state) => state.addCustomToken);
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1: Create Token
@@ -120,6 +122,13 @@ export default function ForgePage() {
         throw new Error("Token created but transaction details missing.");
       }
       setTokenAddress(addr);
+      addCustomToken({
+        address: addr,
+        name: tokenName.trim(),
+        symbol: tokenSymbol.trim(),
+        decimals: 6,
+        createdAt: Date.now(),
+      });
       setCreateResult({ status: "success", txHash: hash });
       setCurrentStep(1);
       showSuccess("Token created", `${tokenSymbol.trim()} at ${addr.slice(0, 10)}...`);

@@ -1,15 +1,15 @@
 "use client";
 
-import { useBalanceStore } from "@/lib/store";
+import { useBalanceStore, useCustomTokenStore } from "@/lib/store";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { decodeFunctionResult, encodeFunctionData, formatUnits, getAddress, isAddress } from "viem";
 import type { Address } from "viem";
 import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { multicall3Abi, pathUsdAbi } from "@/lib/abi";
 import { MULTICALL3_ADDRESS } from "@/lib/constants";
-import type { TokenBalance, UseTokenBalancesReturn } from "@/types/token";
+import type { TokenBalance, TokenInfo, UseTokenBalancesReturn } from "@/types/token";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 
@@ -26,6 +26,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
 
   const normalizedAddress = address && isAddress(address) ? getAddress(address) : undefined;
   const effectiveAddress: Address | undefined = normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
+  const customTokens = useCustomTokenStore((state) => state.customTokens);
 
   // Use Zustand store for balances
   const { balances, isLoading, error } = useBalanceStore();
@@ -34,6 +35,33 @@ export function useTokenBalances(): UseTokenBalancesReturn {
   const setError = useBalanceStore((state) => state.setError);
   const markFetched = useBalanceStore((state) => state.markFetched);
   const previousAddressRef = useRef<Address | undefined>(undefined);
+
+  const tokenList = useMemo<TokenInfo[]>(() => {
+    const seen = new Set<string>();
+    const merged: TokenInfo[] = [];
+
+    for (const token of TOKEN_REGISTRY) {
+      seen.add(token.address.toLowerCase());
+      merged.push(token);
+    }
+
+    for (const token of customTokens) {
+      const key = token.address.toLowerCase();
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      merged.push({
+        address: token.address,
+        symbol: token.symbol,
+        name: token.name,
+        decimals: token.decimals,
+        faucetAmount: "0",
+      });
+    }
+
+    return merged;
+  }, [customTokens]);
 
   useEffect(() => {
     if (previousAddressRef.current === effectiveAddress) {
@@ -55,7 +83,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
     setError(null);
 
     try {
-      const calls = TOKEN_REGISTRY.map((token) => ({
+      const calls = tokenList.map((token) => ({
         target: token.address,
         allowFailure: true,
         callData: encodeFunctionData({
@@ -72,7 +100,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
         args: [calls],
       })) as readonly { success: boolean; returnData: `0x${string}` }[];
 
-      const newBalances: TokenBalance[] = TOKEN_REGISTRY.map((token, index) => {
+      const newBalances: TokenBalance[] = tokenList.map((token, index) => {
         const result = results[index];
         const balance =
           result?.success && result.returnData
@@ -98,7 +126,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [effectiveAddress, markFetched, publicClient, setBalances, setError, setIsLoading]);
+  }, [effectiveAddress, markFetched, publicClient, setBalances, setError, setIsLoading, tokenList]);
 
   // Fetch on mount and when address changes
   useEffect(() => {

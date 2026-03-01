@@ -67,6 +67,11 @@ export default function RequestPage() {
     }
   };
 
+  const handleDeleteRequest = (id: string) => {
+    const nextHistory = history.filter((entry) => entry.id !== id);
+    persistHistory(nextHistory);
+  };
+
   const validate = (): boolean => {
     let ok = true;
 
@@ -251,7 +256,7 @@ export default function RequestPage() {
                   <CheckCircle size={14} />
                   Request ready to share
                 </p>
-                <div className="overflow-x-auto rounded-[--radius-sm] bg-white p-2">
+                <div className="flex justify-center overflow-x-auto rounded-[--radius-sm] bg-white p-2">
                   <QRCodeDisplay data={generatedUrl} size={200} />
                 </div>
                 <p className="break-all font-mono text-xs text-[--text-secondary]">{generatedUrl}</p>
@@ -275,7 +280,7 @@ export default function RequestPage() {
             <CardTitle>Recent Requests</CardTitle>
           </CardHeader>
           <CardContent>
-            <RecentRequests entries={history} onCopy={handleCopy} />
+            <RecentRequests entries={history} onCopy={handleCopy} onDelete={handleDeleteRequest} />
           </CardContent>
         </Card>
       </div>

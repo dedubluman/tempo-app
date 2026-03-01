@@ -8,7 +8,7 @@ import {
   encryptPrivateKey,
   getOrCreateSessionEncryptionKey,
 } from "@/lib/sessionCrypto";
-import type { TokenBalance } from "@/types/token";
+import type { CustomToken, TokenBalance } from "@/types/token";
 import type { SessionRecord } from "@/lib/sessionManager";
 import type { LocalTransferHistoryEntry } from "@/lib/transactionHistoryStore";
 
@@ -97,6 +97,14 @@ export interface TxQueueState {
   addPendingTx: (tx: PendingTx) => void;
   removePendingTx: (id: string) => void;
   clearQueue: () => void;
+  reset: () => void;
+}
+
+export interface CustomTokenState {
+  customTokens: CustomToken[];
+  addCustomToken: (token: CustomToken) => void;
+  removeCustomToken: (address: `0x${string}`) => void;
+  getCustomTokens: () => CustomToken[];
   reset: () => void;
 }
 
@@ -738,6 +746,57 @@ if (broadcastChannel) {
   });
 }
 
+const initialCustomTokenState = {
+  customTokens: [] as CustomToken[],
+};
+
+export const useCustomTokenStore = create<CustomTokenState>()(
+  persist(
+    (set, get) => ({
+      ...initialCustomTokenState,
+      addCustomToken: (token) => {
+        set((state) => {
+          const existingIndex = state.customTokens.findIndex(
+            (entry) => entry.address.toLowerCase() === token.address.toLowerCase(),
+          );
+          if (existingIndex >= 0) {
+            const next = [...state.customTokens];
+            next[existingIndex] = token;
+            return { customTokens: next };
+          }
+          return { customTokens: [token, ...state.customTokens] };
+        });
+        broadcastStoreUpdate("customTokens", get());
+      },
+      removeCustomToken: (address) => {
+        set((state) => ({
+          customTokens: state.customTokens.filter(
+            (token) => token.address.toLowerCase() !== address.toLowerCase(),
+          ),
+        }));
+        broadcastStoreUpdate("customTokens", get());
+      },
+      getCustomTokens: () => get().customTokens,
+      reset: () => {
+        set(initialCustomTokenState);
+        broadcastStoreUpdate("customTokens", get());
+      },
+    }),
+    {
+      name: "fluxus-custom-tokens",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+
+if (broadcastChannel) {
+  broadcastChannel.addEventListener("message", (event) => {
+    if (event.data.storeName === "customTokens") {
+      useCustomTokenStore.setState(event.data.state, true);
+    }
+  });
+}
+
 // ============================================================================
 // GLOBAL RESET
 // ============================================================================
@@ -750,4 +809,5 @@ export function resetAllStores() {
   useUIStore.getState().reset();
   useOfflineStore.getState().reset();
   useTxQueueStore.getState().reset();
+  useCustomTokenStore.getState().reset();
 }
