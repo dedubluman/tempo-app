@@ -219,7 +219,11 @@ if (typeof window !== "undefined" && "BroadcastChannel" in window) {
 
 function broadcastStoreUpdate(storeName: string, state: any) {
   if (broadcastChannel) {
-    broadcastChannel.postMessage({ storeName, state, timestamp: Date.now() });
+    // Strip functions — BroadcastChannel requires structured-cloneable (JSON-safe) data
+    const serializable = Object.fromEntries(
+      Object.entries(state).filter(([, v]) => typeof v !== "function")
+    );
+    broadcastChannel.postMessage({ storeName, state: serializable, timestamp: Date.now() });
   }
 }
 

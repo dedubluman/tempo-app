@@ -14,6 +14,7 @@
     "test:unit:watch": "vitest"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.90.20",
     "@upstash/redis": "^1.36.3",
