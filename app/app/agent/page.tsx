@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CheckCircleIcon,
@@ -12,7 +12,7 @@ import {
   ShieldCheckIcon,
   SpinnerIcon,
 } from "@phosphor-icons/react";
-import { useConnection } from "wagmi";
+import { useAccount } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 import { parseUnits } from "viem";
 import { Button } from "@/components/ui/Button";
@@ -36,7 +36,7 @@ function prettyError(error: unknown): string {
 }
 
 export default function AgentPage() {
-  const { address } = useConnection();
+  const { address } = useAccount();
   const { messages, isProcessing, sendMessage, updateMessageTxHash, clearHistory } = useAgentChat();
   const { balances, refetch: refetchBalances } = useTokenBalances();
   const { mutateAsync: transferSync, isPending: isTransferring } = Hooks.token.useTransferSync();
@@ -55,7 +55,10 @@ export default function AgentPage() {
     if (!text || isProcessing) return;
 
     setUserInput("");
-    await sendMessage(text);
+    const intent = await sendMessage(text);
+    if (intent?.action === "balance") {
+      void refetchBalances();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -310,14 +313,14 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
 
         {/* Balance */}
         {intent?.action === "balance" && (
-          <div className="rounded-xl rounded-tl-sm border border-[--border-subtle] bg-[--bg-subtle] p-3">
+          <div className="w-fit min-w-[240px] rounded-xl rounded-tl-sm border border-[--border-subtle] bg-[--bg-subtle] p-3 px-4">
             <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[--text-tertiary]">Balances</p>
-            <div className="space-y-1">
+            <div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1">
               {balances.map((b) => (
-                <div key={b.token.address} className="flex items-center justify-between">
+                <Fragment key={b.token.address}>
                   <span className="text-xs text-[--text-secondary]">{b.token.symbol}</span>
-                  <span className="font-mono text-xs text-[--text-primary]">{b.formatted}</span>
-                </div>
+                  <span className="whitespace-nowrap text-right font-mono text-xs tabular-nums text-[--text-primary]">{b.formatted}</span>
+                </Fragment>
               ))}
             </div>
           </div>

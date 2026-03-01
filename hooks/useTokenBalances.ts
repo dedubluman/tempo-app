@@ -2,7 +2,7 @@
 
 import { useBalanceStore } from "@/lib/store";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { decodeFunctionResult, encodeFunctionData, formatUnits, getAddress, isAddress } from "viem";
 import type { Address } from "viem";
@@ -33,6 +33,17 @@ export function useTokenBalances(): UseTokenBalancesReturn {
   const setIsLoading = useBalanceStore((state) => state.setIsLoading);
   const setError = useBalanceStore((state) => state.setError);
   const markFetched = useBalanceStore((state) => state.markFetched);
+  const previousAddressRef = useRef<Address | undefined>(undefined);
+
+  useEffect(() => {
+    if (previousAddressRef.current === effectiveAddress) {
+      return;
+    }
+
+    previousAddressRef.current = effectiveAddress;
+    setBalances([]);
+    setError(null);
+  }, [effectiveAddress, setBalances, setError]);
 
   const fetchBalances = useCallback(async () => {
     if (!effectiveAddress || !publicClient) {
@@ -87,7 +98,7 @@ export function useTokenBalances(): UseTokenBalancesReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [effectiveAddress, publicClient]);
+  }, [effectiveAddress, markFetched, publicClient, setBalances, setError, setIsLoading]);
 
   // Fetch on mount and when address changes
   useEffect(() => {
