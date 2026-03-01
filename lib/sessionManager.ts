@@ -40,10 +40,6 @@ export type EncryptedPrivateKey = {
   iv: string;
 };
 
-type SessionSnapshot = {
-  sessions: SessionRecord[];
-};
-
 const sessionPrivateKeyCache = new Map<string, `0x${string}`>();
 
 function isEncryptedPrivateKey(
@@ -88,8 +84,8 @@ export function subscribeSessions(listener: () => void) {
   return useSessionStore.subscribe(listener);
 }
 
-export function getSessionSnapshot(): SessionSnapshot {
-  return { sessions: useSessionStore.getState().sessions };
+export function getSessionSnapshot(): SessionRecord[] {
+  return useSessionStore.getState().sessions;
 }
 
 export async function createSession(policy: SessionPolicy) {
@@ -302,11 +298,25 @@ export function parseSpendLimitFromInput(value: string, decimals: number = PATHU
   return parseUnits(value, decimals);
 }
 
+type LegacySessionRecord = Omit<SessionRecord, "spendLimits" | "spent"> & {
+  spendLimit?: bigint;
+  spent?: bigint;
+};
+
+function hasMultiTokenSpend(session: SessionRecord | LegacySessionRecord): session is SessionRecord {
+  return (
+    "spendLimits" in session &&
+    session.spendLimits instanceof Map &&
+    "spent" in session &&
+    session.spent instanceof Map
+  );
+}
+
 // Migration helper: convert old single-token sessions to multi-token format
-export function migrateSessionToMultiToken(session: any): SessionRecord {
+export function migrateSessionToMultiToken(session: SessionRecord | LegacySessionRecord): SessionRecord {
   // If already migrated (has Map), return as-is
-  if (session.spendLimits instanceof Map && session.spent instanceof Map) {
-    return session as SessionRecord;
+  if (hasMultiTokenSpend(session)) {
+    return session;
   }
 
   // Old format: { spendLimit: bigint, spent: bigint }

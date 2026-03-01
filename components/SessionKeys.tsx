@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   cleanupExpiredSessions,
   createSession,
-  getSessionRemainingSpend,
   getSessionSnapshot,
   parseSpendLimitFromInput,
   revokeSession,
@@ -13,7 +12,6 @@ import {
 } from "@/lib/sessionManager";
 import { formatUnits, isAddress } from "viem";
 import { TOKEN_REGISTRY } from "@/lib/tokens";
-import { PATHUSD_DECIMALS } from "@/lib/constants";
 
 const DURATION_OPTIONS: { label: string; value: SessionDuration }[] = [
   { label: "15 min", value: 15 },
@@ -48,7 +46,7 @@ function parseRecipientInput(input: string) {
 }
 
 export function SessionKeys() {
-  const snapshot = useSyncExternalStore(subscribeSessions, getSessionSnapshot, getSessionSnapshot);
+  const sessions = useSyncExternalStore(subscribeSessions, getSessionSnapshot, getSessionSnapshot);
   const [nowSec, setNowSec] = useState(Math.floor(Date.now() / 1000));
 
   const [duration, setDuration] = useState<SessionDuration>(60);
@@ -78,7 +76,7 @@ export function SessionKeys() {
     };
   }, []);
 
-  const activeSessions = useMemo(() => snapshot.sessions, [snapshot.sessions]);
+  const activeSessions = useMemo(() => sessions, [sessions]);
 
   const handleCreateSession = async () => {
     setError(null);

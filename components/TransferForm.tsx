@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useBlockNumber, usePublicClient, useReadContract, useSendCallsSync } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 import { encodeFunctionData, formatUnits, getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
@@ -219,6 +219,7 @@ export function TransferForm() {
   const formattedBalance = balance ? formatUnits(balance, PATHUSD_DECIMALS) : "0";
   const maxDisabled = isPending || isBatchPending || isBalanceLoading || !balance || formattedBalance === "0";
   const isPendingAny = isPending || isBatchPending;
+  const refetchBalanceRef = useRef(refetchBalance);
 
   const shortHash = useMemo(() => (hash ? `${hash.slice(0, 10)}...${hash.slice(-8)}` : ""), [hash]);
   const shortBatchHash = useMemo(() => (batchHash ? `${batchHash.slice(0, 10)}...${batchHash.slice(-8)}` : ""), [batchHash]);
@@ -325,12 +326,16 @@ export function TransferForm() {
     "h-11 w-full rounded-xl border border-[--border-default] bg-[--bg-elevated] px-3 text-sm text-[--text-primary] placeholder:text-[--text-muted] transition-all duration-150 hover:border-[--border-strong] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/40 focus-visible:ring-offset-1";
 
   useEffect(() => {
+    refetchBalanceRef.current = refetchBalance;
+  }, [refetchBalance]);
+
+  useEffect(() => {
     if (!address || blockNumber === undefined) {
       return;
     }
 
-    void refetchBalance();
-  }, [address, blockNumber, refetchBalance]);
+    void refetchBalanceRef.current();
+  }, [address, blockNumber]);
 
   const updateBatchRow = (id: string, patch: Partial<BatchRecipientRow>) => {
     setBatchRows((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)));

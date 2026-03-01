@@ -24,7 +24,7 @@ interface TransferLog {
 export function TransactionHistory() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const localSnapshot = useSyncExternalStore(subscribeTransferHistory, getTransferHistorySnapshot, getTransferHistorySnapshot);
+  const localEntries = useSyncExternalStore(subscribeTransferHistory, getTransferHistorySnapshot, getTransferHistorySnapshot);
   const variants = useMotionSafe();
 
   const { data: logs, isLoading, isError, refetch } = useQuery({
@@ -79,7 +79,7 @@ export function TransactionHistory() {
     }
 
     const normalizedAddress = address.toLowerCase();
-    const localLogs: TransferLog[] = localSnapshot.entries
+    const localLogs: TransferLog[] = localEntries
       .map((entry) => {
         const isSent = entry.direction === "sent";
         return {
@@ -105,13 +105,13 @@ export function TransactionHistory() {
     }
 
     return Array.from(deduped.values()).slice(0, 20);
-  }, [address, localSnapshot.entries, logs]);
+  }, [address, localEntries, logs]);
 
   if (!address) {
     return null;
   }
 
-  if (isLoading && localSnapshot.entries.length === 0) {
+  if (isLoading && localEntries.length === 0) {
     return (
       <div className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
@@ -129,7 +129,7 @@ export function TransactionHistory() {
     );
   }
 
-  if (isError && localSnapshot.entries.length === 0) {
+  if (isError && localEntries.length === 0) {
     return (
       <div className="space-y-4 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">

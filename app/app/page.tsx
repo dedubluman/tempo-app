@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
@@ -27,6 +27,7 @@ export default function AppPage() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const [copied, setCopied] = useState(false);
+  const hasRedirectedRef = useRef(false);
   const variants = useMotionSafe();
 
   const authBootstrapReady = !E2E_MOCK_AUTH || typeof window !== "undefined";
@@ -43,9 +44,17 @@ export default function AppPage() {
   }, [effectiveAddress]);
 
   useEffect(() => {
-    if (authBootstrapReady && !isConnected && !hasMockConnection) {
-      router.push("/");
+    if (isConnected || hasMockConnection) {
+      hasRedirectedRef.current = false;
+      return;
     }
+
+    if (!authBootstrapReady || hasRedirectedRef.current) {
+      return;
+    }
+
+    hasRedirectedRef.current = true;
+    router.push("/");
   }, [authBootstrapReady, hasMockConnection, isConnected, router]);
 
   if (!authBootstrapReady || (!isConnected && !hasMockConnection) || !effectiveAddress) {

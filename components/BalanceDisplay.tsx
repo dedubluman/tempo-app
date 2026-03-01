@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAccount, useReadContract } from "wagmi";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
@@ -51,6 +51,11 @@ export function BalanceDisplay() {
   });
 
   const [showRefreshing, setShowRefreshing] = useState(false);
+  const refetchRef = useRef(refetch);
+
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
 
   useEffect(() => {
     let timeoutId = 0;
@@ -72,14 +77,14 @@ export function BalanceDisplay() {
 
   useEffect(() => {
     const handleFocus = () => {
-      void refetch();
+      void refetchRef.current();
     };
 
     window.addEventListener("focus", handleFocus);
     return () => {
       window.removeEventListener("focus", handleFocus);
     };
-  }, [refetch]);
+  }, []);
 
   if (!effectiveAddress) {
     return null;
