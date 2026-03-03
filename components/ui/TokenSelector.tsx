@@ -58,7 +58,7 @@ export function TokenSelector({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex h-10 w-full items-center justify-between rounded-[--radius-md] border border-[--border-default] bg-[--bg-surface] px-3 text-sm text-[--text-primary]"
+        className="flex h-10 w-full items-center justify-between rounded-[--radius-md] border border-[--border-default] bg-[--bg-surface] px-3 text-sm text-[--text-primary] transition-all duration-[--duration-fast] hover:border-[--border-strong] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/20"
       >
         <span className="flex min-w-0 items-center gap-2">
           <span
@@ -75,7 +75,7 @@ export function TokenSelector({
       </button>
 
       {open ? (
-        <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-elevated] p-1 shadow-[--shadow-lg]">
+        <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl p-1 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.5)]">
           {tokens.map((token) => (
             <button
               key={token.address}

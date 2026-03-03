@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] hover:-translate-y-[1px] relative overflow-hidden",
   {
     variants: {
       variant: {
@@ -61,13 +61,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
+        <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-transparent" />
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-[40%] h-1.5 bg-current/20 rounded-full animate-pulse" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
+          <div className="absolute inset-0 flex items-center justify-center bg-inherit">
+            <div className="relative w-[50%] h-1.5 bg-current/20 rounded-full overflow-hidden">
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+            </div>
           </div>
         )}
-        {children}
+        <span className={cn(loading && "opacity-0")}>{children}</span>
       </button>
     );
   }

@@ -1,0 +1,75 @@
+{
+  "startedAt": "2026-03-01T22:41:39.328Z",
+  "finishedAt": "2026-03-01T22:41:45.952Z",
+  "baseURL": "http://localhost:3100",
+  "summary": {
+    "pass": 2,
+    "blocked": 5,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "id": "T1-T3-home",
+      "title": "Home UI checks (tasks 1,2,3)",
+      "status": "blocked",
+      "details": "Home dashboard was not reachable in this runtime, so balance/faucet assertions could not run.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-1-2-3-home-blocked-dashboard.png",
+      "startedAt": "2026-03-01T22:41:39.328Z",
+      "finishedAt": "2026-03-01T22:41:40.458Z"
+    },
+    {
+      "id": "T4-activity",
+      "title": "Activity confirming label (task 4)",
+      "status": "blocked",
+      "details": "Connected wagmi wallet session could not be established in this runtime, so TransactionHistory did not mount for live confirmation-label assertion.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-4-activity-blocked-no-wallet.png",
+      "startedAt": "2026-03-01T22:41:40.458Z",
+      "finishedAt": "2026-03-01T22:41:40.608Z"
+    },
+    {
+      "id": "T6-layout",
+      "title": "Sidebar and mobile nav spacing (task 6)",
+      "status": "pass",
+      "details": "Layout classes match widened sidebar and nav spacing requirements.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-6-layout-spacing.png",
+      "startedAt": "2026-03-01T22:41:40.608Z",
+      "finishedAt": "2026-03-01T22:41:41.407Z"
+    },
+    {
+      "id": "T7-T8-portfolio",
+      "title": "Portfolio flicker + custom token pipeline (tasks 7,8 + faucet link)",
+      "status": "blocked",
+      "details": "Custom token was not visible in Portfolio runtime assertion window.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-7-8-portfolio-blocked-custom-token.png",
+      "startedAt": "2026-03-01T22:41:41.407Z",
+      "finishedAt": "2026-03-01T22:41:42.242Z"
+    },
+    {
+      "id": "T9-T10-request",
+      "title": "Request QR centering and delete action (tasks 9,10)",
+      "status": "pass",
+      "details": "QR container is centered and recent request entries are deletable from history.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-9-10-request.png",
+      "startedAt": "2026-03-01T22:41:42.242Z",
+      "finishedAt": "2026-03-01T22:41:43.787Z"
+    },
+    {
+      "id": "T11-T12-schedule",
+      "title": "Schedule label and session pre-auth flow (tasks 11,12)",
+      "status": "blocked",
+      "details": "Task 11 copy is verified, but Task 12 runtime pre-authorization cannot be completed without an active wagmi wallet session in this environment.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-11-12-schedule-blocked-no-wallet.png",
+      "startedAt": "2026-03-01T22:41:43.787Z",
+      "finishedAt": "2026-03-01T22:41:44.939Z"
+    },
+    {
+      "id": "T5-pay",
+      "title": "Pay button post-payment disable check (task 5)",
+      "status": "blocked",
+      "details": "Cannot verify post-payment disabled state without an active wagmi-connected wallet on /pay.",
+      "screenshot": ".sisyphus/evidence/final-qa/task-5-pay-blocked-no-wallet.png",
+      "startedAt": "2026-03-01T22:41:44.939Z",
+      "finishedAt": "2026-03-01T22:41:45.931Z"
+    }
+  ]
+}

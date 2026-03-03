@@ -30,14 +30,18 @@ const SIZE_CLASSES: Record<StatusBadgeSize, string> = {
 };
 
 export function StatusBadge({ status, size = "sm" }: StatusBadgeProps) {
+  const hasDot = status === "pending" || status === "streaming";
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border font-medium",
         STATUS_CLASSES[status],
         SIZE_CLASSES[size],
       )}
     >
+      {hasDot && (
+        <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0 animate-dot-pulse" />
+      )}
       {STATUS_LABELS[status]}
     </span>
   );

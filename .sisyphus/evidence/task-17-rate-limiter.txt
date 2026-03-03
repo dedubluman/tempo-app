@@ -1,0 +1,51 @@
+Task 17: Client-side Rate Limiter for Streaming Payments
+=========================================================
+Date: 2026-02-28
+
+## Files Created/Modified
+
+### NEW: tempo-app/lib/rateLimiter.ts
+- Sliding window rate limiter utility
+- Interface: createRateLimiter({ maxRequests, windowMs })
+- Returns: { canProceed(), record(), remaining(), resetIn() }
+- Implementation: timestamp array with prune-on-check sliding window
+- No external dependencies, pure TypeScript
+
+### MODIFIED: tempo-app/app/app/stream/page.tsx
+- Imported createRateLimiter from @/lib/rateLimiter
+- Module-level rateLimiter instance: { maxRequests: 10, windowMs: 60_000 }
+- Added lastPaymentAt state for 5s minimum interval enforcement
+- Added rateLimitRemaining, rateLimitResumeIn, rateLimitStatus state
+- executeMicroPayment: checks 5s throttle → checks canProceed() → records
+- rateLimitBanner: shows contextual UI for limited/throttled/warn states
+  - "Rate limit reached. Pausing stream for Xs." (limited)
+  - "Throttled (min 5s interval)" (throttled)
+  - "Approaching rate limit (8/10)" (warn, at ≤2 remaining)
+- Real-time counter: "X/10 sponsor requests this minute"
+- Info panel: "Sponsor limit: X/10 remaining"
+- syncRateLimitState() called on each timer tick and after each payment
+
+## Verification
+
+### LSP Diagnostics
+- lib/rateLimiter.ts: 0 errors
+- app/app/stream/page.tsx: 0 errors
+
+### tsc --noEmit
+- 1 pre-existing error in lib/store.ts:505 (StateStorage type mismatch)
+- Error existed BEFORE this task (git diff --name-only shows store.ts was already modified)
+- My files: 0 errors
+
+### npm run build
+- Fails on same pre-existing lib/store.ts error
+- My files compile successfully (Turbopack: "Compiled successfully in 3.7s")
+
+## Rate Limit Logic
+
+Server mirrors: app/api/sponsor/route.ts → 10 req/60s per IP
+Client mirrors: rateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 })
+
+Thresholds:
+- remaining <= 2 → "warn" status (shows "Approaching rate limit")
+- remaining === 0 → "limited" status (shows "Rate limit reached. Pausing for Xs.")
+- now - lastPaymentAt < 5000 → "throttled" (shows "Throttled (min 5s interval)")

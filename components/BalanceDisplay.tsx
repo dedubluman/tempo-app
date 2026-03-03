@@ -5,6 +5,9 @@ import { useAccount, useReadContract } from "wagmi";
 import { PATHUSD_ADDRESS, PATHUSD_DECIMALS } from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatUnits, getAddress, isAddress, parseUnits } from "viem";
+import { ArrowClockwise } from "@phosphor-icons/react";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { cn } from "@/lib/cn";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 
@@ -92,38 +95,25 @@ export function BalanceDisplay() {
 
   if (!hasForcedBalance && isLoading) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
-            Available Balance
-          </p>
-          <span className="inline-flex rounded-full bg-[--bg-elevated] px-2.5 py-1 text-xs font-medium text-[--text-secondary]">
-            Loading
-          </span>
-        </div>
-        <div className="space-y-2">
-          <div className="h-10 w-40 animate-pulse rounded-lg bg-[--bg-elevated] sm:w-52" />
-          <div className="h-3 w-36 animate-pulse rounded-full bg-[--bg-elevated]" />
-        </div>
-        <p className="text-sm text-[--text-tertiary]">Reading your latest on-chain balance...</p>
+      <div className="space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+          Available Balance
+        </p>
+        <Skeleton variant="text" height={56} width={200} />
+        <Skeleton variant="text" height={16} width={120} />
       </div>
     );
   }
 
   if (!hasForcedBalance && (forcedError || isError || isRefetchError)) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
-            Available Balance
-          </p>
-          <span className="inline-flex rounded-full bg-[--status-error-bg] px-2.5 py-1 text-xs font-medium text-[--status-error-text]">
-            RPC Error
-          </span>
-        </div>
-        <p className="text-base text-[--status-error-text]">Network is slow. Please try again. We could not load your latest balance.</p>
+      <div className="space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+          Available Balance
+        </p>
+        <p className="text-sm text-[--status-error-text]">Could not load balance. Network may be slow.</p>
         <button
-          className="inline-flex h-11 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
+          className="inline-flex h-9 items-center rounded-[--radius-md] border border-[--border-default] px-3 text-sm font-medium text-[--text-secondary] transition-colors hover:bg-[--bg-subtle]"
           onClick={() => refetch()}
           type="button"
         >
@@ -140,51 +130,59 @@ export function BalanceDisplay() {
   const isZeroBalance = !balance || formattedFull === "0";
 
   return (
-      <div className="overflow-hidden space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
-      <div className="flex flex-wrap items-start justify-between gap-2">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Available Balance
         </p>
-        <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
-          <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">pathUSD</span>
-          <span
-            className={`inline-flex min-h-6 items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
-              showRefreshing ? "bg-[--bg-elevated] text-[--text-tertiary]" : "invisible"
-            }`}
-          >
-            Refreshing
+        <div className="flex items-center gap-2">
+          <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-0.5 text-xs font-semibold text-[--brand-primary]">
+            pathUSD
           </span>
+          {showRefreshing && (
+            <span className="text-xs text-[--text-tertiary]">Refreshing</span>
+          )}
           <button
-            className="inline-flex h-11 shrink-0 items-center rounded-lg border border-[--border-default] px-3 text-sm font-medium text-[--text-tertiary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-[--radius-md] text-[--text-tertiary] transition-all hover:bg-[--bg-subtle] hover:text-[--text-secondary] active:scale-95"
             onClick={() => refetch()}
             type="button"
+            aria-label="Refresh balance"
           >
-            Refresh
+            <ArrowClockwise size={14} className={cn(showRefreshing && "animate-spin")} />
           </button>
         </div>
       </div>
-      <p className="overflow-hidden text-ellipsis max-w-full font-mono text-3xl font-semibold tracking-tight text-[--text-primary] sm:text-4xl lg:text-[2.75rem]">{twoDecimals}</p>
-      <div className="flex flex-col gap-2 text-xs text-[--text-tertiary] sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-mono whitespace-nowrap overflow-hidden text-ellipsis">Raw: {formattedFull} pathUSD</span>
-        <span className="inline-flex flex-shrink-0 whitespace-nowrap rounded-full bg-[--brand-subtle] px-2.5 py-1 font-medium text-[--brand-primary]">
-          6 decimals
-        </span>
+
+      {/* Large balance display — no card wrapping, breathes freely */}
+      <div className="relative">
+        {/* Ambient glow behind number */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-20"
+          style={{ background: "radial-gradient(ellipse at 30% 50%, #fbbf24 0%, transparent 70%)" }}
+          aria-hidden="true"
+        />
+        <p
+          className="font-mono font-bold tracking-tighter text-[--text-primary] leading-none"
+          style={{ fontSize: "clamp(2.5rem, 6vw, 3.75rem)" }}
+          data-testid="balance-amount"
+        >
+          {twoDecimals}
+        </p>
       </div>
-      {isZeroBalance ? (
-        <p className="text-sm text-[--text-tertiary]">
-          No funds yet. Get testnet tokens from the faucet to start.{" "}
+
+      {isZeroBalance && (
+        <p className="text-sm text-[--text-secondary]">
+          No funds yet.{" "}
           <a
             href="https://docs.tempo.xyz/quickstart/faucet?tab-1=fund-an-address"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"
+            className="text-[--brand-primary] font-medium hover:underline"
           >
-            Open faucet
+            Get testnet tokens
           </a>
-          .
         </p>
-      ) : null}
-      <p className="border-t border-[--border-default] pt-3 text-sm text-[--text-tertiary]">Sponsored gas keeps transfers at $0 for users.</p>
+      )}
     </div>
   );
 }

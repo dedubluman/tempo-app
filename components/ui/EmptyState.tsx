@@ -16,7 +16,7 @@ export interface EmptyStateProps {
 }
 
 function EmptyState({
-  icon: Icon,
+  icon: IconComponent,
   title,
   description,
   action,
@@ -25,12 +25,12 @@ function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center gap-3 py-12 px-4",
+        "flex flex-col items-center justify-center text-center gap-4 py-12 px-4",
         className
       )}
     >
-      <div className="w-12 h-12 rounded-[--radius-xl] bg-[--bg-subtle] flex items-center justify-center text-[--text-tertiary]">
-        <Icon size={20} weight="regular" />
+      <div className="w-12 h-12 rounded-[--radius-2xl] bg-[--bg-surface] border border-[--border-glass] flex items-center justify-center text-[--brand-primary]/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <IconComponent size={20} weight="duotone" />
       </div>
       <p className="text-[--text-primary] font-semibold text-base">{title}</p>
       {description && (
@@ -39,7 +39,8 @@ function EmptyState({
       {action && (
         <button
           onClick={action.onClick}
-          className="mt-1 bg-[--brand-primary] text-white px-4 py-2 rounded-[--radius-md] text-sm font-medium hover:opacity-90 transition-opacity"
+          className="mt-1 text-[--brand-contrast] px-4 py-2 rounded-[--radius-md] text-sm font-medium transition-opacity hover:opacity-90"
+          style={{ background: "var(--gradient-btn-primary)" }}
         >
           {action.label}
         </button>

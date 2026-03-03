@@ -59,7 +59,7 @@ function Badge({
         <span
           className={cn(
             "w-1.5 h-1.5 rounded-full bg-current flex-shrink-0",
-            pulse && "animate-pulse"
+            pulse && "animate-dot-pulse"
           )}
         />
       )}

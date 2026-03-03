@@ -37,7 +37,7 @@ export function QRCodeDisplay({ data, size = 200, className }: QRCodeDisplayProp
 
   return (
     <div
-      className={cn("inline-block rounded-[--radius-md] bg-white p-2", className)}
+      className={cn("inline-block rounded-[--radius-xl] bg-white p-3 shadow-[0_0_0_1px_rgba(251,191,36,0.2),0_8px_24px_-8px_rgba(0,0,0,0.3)]", className)}
       style={{ width: size + 16, height: size + 16 }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />

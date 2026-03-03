@@ -1,0 +1,34 @@
+Task 13 - PWA + Offline Mode Evidence
+
+Changed files:
+- public/manifest.json
+- public/sw.js
+- public/icons/icon-192.png
+- public/icons/icon-512.png
+- lib/store.ts
+- components/OfflineBanner.tsx
+- app/layout.tsx
+
+Implementation notes:
+- Added web manifest with Fluxus metadata and icon references.
+- Added service worker with CACHE_NAME=fluxus-v1 and stale-while-revalidate app shell strategy.
+- Service worker explicitly bypasses caching for /api* and non-origin requests (including RPC domains).
+- Added offline and pending transaction queue Zustand slices:
+  - useOfflineStore: isOnline, setIsOnline
+  - useTxQueueStore: pendingTxs, addPendingTx, removePendingTx, clearQueue
+- Added OfflineBanner component gated by FeatureFlag.OFFLINE_MODE.
+- Added manifest link + feature-flagged SW registration script in app/layout.tsx.
+
+Verification:
+- lsp_diagnostics:
+  - lib/store.ts -> No diagnostics found
+  - components/OfflineBanner.tsx -> No diagnostics found
+  - app/layout.tsx -> No diagnostics found
+- npx tsc --noEmit -> PASS (0 errors)
+- npm run build -> SUCCESS
+
+Build output highlights:
+- Compiled successfully
+- Running TypeScript completed
+- Static pages generated (34/34)
+- Finalized page optimization

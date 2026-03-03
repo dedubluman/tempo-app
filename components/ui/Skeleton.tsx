@@ -26,7 +26,7 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "bg-[--bg-elevated] animate-pulse motion-reduce:animate-none",
+        "relative overflow-hidden bg-[--bg-elevated] motion-reduce:animate-none",
         variantClasses[variant],
         className
       )}
@@ -36,7 +36,12 @@ function Skeleton({
         ...style,
       }}
       {...props}
-    />
+    >
+      <span
+        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent animate-shimmer"
+        aria-hidden="true"
+      />
+    </div>
   );
 }
 

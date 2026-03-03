@@ -14,11 +14,63 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { AddressAvatar } from "@/components/ui/AddressAvatar";
-import { Copy, Check, SignOut, ArrowSquareOut, BookOpen } from "@phosphor-icons/react";
+import {
+  Copy,
+  Check,
+  SignOut,
+  ArrowSquareOut,
+  PaperPlaneTilt,
+  QrCode,
+  ArrowsLeftRight,
+  HandCoins,
+} from "@phosphor-icons/react";
 import { FluxusLogo } from "@/components/ui/FluxusLogo";
 import Link from "next/link";
+import { cn } from "@/lib/cn";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
+
+// Quick action button for the action grid
+function ActionButton({
+  icon: Icon,
+  label,
+  href,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const inner = (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex h-12 w-12 items-center justify-center rounded-[--radius-xl] bg-[--bg-surface] border border-[--border-glass] text-[--brand-primary] transition-all duration-[--duration-fast] group-hover:bg-[--brand-primary]/10 group-hover:border-[--border-glass-hover] group-hover:shadow-[0_0_16px_rgba(251,191,36,0.15)] group-active:scale-95">
+        <Icon size={22} weight="duotone" />
+      </div>
+      <span className="text-xs font-semibold text-[--text-secondary] group-hover:text-[--text-primary] transition-colors duration-[--duration-fast]">
+        {label}
+      </span>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className="group flex flex-col items-center p-3 rounded-[--radius-xl] transition-colors hover:bg-[--bg-surface]">
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex flex-col items-center p-3 rounded-[--radius-xl] transition-colors hover:bg-[--bg-surface]"
+    >
+      {inner}
+    </button>
+  );
+}
 
 export default function AppPage() {
   const t = useTranslations();
@@ -26,17 +78,16 @@ export default function AppPage() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const [copied, setCopied] = useState(false);
+  const [showSend, setShowSend] = useState(false);
   const hasRedirectedRef = useRef(false);
   const variants = useMotionSafe();
 
   const authBootstrapReady = !E2E_MOCK_AUTH || typeof window !== "undefined";
   const mockAddress = (() => {
     if (!E2E_MOCK_AUTH || typeof window === "undefined") return "";
-    // Check legacy key first, then Zustand-persisted key
     const legacyCreated = window.localStorage.getItem("tempo.walletCreated");
     const legacyAddress = window.localStorage.getItem("tempo.lastAddress");
     if (legacyCreated === "1" && legacyAddress) return legacyAddress;
-    // Check Zustand-persisted wallet store (after migration)
     try {
       const stored = window.localStorage.getItem("fluxus-wallet-storage");
       if (stored) {
@@ -100,13 +151,15 @@ export default function AppPage() {
 
   return (
     <div className="min-h-screen bg-[--bg-base]">
-      <header className="border-b border-[--border-subtle] bg-[--bg-surface]/80 backdrop-blur-md sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <header className="border-b border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl sticky top-0 z-20">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FluxusLogo size="sm" showText />
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="brand" size="sm" data-testid="network-badge">{t("common.network")}</Badge>
+            <Badge variant="brand" size="sm" dot pulse data-testid="network-badge">
+              {t("common.network")}
+            </Badge>
             {effectiveAddress && (
               <AddressAvatar address={effectiveAddress} size="sm" />
             )}
@@ -117,139 +170,132 @@ export default function AppPage() {
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] as [number, number, number, number] }}
-        className="max-w-6xl mx-auto px-4 py-6 sm:py-8 pb-24 md:pb-8"
+        transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] as [number, number, number, number] }}
+        className="max-w-3xl mx-auto px-4 py-8 pb-28 md:pb-10"
       >
-        <div className="mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-[--text-primary] font-[--font-display]" data-testid="dashboard-heading">{t("dashboard.heading")}</h1>
-            <Badge variant="brand" size="sm">Stablecoin transfers with instant finality</Badge>
-          </div>
-          <p className="text-sm text-[--text-secondary] mt-1">Send pathUSD with sponsored fees and passkey security.</p>
-        </div>
-
         <motion.div
           variants={variants.staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid gap-4 sm:gap-5 lg:grid-cols-12"
+          className="space-y-8"
         >
-          <motion.div variants={variants.fadeUp} className="lg:col-span-4 space-y-4">
-            <Card variant="elevated" data-testid="account-card">
-              <CardHeader>
-                <CardTitle>{t("dashboard.account.title")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  {effectiveAddress && <AddressAvatar address={effectiveAddress} size="lg" />}
-                  <div className="min-w-0">
-                    <p className="font-mono text-sm font-medium text-[--text-primary] truncate" title={effectiveAddress}>
-                      {shortAddress}
-                    </p>
-                    <p className="text-xs text-[--text-muted]">Active wallet</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => void handleCopyAddress()}
-                    data-testid="copy-address-btn"
-                  >
-                    {copied ? <Check size={14} /> : <Copy size={14} />}
-                    {copied ? t("common.copied") : t("common.copyAddress")}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleDisconnect}
-                    data-testid="disconnect-btn"
-                  >
-                    <SignOut size={14} />
-                    {t("common.disconnect")}
-                  </Button>
-                  <p className="text-xs text-[--text-muted]">Disconnect logs you out and clears the active session.</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card variant="elevated" data-testid="receive-card">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t("dashboard.receive.title")}</CardTitle>
-                  <Badge variant="success" size="sm">{t("dashboard.receive.badge")}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="font-mono text-xs text-[--text-secondary] break-all bg-[--bg-subtle] rounded-[--radius-md] p-3 select-all" title={effectiveAddress}>
-                  {effectiveAddress}
-                </p>
-                {shortAddress && (
-                  <p className="font-mono text-xs text-[--text-muted]">{shortAddress}</p>
-                )}
+          {/* Balance Hero — T15 */}
+          <motion.section variants={variants.fadeUp} className="space-y-6">
+            {/* Address row */}
+            <div className="flex items-center gap-3">
+              {effectiveAddress && <AddressAvatar address={effectiveAddress} size="sm" />}
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-mono text-sm text-[--text-secondary] truncate" title={effectiveAddress}>
+                  {shortAddress}
+                </span>
+                <button
+                  onClick={() => void handleCopyAddress()}
+                  className="text-[--text-tertiary] hover:text-[--brand-primary] transition-colors p-1 rounded"
+                  data-testid="copy-address-btn"
+                  aria-label="Copy address"
+                >
+                  {copied ? <Check size={13} /> : <Copy size={13} />}
+                </button>
+              </div>
+              <div className="ml-auto flex items-center gap-2">
                 <a
-                  href="https://docs.tempo.xyz/quickstart/faucet?tab-1=fund-an-address"
+                  href={`https://explore.tempo.xyz/address/${effectiveAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[--brand-subtle] text-[--brand-primary] font-medium hover:bg-[--brand-primary] hover:text-[--bg-base] transition-colors"
+                  className="text-[--text-tertiary] hover:text-[--brand-primary] transition-colors p-1 rounded"
+                  aria-label="View on explorer"
                 >
-                  <ArrowSquareOut size={12} />
-                  Get testnet tokens
+                  <ArrowSquareOut size={13} />
                 </a>
-              </CardContent>
-            </Card>
+                <button
+                  onClick={handleDisconnect}
+                  className="text-[--text-tertiary] hover:text-[--status-error-text] transition-colors p-1 rounded"
+                  data-testid="disconnect-btn"
+                  aria-label={t("common.disconnect")}
+                >
+                  <SignOut size={13} />
+                </button>
+              </div>
+            </div>
 
-            <motion.div
-              initial={{ scale: 0.97, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] as [number, number, number, number] }}
+            {/* Balance */}
+            <BalanceDisplay />
+
+            {/* Action Grid — T16 */}
+            <div
+              className="grid grid-cols-4 gap-1 bg-[--bg-glass] rounded-[--radius-2xl] border border-[--border-glass] p-2"
+              role="toolbar"
+              aria-label="Quick actions"
             >
-              <Card variant="elevated">
-                <CardHeader><CardTitle>{t("dashboard.balance.title")}</CardTitle></CardHeader>
+              <ActionButton
+                icon={PaperPlaneTilt}
+                label="Send"
+                onClick={() => setShowSend((v) => !v)}
+              />
+              <ActionButton
+                icon={QrCode}
+                label="Receive"
+                href="/app/request"
+              />
+              <ActionButton
+                icon={ArrowsLeftRight}
+                label="Swap"
+                href="/app/swap"
+              />
+              <ActionButton
+                icon={HandCoins}
+                label="Request"
+                href="/app/request"
+              />
+            </div>
+          </motion.section>
+
+          {/* Send form — shown when Send action is clicked */}
+          {showSend && (
+            <motion.section
+              variants={variants.fadeUp}
+              initial="hidden"
+              animate="visible"
+            >
+              <Card variant="elevated" data-testid="transfer-card">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{t("dashboard.send.title")}</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowSend(false)}
+                      className="h-7 w-7 p-0"
+                      aria-label="Close send form"
+                    >
+                      &times;
+                    </Button>
+                  </div>
+                </CardHeader>
                 <CardContent>
-                  <BalanceDisplay />
+                  <TransferForm />
                 </CardContent>
               </Card>
-            </motion.div>
-          </motion.div>
+            </motion.section>
+          )}
 
-          <motion.div variants={variants.fadeUp} className="lg:col-span-8 space-y-4">
-            <Card variant="elevated" data-testid="transfer-card">
-              <CardHeader><CardTitle>{t("dashboard.send.title")}</CardTitle></CardHeader>
-              <CardContent>
-                <TransferForm />
-              </CardContent>
-            </Card>
-
-
-            <Card variant="elevated" data-testid="activity-card">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Activity</CardTitle>
-                  <Link href="/docs/transaction-history" className="text-xs text-[--brand-primary] hover:underline">View all</Link>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <TransactionHistory />
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Activity Feed — T17 */}
+          <motion.section variants={variants.fadeUp}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-[--text-secondary] uppercase tracking-[0.12em]">
+                Activity
+              </h2>
+              <Link
+                href="/docs/transaction-history"
+                className="text-xs text-[--brand-primary] hover:underline font-medium"
+              >
+                View all
+              </Link>
+            </div>
+            <TransactionHistory />
+          </motion.section>
         </motion.div>
       </motion.main>
-
-      <nav className="md:hidden fixed bottom-0 inset-x-0 border-t border-[--border-subtle] bg-[--bg-surface]/90 backdrop-blur-md z-20" data-testid="bottom-nav">
-        <div className="flex items-center justify-around h-16 max-w-md mx-auto px-4">
-          <Link href="/app" className="flex flex-col items-center gap-0.5 text-[--brand-primary]" data-testid="nav-home">
-            <FluxusLogo size="sm" />
-            <span className="text-[10px] font-medium">{t("common.wallet")}</span>
-          </Link>
-          <Link href="/docs" className="flex flex-col items-center gap-0.5 text-[--text-muted]" data-testid="nav-docs">
-            <BookOpen size={20} />
-            <span className="text-[10px] font-medium">{t("common.docs")}</span>
-          </Link>
-        </div>
-      </nav>
     </div>
   );
 }

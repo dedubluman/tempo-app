@@ -1,0 +1,37 @@
+
+> tempo-app@0.1.0 dev
+> next dev --port 3100
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/barik/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/barik/Desktop/Tempo_Project/tempo-app/package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3100
+- Network:       http://192.168.1.176:3100
+- Environments: .env.local
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 562ms
+(node:41645) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ GET / 200 in 1033ms (compile: 665ms, proxy.ts: 36ms, render: 332ms)
+ GET / 200 in 62ms (compile: 3ms, proxy.ts: 3ms, render: 56ms)
+ GET /app 200 in 151ms (compile: 29ms, proxy.ts: 3ms, render: 119ms)
+ GET / 200 in 18ms (compile: 2ms, proxy.ts: 3ms, render: 13ms)
+ GET / 200 in 51ms (compile: 1866µs, proxy.ts: 1735µs, render: 47ms)
+ GET /app 200 in 39ms (compile: 2ms, proxy.ts: 2ms, render: 34ms)
+ GET / 200 in 11ms (compile: 1828µs, proxy.ts: 1644µs, render: 8ms)
+ GET /app 200 in 30ms (compile: 1557µs, proxy.ts: 1588µs, render: 26ms)
+ GET / 200 in 13ms (compile: 1683µs, proxy.ts: 1721µs, render: 9ms)
+ GET /app/portfolio 200 in 125ms (compile: 69ms, proxy.ts: 1539µs, render: 55ms)
+ GET / 200 in 34ms (compile: 1566µs, proxy.ts: 1698µs, render: 31ms)
+ GET /app/portfolio 200 in 36ms (compile: 3ms, proxy.ts: 1362µs, render: 32ms)
+ GET /app/request 200 in 690ms (compile: 637ms, proxy.ts: 1249µs, render: 51ms)
+ GET /app/schedule 200 in 489ms (compile: 382ms, proxy.ts: 1493µs, render: 105ms)
+ GET /pay?to=0x1234567890AbcdEF1234567890aBcdef12345678&amount=1&token=pathUSD&memo=fix-qa 200 in 323ms (compile: 279ms, proxy.ts: 1953µs, render: 42ms)
+[?25h

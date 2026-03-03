@@ -8,11 +8,11 @@ const cardVariants = cva("rounded-[--radius-xl] overflow-hidden", {
   variants: {
     variant: {
       flat: "bg-[--bg-surface]",
-      elevated: "bg-[--bg-surface] shadow-[--shadow-md]",
+      elevated: "bg-[--bg-surface] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]",
       outlined: "bg-transparent border border-[--border-default]",
-      brand: "bg-[--bg-surface] ring-1 ring-[--brand-primary]/40",
+      brand: "bg-[--bg-surface] ring-1 ring-[--brand-primary]/40 shadow-[var(--shadow-brand)]",
       glass:
-        "bg-[--bg-surface]/60 backdrop-blur-md border border-[--border-subtle]",
+        "bg-[--bg-glass] backdrop-blur-xl border border-[--border-glass] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
     },
   },
   defaultVariants: {

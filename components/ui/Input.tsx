@@ -31,11 +31,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id ?? generatedId;
 
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm text-[--text-secondary] font-medium"
+            className="text-sm text-[--text-primary] font-semibold"
           >
             {label}
           </label>
@@ -55,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "w-full h-10 rounded-[--radius-md] border bg-[--bg-surface] text-[--text-primary]",
               "px-3 outline-none transition-all duration-[--duration-fast]",
               "placeholder:text-[--text-muted]",
-              "focus-visible:border-[--border-focus] focus-visible:ring-2 focus-visible:ring-[--brand-subtle]",
+              "focus-visible:border-[--border-focus] focus-visible:ring-2 focus-visible:ring-[--brand-primary]/20 focus-visible:bg-[--bg-elevated] focus-visible:shadow-[0_0_0_3px_rgba(251,191,36,0.08)]",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               leftElement && "pl-10",
               rightElement && "pr-10",

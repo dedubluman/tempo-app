@@ -1,0 +1,53 @@
+TASK: T15 — WebSocket Payment Detector for POS Terminal
+DATE: 2026-02-28
+STATUS: COMPLETE
+
+=== VERIFICATION ===
+npx tsc --noEmit  → 0 errors
+npm run build     → SUCCESS (Compiled successfully in 3.0s, 34 static pages)
+
+=== FILES CREATED/MODIFIED ===
+
+1. tempo-app/lib/paymentDetector.ts  [CREATED, 315 lines]
+   - Exports: createPaymentDetector(options) → { start, stop, isActive }
+   - Primary: WebSocket to wss://rpc.moderato.tempo.xyz, eth_subscribe newPendingTransactions
+   - For each tx hash: eth_getTransactionByHash via HTTP RPC, check TIP-20 transfer match
+   - Fallback: eth_getBlockByNumber("latest", true) polling every 2s if WS fails
+   - Timeout: auto-stop + onTimeout() after 5 minutes (default, configurable)
+   - Detects both transfer(address,uint256) and transferWithMemo(address,uint256,bytes32)
+   - Cleanup: eth_unsubscribe + ws.close() on stop
+
+2. tempo-app/app/app/pos/page.tsx  [MODIFIED]
+   - Added import: parseUnits from viem, createPaymentDetector from @/lib/paymentDetector
+   - Added: playSuccessSound() using Web Audio API (880Hz sine, 500ms)
+   - Added state: paymentDetected (boolean)
+   - Changed: handleReset → useCallback([]) stable reference + resets paymentDetected
+   - Added: useEffect that starts detector when state=="qr", cleans up on exit
+   - Updated: QR status indicator shows green pulse + "Payment detected! Confirming..."
+     when WS fires, otherwise shows countdown timer as before
+   - Preserved: all existing features (TIP-1009 expiring nonces, countdown timer,
+     debounce, duplicate detection, balance-based on-chain confirmation)
+
+=== DESIGN DECISIONS ===
+
+Dual-layer detection:
+  1. WebSocket (fast): detects pending tx, sets receivedTxHash, shows "Payment detected!",
+     plays sound. Fires before block confirmation.
+  2. Balance polling (confirmation): existing useEffect watches for balance increase on
+     each block, transitions to "success" state once on-chain confirmed.
+
+TIP-20 calldata parsing (no viem ABI decode needed):
+  - tx.to == expectedToken (token contract address)
+  - input[0..10) == transfer/transferWithMemo selector (computed via toFunctionSelector)
+  - input[34..74) == recipient address (last 40 chars of 64-char padded field)
+  - input[74..138) == amount as uint256 (accept if txAmount >= expectedAmount)
+
+Fallback trigger: WS connect timeout 5s, onerror, or unexpected onclose all start polling.
+Polling dedup: lastProcessedBlockNum prevents re-checking same block on repeated ticks.
+
+=== CONSTRAINTS RESPECTED ===
+- Poll interval >= 2s ✓
+- Max 5-minute timeout ✓
+- No as any / @ts-ignore ✓
+- TransferForm.tsx + useTransferFlow.ts untouched ✓
+- BigInt literal 0n replaced with BigInt(0) for ES2017 target ✓
