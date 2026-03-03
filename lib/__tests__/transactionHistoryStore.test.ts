@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { LocalTransferHistoryEntry } from "@/lib/transactionHistoryStore";
 
 const mockAddEntries = vi.fn();
-const mockGetEntries = vi.fn(() => []);
+const mockGetEntries = vi.fn((): LocalTransferHistoryEntry[] => []);
 
 vi.mock("@/lib/store", () => ({
   useTxHistoryStore: Object.assign(

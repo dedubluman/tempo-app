@@ -52,7 +52,7 @@ describe("passkeyRegistry", () => {
   });
 
   it("getBackupCredentialMetadata returns empty array when no backups stored", () => {
-    localStorageMock.getItem.mockReturnValue(null);
+    localStorageMock.getItem.mockReturnValue(null as unknown as string);
     const result = getBackupCredentialMetadata("0xabc");
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(0);
@@ -64,7 +64,7 @@ describe("passkeyRegistry", () => {
   });
 
   it("hasBackupCredentialMetadata returns false when no backups stored", () => {
-    localStorageMock.getItem.mockReturnValue(null);
+    localStorageMock.getItem.mockReturnValue(null as unknown as string);
     const result = hasBackupCredentialMetadata("0xabc");
     expect(result).toBe(false);
   });
