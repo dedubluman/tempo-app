@@ -14,7 +14,7 @@ test.describe("POS Merchant Receipts", () => {
     await page.waitForLoadState("networkidle");
 
     // Should show "0 receipts stored locally"
-    await expect(page.locator('text=receipt')).toBeVisible();
+    await expect(page.locator('text=stored locally')).toBeVisible();
   });
 
   test("injecting mock receipts renders table", async ({ page }) => {

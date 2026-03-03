@@ -23,9 +23,9 @@ test.describe("Streaming Rate Limiter", () => {
     await page.goto("/app/stream");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('button:has-text("1 min")')).toBeVisible();
-    await expect(page.locator('button:has-text("5 min")')).toBeVisible();
-    await expect(page.locator('button:has-text("15 min")')).toBeVisible();
+    await expect(page.locator('button', { hasText: /^1 min$/ })).toBeVisible();
+    await expect(page.locator('button', { hasText: /^5 min$/ })).toBeVisible();
+    await expect(page.locator('button', { hasText: /^15 min$/ })).toBeVisible();
   });
 
   test("stream page shows sponsor limit info", async ({ page }) => {

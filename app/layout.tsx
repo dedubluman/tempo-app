@@ -55,7 +55,7 @@ export default async function RootLayout({
       className={`${satoshi.variable} ${satoshiDisplay.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        {offlineModeEnabled ? <link rel="manifest" href="/manifest.json" /> : null}
+        <link rel="manifest" href="/manifest.json" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {offlineModeEnabled ? (
           <script
