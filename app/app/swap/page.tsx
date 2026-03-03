@@ -223,10 +223,10 @@ export default function SwapPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-[--font-display] text-2xl text-[--text-primary]">Swap</h1>
+          <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Swap</h1>
           <p className="mt-1 text-sm text-[--text-secondary]">Atomic stablecoin swap on Tempo DEX.</p>
         </div>
         <Button
@@ -244,7 +244,7 @@ export default function SwapPage() {
         </Button>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="space-y-5">
         <Card variant="elevated" className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Swap Tokens</CardTitle>
