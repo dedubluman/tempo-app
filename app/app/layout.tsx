@@ -54,7 +54,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </a>
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
         <aside className="hidden md:block md:w-64 md:shrink-0">
-          <nav role="navigation" className="sticky top-20 rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-surface] p-2">
+          <nav role="navigation" className="sticky top-6 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(pathname, item.href);
@@ -69,7 +69,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       {active ? (
                         <motion.span
                           layoutId="app-nav-indicator"
-                          className="absolute inset-y-1 left-0 w-1 rounded-full bg-amber-500"
+                          className="absolute inset-y-1 left-0 w-1 rounded-full bg-[--brand-primary]"
                           transition={{ type: "spring", stiffness: 420, damping: 34 }}
                         />
                       ) : null}
@@ -105,7 +105,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     {active ? (
                       <motion.span
                         layoutId="app-mobile-nav-indicator"
-                        className="absolute left-2 right-2 top-0 h-0.5 rounded-full bg-amber-500"
+                        className="absolute left-2 right-2 top-0 h-0.5 rounded-full bg-[--brand-primary]"
                         transition={{ type: "spring", stiffness: 420, damping: 34 }}
                       />
                     ) : null}
