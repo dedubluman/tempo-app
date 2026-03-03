@@ -466,7 +466,7 @@ export default function SchedulePage() {
                       {displayStatus === "pending" && (
                         <div className="text-right">
                           {isInWindow ? (
-                            <p className="text-xs text-amber-400">Executing...</p>
+                            <p className="text-xs text-[--brand-primary]">Executing...</p>
                           ) : (
                             <p className="font-mono text-sm text-[--text-primary]">
                               {formatCountdown(secondsUntil)}
@@ -479,7 +479,7 @@ export default function SchedulePage() {
                         <Link
                           href={`${EXPLORER_URL}/tx/${payment.txHash}`}
                           target="_blank"
-                          className="text-xs text-amber-400 underline"
+                          className="text-xs text-[--text-brand] underline hover:opacity-80"
                         >
                           Tx
                         </Link>

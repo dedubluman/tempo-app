@@ -146,7 +146,7 @@ export default function ReceiptHistoryPage() {
                         <Link
                           href={`${EXPLORER_URL}/tx/${r.txHash}`}
                           target="_blank"
-                          className="font-mono text-amber-400 underline"
+                          className="font-mono text-[--text-brand] underline hover:opacity-80"
                         >
                           {truncateAddress(r.txHash)}
                         </Link>

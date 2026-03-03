@@ -81,7 +81,7 @@ export default function PosSettingsPage() {
                 type="checkbox"
                 checked={enabled}
                 onChange={(e) => setEnabled(e.target.checked)}
-                className="h-4 w-4 accent-amber-500"
+                className="h-4 w-4 accent-[--brand-primary]"
               />
               <span className="text-sm text-[--text-primary]">Enable atomic split payments</span>
             </label>
@@ -144,7 +144,7 @@ export default function PosSettingsPage() {
           <CardTitle>Quick Links</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Link href="/app/pos/history" className="block text-sm text-amber-400 underline">
+          <Link href="/app/pos/history" className="block text-sm text-[--text-brand] underline hover:opacity-80">
             View Receipt History
           </Link>
         </CardContent>

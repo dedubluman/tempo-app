@@ -303,7 +303,7 @@ export default function StreamPage() {
                         onClick={() => setDurationSeconds(opt.seconds)}
                         className={`rounded-[--radius-md] border px-3 py-1.5 text-xs transition-colors ${
                           durationSeconds === opt.seconds
-                            ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                            ? "border-[--brand-primary]/40 bg-[--brand-subtle] text-[--brand-primary]"
                             : "border-[--border-default] text-[--text-secondary] hover:bg-[--bg-subtle]"
                         }`}
                       >
@@ -340,7 +340,7 @@ export default function StreamPage() {
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-[--bg-subtle]">
                     <div
-                      className="h-full rounded-full bg-amber-500 transition-all duration-1000"
+                      className="h-full rounded-full bg-[--brand-primary] transition-all duration-1000"
                       style={{ width: `${progressPct}%` }}
                     />
                   </div>
@@ -389,7 +389,7 @@ export default function StreamPage() {
                           <Link
                             href={`${EXPLORER_URL}/tx/${tx.hash}`}
                             target="_blank"
-                            className="text-xs text-amber-400 underline"
+                            className="text-xs text-[--text-brand] underline hover:opacity-80"
                           >
                             View
                           </Link>

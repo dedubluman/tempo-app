@@ -390,7 +390,7 @@ export default function PosPage() {
                 <div className="flex items-center justify-center gap-2 text-xs text-[--text-secondary]">
                   <span
                     className={`inline-block h-2 w-2 animate-pulse rounded-full ${
-                      paymentDetected ? "bg-emerald-400" : "bg-amber-500"
+                      paymentDetected ? "bg-[--status-success-text]" : "bg-[--brand-primary]"
                     }`}
                   />
                   {paymentDetected
@@ -438,7 +438,7 @@ export default function PosPage() {
                   href={`${EXPLORER_URL}/tx/${receivedTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-amber-400 underline"
+                  className="text-xs text-[--text-brand] underline hover:opacity-80"
                 >
                   View on Explorer
                 </a>

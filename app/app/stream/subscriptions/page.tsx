@@ -125,7 +125,7 @@ export default function SubscriptionsPage() {
                       onClick={() => setFrequency(f.value)}
                       className={`rounded-[--radius-md] border px-3 py-1.5 text-xs transition-colors ${
                         frequency === f.value
-                          ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                          ? "border-[--brand-primary]/40 bg-[--brand-subtle] text-[--brand-primary]"
                           : "border-[--border-default] text-[--text-secondary] hover:bg-[--bg-subtle]"
                       }`}
                     >

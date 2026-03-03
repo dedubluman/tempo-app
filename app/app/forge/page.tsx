@@ -248,15 +248,15 @@ export default function ForgePage() {
             <div key={step.label} className="flex items-center gap-2">
               {i > 0 && (
                 <div
-                  className={`hidden h-px w-6 sm:block ${done ? "bg-amber-500" : "bg-[--border-subtle]"}`}
+                  className={`hidden h-px w-6 sm:block ${done ? "bg-[--brand-primary]" : "bg-[--border-subtle]"}`}
                 />
               )}
               <div
                 className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   done
-                    ? "bg-amber-500/15 text-amber-400"
+                    ? "bg-[--brand-subtle] text-[--brand-primary]"
                     : active
-                      ? "border border-amber-500/40 bg-[--bg-surface] text-[--text-primary]"
+                      ? "border border-[--brand-primary]/40 bg-[--bg-surface] text-[--text-primary]"
                       : "bg-[--bg-subtle] text-[--text-tertiary]"
                 }`}
               >
@@ -364,7 +364,7 @@ export default function ForgePage() {
                       onClick={() => setPolicyType("whitelist")}
                       className={`rounded-[--radius-md] border px-4 py-2 text-sm transition-colors ${
                         policyType === "whitelist"
-                          ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                          ? "border-[--brand-primary]/40 bg-[--brand-subtle] text-[--brand-primary]"
                           : "border-[--border-default] text-[--text-secondary] hover:bg-[--bg-subtle]"
                       }`}
                     >
@@ -375,7 +375,7 @@ export default function ForgePage() {
                       onClick={() => setPolicyType("blacklist")}
                       className={`rounded-[--radius-md] border px-4 py-2 text-sm transition-colors ${
                         policyType === "blacklist"
-                          ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                          ? "border-[--brand-primary]/40 bg-[--brand-subtle] text-[--brand-primary]"
                           : "border-[--border-default] text-[--text-secondary] hover:bg-[--bg-subtle]"
                       }`}
                     >
