@@ -46,7 +46,7 @@ export function LandingMetrics() {
       whileInView={{ opacity: 1 }}
       transition={{ staggerChildren: 0.07, delayChildren: 0.1 }}
       viewport={{ once: true, amount: 0.2 }}
-      className="py-16 px-4 border-y border-[--border-subtle]"
+      className="py-16 px-4 border-y border-[--border-glass]"
     >
       <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
         {metrics.map((metric) => (

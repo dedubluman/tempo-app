@@ -29,7 +29,7 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] }}
-      className="fixed top-0 inset-x-0 z-30 border-b border-white/10 backdrop-blur-md bg-[--bg-base]/80"
+      className="fixed top-0 inset-x-0 z-30 border-b border-[--border-glass] backdrop-blur-xl bg-[--bg-glass]"
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <FluxusLogo size="sm" showText />

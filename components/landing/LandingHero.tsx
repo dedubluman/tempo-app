@@ -74,7 +74,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
               Payments.{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #fbbf24, #fcd34d)",
+                  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -160,7 +160,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
               className="absolute inset-0 rounded-full blur-3xl opacity-20"
               style={{
                 background:
-                  "radial-gradient(circle, #fbbf24 0%, transparent 70%)",
+                  "radial-gradient(circle, var(--brand-primary) 0%, transparent 70%)",
               }}
             />
 
