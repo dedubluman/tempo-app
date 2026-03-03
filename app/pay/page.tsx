@@ -177,13 +177,13 @@ function PayPageContent() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-24 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl text-[--text-primary]">Payment Request</h1>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Payment Request</h1>
         <p className="mt-1 text-sm text-[--text-secondary]">Review and pay this Tempo request.</p>
       </div>
 
-      <Card variant="elevated">
+      <Card variant="glass">
         <CardHeader>
           <CardTitle>Request Details</CardTitle>
         </CardHeader>

@@ -189,13 +189,13 @@ export default function RequestPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl text-[--text-primary]">Request</h1>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Request</h1>
         <p className="mt-1 text-sm text-[--text-secondary]">Create shareable payment links with memo reconciliation.</p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="space-y-5">
         <Card variant="elevated" className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Create Payment Request</CardTitle>
@@ -251,7 +251,7 @@ export default function RequestPage() {
             </Button>
 
             {generatedUrl ? (
-              <div className="space-y-3 rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3">
+              <div className="space-y-3 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-4">
                 <p className="inline-flex items-center gap-1.5 text-sm text-[--status-success-text]">
                   <CheckCircle size={14} />
                   Request ready to share

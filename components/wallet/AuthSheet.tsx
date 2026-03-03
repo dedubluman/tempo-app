@@ -211,7 +211,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
 
   if (!supportsWebAuthn) {
     return (
-      <BottomSheet open={open} onClose={onClose} title="Connect Wallet" className="bg-[--bg-elevated] backdrop-blur-sm border border-white/10 shadow-[var(--shadow-xl),inset_0_1px_0_rgba(255,255,255,0.05)]">
+      <BottomSheet open={open} onClose={onClose} title="Connect Wallet">
         <p className="text-sm text-[--status-warning-text] bg-[--status-warning-bg] rounded-[--radius-md] px-3 py-2">
           Unsupported browser. Use Chrome or Safari.
         </p>
@@ -221,11 +221,11 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
 
   return (
     <>
-      <BottomSheet open={open} onClose={onClose} title="Connect Wallet" className="bg-[--bg-elevated] backdrop-blur-sm border border-white/10 shadow-[var(--shadow-xl),inset_0_1px_0_rgba(255,255,255,0.05)]">
+      <BottomSheet open={open} onClose={onClose} title="Connect Wallet">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-center gap-2 py-2">
-            <div className="w-12 h-12 rounded-[--radius-xl] flex items-center justify-center" style={{ background: "var(--gradient-flux)" }}>
-              <Key size={22} className="text-white" />
+            <div className="w-14 h-14 rounded-[--radius-2xl] flex items-center justify-center bg-[--brand-subtle] border border-[--border-glass]">
+              <Key size={24} className="text-[--brand-primary]" />
             </div>
             <p className="text-[--text-secondary] text-sm text-center">
               {hasWalletHistory ? "Welcome back. Use your passkey to continue." : "Create a new wallet secured by your device passkey."}
@@ -280,7 +280,7 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-[--text-muted] border-t border-[--border-subtle] pt-3">
+          <div className="flex items-center gap-2 text-xs text-[--text-muted] border-t border-[--border-glass] pt-3">
             <ShieldCheck size={13} className="flex-shrink-0" />
             <span>Your passkey is stored for this domain only. No passwords needed.</span>
           </div>

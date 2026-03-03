@@ -25,7 +25,7 @@ const docLinks = [
 export default function DocsLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[--bg-base]">
-      <header className="border-b border-[--border-subtle] bg-[--bg-surface]/80 backdrop-blur-md sticky top-0 z-20">
+      <header className="border-b border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 mr-4">
             <FluxusLogo size="sm" showText />
@@ -42,7 +42,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-[--text-secondary] hover:text-[--text-primary] px-3 py-2 rounded-[--radius-md] hover:bg-[--bg-subtle] transition-colors"
+                className="text-sm text-[--text-secondary] hover:text-[--text-primary] px-3 py-2 rounded-[--radius-md] hover:bg-[--bg-glass-hover] transition-colors"
               >
                 {label}
               </Link>
@@ -50,7 +50,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 prose-sm max-w-2xl">
+        <main className="flex-1 min-w-0 max-w-2xl">
           {children}
         </main>
       </div>

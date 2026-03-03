@@ -252,9 +252,9 @@ export default function StreamPage() {
   })();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl text-[--text-primary]">
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary] flex items-center gap-2">
           <Waves size={24} className="mr-2 inline-block" weight="duotone" />
           Streaming Payments
         </h1>
@@ -263,7 +263,7 @@ export default function StreamPage() {
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="space-y-5">
         {/* Configuration / Active Stream */}
         <Card variant="elevated" className="lg:col-span-2">
           <CardHeader>

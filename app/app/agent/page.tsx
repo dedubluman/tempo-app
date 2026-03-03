@@ -121,12 +121,12 @@ export default function AgentPage() {
   const showWelcome = messages.length === 0;
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6 pb-24 md:pb-6">
+    <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-2xl flex-col px-4 py-6 pb-28 md:pb-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <RobotIcon size={22} weight="duotone" className="text-[--text-primary]" />
-          <h1 className="font-[--font-display] text-xl text-[--text-primary]">AI Agent</h1>
+          <h1 className="font-[--font-display] text-xl font-bold text-[--text-primary]">AI Agent</h1>
           <span className="rounded-full bg-[--status-success-bg] px-2 py-0.5 text-[10px] font-medium text-[--status-success-text]">
             Gemini
           </span>

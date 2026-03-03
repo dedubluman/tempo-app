@@ -23,7 +23,7 @@ export default function DocsPage() {
           <Link
             key={href}
             href={href}
-            className="block p-4 rounded-[--radius-xl] border border-[--border-default] bg-[--bg-surface] hover:bg-[--bg-elevated] transition-colors"
+            className="block p-4 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md hover:bg-[--bg-glass-hover] hover:border-[--border-glass-hover] transition-colors"
           >
             <h2 className="font-semibold text-[--text-primary] mb-1">{title}</h2>
             <p className="text-sm text-[--text-secondary]">{desc}</p>
@@ -47,7 +47,7 @@ export default function DocsPage() {
             <Link
               key={href}
               href={href}
-              className="block p-4 rounded-[--radius-xl] border border-[--border-default] bg-[--bg-surface] hover:bg-[--bg-elevated] transition-colors"
+              className="block p-4 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md hover:bg-[--bg-glass-hover] hover:border-[--border-glass-hover] transition-colors"
             >
               <h2 className="font-semibold text-[--text-primary] mb-1">{title}</h2>
               <p className="text-sm text-[--text-secondary]">{desc}</p>
@@ -56,7 +56,7 @@ export default function DocsPage() {
         </div>
       </div>
 
-      <div className="rounded-[--radius-xl] border border-[--border-subtle] bg-[--bg-subtle] p-5">
+      <div className="rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-5">
         <h2 className="font-semibold text-[--text-primary] mb-2">About Tempo Testnet</h2>
         <p className="text-sm text-[--text-secondary] leading-relaxed">
           Fluxus runs on the Tempo Moderato Testnet (Chain ID: 42431). All transfers use pathUSD — a 6-decimal stablecoin predeployed on Tempo. Gas fees are sponsored by the Tempo fee sponsorship system — you never pay gas.

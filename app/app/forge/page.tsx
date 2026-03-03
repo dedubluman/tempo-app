@@ -230,9 +230,9 @@ export default function ForgePage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl text-[--text-primary]">Token Forge</h1>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Token Forge</h1>
         <p className="mt-1 text-sm text-[--text-secondary]">
           Create a TIP-20 token, mint supply, apply compliance, and list on DEX.
         </p>
@@ -269,7 +269,7 @@ export default function ForgePage() {
         })}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="space-y-5">
         {/* Main Wizard Panel */}
         <Card variant="elevated" className="lg:col-span-2">
           <CardHeader>

@@ -263,9 +263,9 @@ export default function PosPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl text-[--text-primary]">
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary] flex items-center gap-2">
           <Storefront size={24} className="mr-2 inline-block" weight="duotone" />
           POS Terminal
         </h1>
@@ -274,7 +274,7 @@ export default function PosPage() {
 
       {/* Keypad State */}
       {state === "keypad" && (
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="space-y-5">
           <Card variant="elevated" className="lg:col-span-2">
             <CardHeader>
               <CardTitle>Enter Amount</CardTitle>

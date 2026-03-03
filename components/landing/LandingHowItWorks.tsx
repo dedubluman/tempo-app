@@ -47,10 +47,10 @@ export function LandingHowItWorks() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map(({ icon: Icon, step, title, description }) => (
-            <motion.div key={step} variants={variants.fadeUp} className="flex flex-col gap-4">
+            <motion.div key={step} variants={variants.fadeUp} className="flex flex-col gap-4 p-5 rounded-[--radius-2xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-[--radius-xl] flex items-center justify-center flex-shrink-0" style={{ background: "var(--gradient-flux)" }}>
-                  <Icon size={22} className="text-white" />
+                  <Icon size={22} className="text-[--brand-contrast]" />
                 </div>
                 <span className="text-2xl font-bold text-[--text-muted] font-[--font-display]">{step}</span>
               </div>

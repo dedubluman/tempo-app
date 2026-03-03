@@ -709,7 +709,7 @@ export function TransferForm() {
 
   if (isBatchSuccess && batchHash) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--status-success-bg] p-4 sm:p-6 shadow-[--shadow-sm]">
+      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Batch Transfer Successful</p>
           <div className="space-y-1">
@@ -760,7 +760,7 @@ export function TransferForm() {
 
   if (isSuccess && hash) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--status-success-bg] p-4 sm:p-6 shadow-[--shadow-sm]">
+      <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Transfer Successful</p>
           <div className="space-y-1">
@@ -808,7 +808,7 @@ export function TransferForm() {
 
   if (batchConfirming) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+      <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Batch Send</p>
           <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
@@ -860,7 +860,7 @@ export function TransferForm() {
 
   if (confirming) {
     return (
-      <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+      <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Transfer</p>
           <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
@@ -906,7 +906,7 @@ export function TransferForm() {
   }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-[--border-default] bg-[--bg-surface] p-4 sm:p-6 shadow-[--shadow-sm] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[--shadow-lg]">
+      <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Send pathUSD</p>
         <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">Gas sponsored</span>
