@@ -11,7 +11,7 @@ export function initAnalytics(): void {
 
   // Check if Do Not Track is enabled
   if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") {
-    console.log("[Analytics] Do Not Track enabled, skipping PostHog initialization");
+    console.warn("[Analytics] Do Not Track enabled, skipping PostHog initialization");
     return;
   }
 

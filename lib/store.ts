@@ -203,7 +203,7 @@ function migrateOldLocalStorage() {
       window.localStorage.removeItem(key);
     });
 
-    console.log("[Zustand Migration] Old localStorage keys migrated and removed");
+    console.warn("[Zustand Migration] Old localStorage keys migrated and removed");
   } catch (error) {
     console.error("[Zustand Migration] Failed to migrate:", error);
   }
