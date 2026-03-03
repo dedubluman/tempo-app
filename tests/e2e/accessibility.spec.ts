@@ -91,8 +91,13 @@ test.describe("Accessibility (WCAG 2.1 AA)", () => {
   });
 
   test("skip-to-content link is present in app", async ({ page }) => {
+    // Set mock auth so /app doesn't redirect to landing
+    await page.addInitScript(() => {
+      window.localStorage.setItem("tempo.walletCreated", "1");
+      window.localStorage.setItem("tempo.lastAddress", "0xAbcdEF1234567890AbcdEF1234567890aBcdef12");
+    });
     await page.goto("/app");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     const count = await page.locator("a[href='#main-content']").count();
     expect(count).toBeGreaterThanOrEqual(1);
   });

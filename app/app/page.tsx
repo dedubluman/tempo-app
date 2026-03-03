@@ -30,10 +30,24 @@ export default function AppPage() {
   const variants = useMotionSafe();
 
   const authBootstrapReady = !E2E_MOCK_AUTH || typeof window !== "undefined";
-  const mockAddress =
-    E2E_MOCK_AUTH && typeof window !== "undefined" && window.localStorage.getItem("tempo.walletCreated") === "1"
-      ? window.localStorage.getItem("tempo.lastAddress") || ""
-      : "";
+  const mockAddress = (() => {
+    if (!E2E_MOCK_AUTH || typeof window === "undefined") return "";
+    // Check legacy key first, then Zustand-persisted key
+    const legacyCreated = window.localStorage.getItem("tempo.walletCreated");
+    const legacyAddress = window.localStorage.getItem("tempo.lastAddress");
+    if (legacyCreated === "1" && legacyAddress) return legacyAddress;
+    // Check Zustand-persisted wallet store (after migration)
+    try {
+      const stored = window.localStorage.getItem("fluxus-wallet-storage");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.state?.walletCreated && parsed?.state?.lastAddress) {
+          return parsed.state.lastAddress as string;
+        }
+      }
+    } catch { /* ignore */ }
+    return "";
+  })();
   const hasMockConnection = E2E_MOCK_AUTH && Boolean(mockAddress);
   const effectiveAddress = address ?? (hasMockConnection ? mockAddress : "");
 
