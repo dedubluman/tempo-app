@@ -21,7 +21,7 @@ export default function Home() {
     <div className="min-h-screen bg-[--bg-base] text-[--text-primary]">
       <LandingNav onAuthClick={() => setAuthOpen(true)} />
 
-      <main>
+      <main id="main-content">
         <section className="relative overflow-hidden">
           <MeshGradient />
           <div className="relative z-10">

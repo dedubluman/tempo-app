@@ -24,13 +24,13 @@ export function MeshGradient() {
         }
       `}</style>
 
-      {/* Amber blob — top left */}
+      {/* Primary amber blob — top left */}
       <div
-        className="mesh-blob absolute -top-1/4 -left-1/4 w-[60%] h-[60%] rounded-full"
+        className="mesh-blob absolute -top-1/4 -left-1/4 w-[65%] h-[65%] rounded-full"
         style={{
           background: "#fbbf24",
-          opacity: 0.2,
-          filter: "blur(80px)",
+          opacity: 0.28,
+          filter: "blur(90px)",
           animation: "blob-drift-1 25s ease-in-out infinite",
           willChange: "transform",
         }}
@@ -38,10 +38,10 @@ export function MeshGradient() {
 
       {/* Dark amber blob — center right */}
       <div
-        className="mesh-blob absolute top-1/4 -right-1/4 w-[55%] h-[55%] rounded-full"
+        className="mesh-blob absolute top-1/4 -right-1/4 w-[60%] h-[60%] rounded-full"
         style={{
           background: "#d97706",
-          opacity: 0.15,
+          opacity: 0.22,
           filter: "blur(80px)",
           animation: "blob-drift-2 22s ease-in-out infinite",
           animationDelay: "-7s",
@@ -51,14 +51,24 @@ export function MeshGradient() {
 
       {/* Deep amber blob — bottom center */}
       <div
-        className="mesh-blob absolute -bottom-1/4 left-1/4 w-[50%] h-[50%] rounded-full"
+        className="mesh-blob absolute -bottom-1/4 left-1/4 w-[55%] h-[55%] rounded-full"
         style={{
           background: "#92400e",
-          opacity: 0.1,
+          opacity: 0.16,
           filter: "blur(80px)",
           animation: "blob-drift-3 28s ease-in-out infinite",
           animationDelay: "-14s",
           willChange: "transform",
+        }}
+      />
+
+      {/* Top-center warm highlight */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[30%] rounded-full"
+        style={{
+          background: "radial-gradient(ellipse, #fcd34d 0%, transparent 70%)",
+          opacity: 0.12,
+          filter: "blur(60px)",
         }}
       />
     </div>

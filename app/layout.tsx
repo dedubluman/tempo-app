@@ -66,6 +66,12 @@ export default async function RootLayout({
         ) : null}
       </head>
       <body className="bg-[--bg-base] text-[--text-primary] antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:outline-none"
+        >
+          Skip to content
+        </a>
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <ThemeProvider>

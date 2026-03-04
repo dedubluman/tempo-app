@@ -6,7 +6,15 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowRight, Lightning, Shield, CurrencyDollar, Stack } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  Lightning,
+  Shield,
+  CurrencyDollar,
+  Stack,
+  CheckCircle,
+  ArrowUpRight,
+} from "@phosphor-icons/react";
 import { useMotionSafe } from "@/lib/motion";
 
 interface LandingHeroProps {
@@ -68,25 +76,30 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
           </motion.div>
 
           <motion.div variants={variants.fadeUp}>
-            <h1 className="text-4xl md:text-6xl tracking-tighter leading-none font-bold text-[--text-primary]">
-              Instant Stablecoin{" "}
+            <h1 className="text-5xl md:text-7xl tracking-tighter leading-[0.9] font-bold text-[--text-primary]">
+              Instant{" "}
               <br className="hidden md:block" />
-              Payments.{" "}
+              Stablecoin{" "}
+              <br className="hidden md:block" />
               <span
                 style={{
-                  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
+                  background:
+                    "linear-gradient(135deg, var(--brand-hover) 0%, var(--brand-primary) 50%, var(--brand-active) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}
               >
-                Zero Gas. Zero Passwords.
+                Payments.
               </span>
             </h1>
+            <h2 className="mt-3 text-2xl md:text-3xl tracking-tight font-semibold text-[--text-secondary]">
+              Zero Gas. Zero Passwords.
+            </h2>
           </motion.div>
 
           <motion.p
-            className="text-base text-[--text-secondary] leading-relaxed max-w-[65ch]"
+            className="text-base text-[--text-secondary] leading-relaxed max-w-[52ch]"
             variants={variants.fadeUp}
           >
             Send pathUSD stablecoins instantly with your device passkey. No
@@ -121,7 +134,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
               <Button
                 variant="ghost"
                 size="lg"
-                className="w-full sm:w-auto border border-[--border-default] hover:border-[--border-glass-hover]"
+                className="w-full sm:w-auto border border-[--border-glass] hover:border-[--border-glass-hover] hover:bg-[--bg-glass]"
               >
                 Read the Docs
               </Button>
@@ -129,7 +142,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
           </motion.div>
 
           <motion.div
-            className="flex flex-wrap items-start gap-4 pt-4"
+            className="flex flex-wrap items-start gap-3 pt-2"
             variants={variants.staggerContainer}
             initial="hidden"
             animate="visible"
@@ -137,48 +150,88 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
             {metrics.map(({ icon: Icon, label }) => (
               <motion.div
                 key={label}
-                className="flex items-center gap-1.5 text-sm text-[--text-secondary]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md text-xs text-[--text-secondary]"
                 variants={variants.fadeUp}
               >
-                <Icon size={14} className="text-[--brand-primary]" />
+                <Icon size={12} className="text-[--brand-primary]" />
                 <span>{label}</span>
               </motion.div>
             ))}
           </motion.div>
         </motion.div>
 
-        {/* Right column — ambient visual (2/5) */}
+        {/* Right column — floating glassmorphism cards (2/5) */}
         <motion.div
           className="hidden md:flex md:col-span-2 items-center justify-center relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 0.4 }}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: [0, 0, 0.2, 1] }}
         >
-          <div className="relative w-full aspect-square max-w-md">
+          {/* Ambient glow */}
+          <div
+            className="absolute inset-0 rounded-full blur-3xl opacity-25"
+            style={{
+              background:
+                "radial-gradient(circle, var(--brand-primary) 0%, transparent 65%)",
+            }}
+          />
 
-            <div
-              className="absolute inset-0 rounded-full blur-3xl opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle, var(--brand-primary) 0%, transparent 70%)",
-              }}
-            />
+          <div className="relative w-full max-w-[300px] space-y-3">
+            {/* Card 1 — Transfer confirmed */}
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+              className="p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Transfer sent</span>
+                <CheckCircle size={14} className="text-[--status-success-text]" weight="fill" />
+              </div>
+              <p className="font-mono text-2xl font-bold text-[--text-primary]">25.00</p>
+              <p className="text-xs text-[--text-muted] mt-0.5">pathUSD</p>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs text-[--status-success-text]">Confirmed in 0.4s</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--status-success-bg] text-[--status-success-text] border border-[--status-success-border]">Success</span>
+              </div>
+            </motion.div>
 
-            <div
-              className="absolute inset-[15%] rounded-full blur-2xl opacity-30"
-              style={{
-                background:
-                  "radial-gradient(circle, #fcd34d 0%, transparent 60%)",
-              }}
-            />
+            {/* Card 2 — Gas fee */}
+            <motion.div
+              animate={{ y: [0, -7, 0] }}
+              transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+              className="ml-8 p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Gas fee</span>
+                <ArrowUpRight size={12} className="text-[--brand-primary]" />
+              </div>
+              <p
+                className="font-mono text-2xl font-bold"
+                style={{
+                  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                $0.00
+              </p>
+              <p className="text-xs text-[--text-muted] mt-0.5">Sponsored by Tempo</p>
+            </motion.div>
 
-            <div
-              className="absolute inset-[35%] rounded-full blur-xl opacity-40"
-              style={{
-                background:
-                  "radial-gradient(circle, #fbbf24 0%, #fcd34d 50%, transparent 80%)",
-              }}
-            />
+            {/* Card 3 — Passkey */}
+            <motion.div
+              animate={{ y: [0, -9, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.6 }}
+              className="mr-4 p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Auth</span>
+                <Shield size={12} className="text-[--brand-primary]" />
+              </div>
+              <p className="text-sm font-semibold text-[--text-primary]">Passkey verified</p>
+              <p className="text-xs text-[--text-muted] mt-0.5">No password needed</p>
+            </motion.div>
           </div>
         </motion.div>
       </motion.div>

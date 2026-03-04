@@ -292,7 +292,7 @@ export default function SwapPage() {
                 }}
                 tokens={TOKEN_REGISTRY.filter((token) => token.address !== fromToken.address)}
               />
-              <div className="rounded-[--radius-md] border border-[--border-default] bg-[--bg-subtle] px-3 py-2.5">
+              <div className="rounded-[--radius-md] border border-[--border-default] bg-[--bg-subtle] px-3 py-2.5" aria-live="polite">
                 <p className="font-mono text-lg text-[--text-primary]">{isQuoteFetching ? "Quoting..." : amountOutText}</p>
                 <p className="text-xs text-[--text-secondary]">Estimated output ({toToken.symbol})</p>
               </div>
@@ -324,7 +324,7 @@ export default function SwapPage() {
             <CardTitle>Swap Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between" aria-live="polite">
               <span className="text-sm text-[--text-secondary]">Status</span>
               <StatusBadge status={isSwapping ? "pending" : txHash ? "success" : "scheduled"} />
             </div>

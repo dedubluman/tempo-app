@@ -29,7 +29,7 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] }}
-      className="fixed top-0 inset-x-0 z-30 border-b border-[--border-glass] backdrop-blur-xl bg-[--bg-glass]"
+      className="fixed top-0 inset-x-0 z-30 bg-[--bg-glass] backdrop-blur-xl"
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <FluxusLogo size="sm" showText />
@@ -49,6 +49,8 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
           <Button size="sm" onClick={onAuthClick} data-testid="nav-launch-cta">Launch App</Button>
         )}
       </div>
+      {/* Amber accent bottom line */}
+      <div className="absolute bottom-0 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, var(--brand-primary) 30%, var(--brand-hover) 50%, var(--brand-primary) 70%, transparent 100%)", opacity: 0.4 }} />
     </motion.nav>
   );
 }

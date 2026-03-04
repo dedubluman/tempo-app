@@ -51,7 +51,7 @@ export default function PortfolioPage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Total Portfolio Value
         </p>
-        <div className="relative">
+        <div className="relative" aria-live="polite">
           <div
             className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-15"
             style={{ background: "radial-gradient(ellipse at 20% 50%, #fbbf24 0%, transparent 70%)" }}

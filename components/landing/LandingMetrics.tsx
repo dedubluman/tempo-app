@@ -25,7 +25,7 @@ function MetricItem({ value, label, sublabel }: MetricItemProps) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
-      className="flex flex-col gap-1 text-center md:text-left"
+      className="flex flex-col gap-1 p-5 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md text-center md:text-left"
     >
       <span
         ref={ref as React.RefObject<HTMLSpanElement>}
@@ -46,9 +46,9 @@ export function LandingMetrics() {
       whileInView={{ opacity: 1 }}
       transition={{ staggerChildren: 0.07, delayChildren: 0.1 }}
       viewport={{ once: true, amount: 0.2 }}
-      className="py-16 px-4 border-y border-[--border-glass]"
+      className="py-16 px-4"
     >
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         {metrics.map((metric) => (
           <MetricItem key={metric.label} {...metric} />
         ))}

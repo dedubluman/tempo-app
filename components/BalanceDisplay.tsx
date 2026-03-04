@@ -154,7 +154,7 @@ export function BalanceDisplay() {
       </div>
 
       {/* Large balance display — no card wrapping, breathes freely */}
-      <div className="relative">
+      <div className="relative" aria-live="polite">
         {/* Ambient glow behind number */}
         <div
           className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-20"

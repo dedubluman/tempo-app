@@ -46,12 +46,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative min-h-screen">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:outline-none"
-      >
-        Skip to content
-      </a>
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
         <aside className="hidden md:block md:w-64 md:shrink-0">
           <nav role="navigation" className="sticky top-6 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
