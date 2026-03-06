@@ -1,4 +1,4 @@
-const CACHE_NAME = "fluxus-v1";
+const CACHE_NAME = "fluxus-v2";
 const APP_SHELL_CACHE = [
   "/app",
   "/manifest.json",
