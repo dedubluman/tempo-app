@@ -28,7 +28,7 @@ vi.mock("@/lib/store", () => ({
     return selector ? selector(state) : state;
   }),
   useCustomTokenStore: vi.fn((selector: (s: unknown) => unknown) =>
-    selector({ customTokens: [] })
+    selector({ customTokens: [] }),
   ),
 }));
 
@@ -71,10 +71,10 @@ import { useTokenBalances } from "@/hooks/useTokenBalances";
 describe("useTokenBalances", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockReadContract.mockResolvedValue([
-      { success: true, returnData: "0x00" },
-    ]);
-    vi.mocked(useAccount).mockReturnValue({ address: undefined } as ReturnType<typeof useAccount>);
+    mockReadContract.mockResolvedValue([{ success: true, returnData: "0x00" }]);
+    vi.mocked(useAccount).mockReturnValue({ address: undefined } as ReturnType<
+      typeof useAccount
+    >);
     vi.mocked(usePublicClient).mockReturnValue({
       readContract: mockReadContract,
     } as unknown as ReturnType<typeof usePublicClient>);
@@ -136,4 +136,3 @@ describe("useTokenBalances", () => {
     expect(typeof result.current.isLoading).toBe("boolean");
   });
 });
-

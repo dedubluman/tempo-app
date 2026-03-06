@@ -31,7 +31,9 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
             <FluxusLogo size="sm" showText />
           </Link>
           <CaretRight size={14} className="text-[--text-muted]" />
-          <span className="text-sm text-[--text-secondary] font-medium">Docs</span>
+          <span className="text-sm text-[--text-secondary] font-medium">
+            Docs
+          </span>
         </div>
       </header>
 
@@ -50,9 +52,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 max-w-2xl">
-          {children}
-        </main>
+        <main className="flex-1 min-w-0 max-w-2xl">{children}</main>
       </div>
     </div>
   );

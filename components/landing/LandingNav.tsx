@@ -35,22 +35,53 @@ export function LandingNav({ onAuthClick }: LandingNavProps) {
         <FluxusLogo size="sm" showText />
 
         <div className="hidden md:flex items-center gap-6 text-sm text-[--text-secondary]">
-          <a href="#features" className="hover:text-[--text-primary] transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-[--text-primary] transition-colors">How It Works</a>
-          <a href="#security" className="hover:text-[--text-primary] transition-colors">Security</a>
-          <Link href="/docs" className="hover:text-[--text-primary] transition-colors">Docs</Link>
+          <a
+            href="#features"
+            className="hover:text-[--text-primary] transition-colors"
+          >
+            Features
+          </a>
+          <a
+            href="#how-it-works"
+            className="hover:text-[--text-primary] transition-colors"
+          >
+            How It Works
+          </a>
+          <a
+            href="#security"
+            className="hover:text-[--text-primary] transition-colors"
+          >
+            Security
+          </a>
+          <Link
+            href="/docs"
+            className="hover:text-[--text-primary] transition-colors"
+          >
+            Docs
+          </Link>
         </div>
 
         {connected ? (
           <Link href="/app">
-            <Button size="sm" data-testid="nav-dashboard-cta">Go to Dashboard</Button>
+            <Button size="sm" data-testid="nav-dashboard-cta">
+              Go to Dashboard
+            </Button>
           </Link>
         ) : (
-          <Button size="sm" onClick={onAuthClick} data-testid="nav-launch-cta">Launch App</Button>
+          <Button size="sm" onClick={onAuthClick} data-testid="nav-launch-cta">
+            Launch App
+          </Button>
         )}
       </div>
       {/* Amber accent bottom line */}
-      <div className="absolute bottom-0 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, var(--brand-primary) 30%, var(--brand-hover) 50%, var(--brand-primary) 70%, transparent 100%)", opacity: 0.4 }} />
+      <div
+        className="absolute bottom-0 inset-x-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, var(--brand-primary) 30%, var(--brand-hover) 50%, var(--brand-primary) 70%, transparent 100%)",
+          opacity: 0.4,
+        }}
+      />
     </motion.nav>
   );
 }

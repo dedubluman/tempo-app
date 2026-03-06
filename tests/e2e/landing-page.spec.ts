@@ -51,20 +51,27 @@ test.describe("Landing Page — Connected User", () => {
     await page.addInitScript(() => {
       window.localStorage.setItem("wagmi.webAuthn.activeCredential", "1");
       window.localStorage.setItem("tempo.walletCreated", "1");
-      window.localStorage.setItem("tempo.lastAddress", "0xAbcdEF1234567890AbcdEF1234567890aBcdef12");
+      window.localStorage.setItem(
+        "tempo.lastAddress",
+        "0xAbcdEF1234567890AbcdEF1234567890aBcdef12",
+      );
     });
     await page.goto("/");
     await page.waitForLoadState("networkidle");
   });
 
-  test("connected user sees Go to Dashboard instead of Create Wallet", async ({ page }) => {
+  test("connected user sees Go to Dashboard instead of Create Wallet", async ({
+    page,
+  }) => {
     await expect(page.getByTestId("hero-dashboard-cta")).toBeVisible();
     await expect(page.getByTestId("nav-dashboard-cta")).toBeVisible();
   });
 });
 
 test.describe("Landing Page — Reduced Motion", () => {
-  test("page renders correctly with prefers-reduced-motion", async ({ browser }) => {
+  test("page renders correctly with prefers-reduced-motion", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
     await page.goto("/");

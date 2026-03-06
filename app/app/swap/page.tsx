@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowsClockwise, ArrowsDownUp, CheckCircle, Copy, TrendUp } from "@phosphor-icons/react";
+import {
+  ArrowsClockwise,
+  ArrowsDownUp,
+  CheckCircle,
+  Copy,
+  TrendUp,
+} from "@phosphor-icons/react";
 import { useBlockNumber, useSendCallsSync } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 import { Actions } from "viem/tempo";
@@ -29,16 +35,28 @@ function prettyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
 
-  if (lower.includes("user rejected") || lower.includes("user denied") || lower.includes("rejected")) {
+  if (
+    lower.includes("user rejected") ||
+    lower.includes("user denied") ||
+    lower.includes("rejected")
+  ) {
     return "Swap cancelled in passkey confirmation.";
   }
   if (lower.includes("insufficientliquidity") || lower.includes("liquidity")) {
     return "Insufficient liquidity for this pair and amount.";
   }
-  if (lower.includes("insufficient") || lower.includes("sponsor") || lower.includes("fee")) {
+  if (
+    lower.includes("insufficient") ||
+    lower.includes("sponsor") ||
+    lower.includes("fee")
+  ) {
     return "Insufficient balance or fee sponsorship issue. Try a smaller amount.";
   }
-  if (lower.includes("network") || lower.includes("timeout") || lower.includes("rpc")) {
+  if (
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("rpc")
+  ) {
     return "Network is slow. Please retry in a moment.";
   }
 
@@ -53,9 +71,14 @@ export default function SwapPage() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const { balances, isLoading: isBalanceLoading, refetch: refetchBalances } = useTokenBalances();
+  const {
+    balances,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalances,
+  } = useTokenBalances();
   const { data: blockNumber } = useBlockNumber({ watch: true });
-  const { mutateAsync: sendCallsSync, isPending: isSwapping } = useSendCallsSync();
+  const { mutateAsync: sendCallsSync, isPending: isSwapping } =
+    useSendCallsSync();
 
   useEffect(() => {
     if (!blockNumber) {
@@ -68,7 +91,9 @@ export default function SwapPage() {
     if (fromToken.address !== toToken.address) {
       return;
     }
-    const fallback = TOKEN_REGISTRY.find((token) => token.address !== fromToken.address);
+    const fallback = TOKEN_REGISTRY.find(
+      (token) => token.address !== fromToken.address,
+    );
     if (fallback) {
       setToToken(fallback);
     }
@@ -96,7 +121,8 @@ export default function SwapPage() {
   }, [amountInText, fromToken.decimals]);
 
   const isQuoteEnabled =
-    Boolean(amountInUnits && amountInUnits > BigInt(0)) && fromToken.address !== toToken.address;
+    Boolean(amountInUnits && amountInUnits > BigInt(0)) &&
+    fromToken.address !== toToken.address;
 
   const {
     data: quotedAmountOut,
@@ -121,7 +147,9 @@ export default function SwapPage() {
     if (!quotedAmountOut) {
       return undefined;
     }
-    return (quotedAmountOut * (BPS_DENOMINATOR - SLIPPAGE_BPS)) / BPS_DENOMINATOR;
+    return (
+      (quotedAmountOut * (BPS_DENOMINATOR - SLIPPAGE_BPS)) / BPS_DENOMINATOR
+    );
   }, [quotedAmountOut]);
 
   const rateText = useMemo(() => {
@@ -134,7 +162,13 @@ export default function SwapPage() {
       return "-";
     }
     return `${(output / input).toFixed(6)} ${toToken.symbol}`;
-  }, [amountInUnits, quotedAmountOut, fromToken.decimals, toToken.decimals, toToken.symbol]);
+  }, [
+    amountInUnits,
+    quotedAmountOut,
+    fromToken.decimals,
+    toToken.decimals,
+    toToken.symbol,
+  ]);
 
   const insufficientBalance =
     Boolean(amountInUnits && fromBalanceEntry?.balance !== undefined) &&
@@ -195,11 +229,16 @@ export default function SwapPage() {
 
       const hash = response?.receipts?.[0]?.transactionHash;
       if (!hash) {
-        throw new Error("Swap completed but transaction hash was not returned.");
+        throw new Error(
+          "Swap completed but transaction hash was not returned.",
+        );
       }
 
       setTxHash(hash);
-      showSuccess("Swap completed", `Tx ${hash.slice(0, 10)}...${hash.slice(-8)}`);
+      showSuccess(
+        "Swap completed",
+        `Tx ${hash.slice(0, 10)}...${hash.slice(-8)}`,
+      );
       await refetchBalances();
       window.setTimeout(() => {
         void refetchBalances();
@@ -226,8 +265,12 @@ export default function SwapPage() {
     <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Swap</h1>
-          <p className="mt-1 text-sm text-[--text-secondary]">Atomic stablecoin swap on Tempo DEX.</p>
+          <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">
+            Swap
+          </h1>
+          <p className="mt-1 text-sm text-[--text-secondary]">
+            Atomic stablecoin swap on Tempo DEX.
+          </p>
         </div>
         <Button
           type="button"
@@ -251,7 +294,9 @@ export default function SwapPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">From</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+                From
+              </p>
               <TokenSelector
                 selectedToken={fromToken}
                 onSelect={(token) => {
@@ -271,33 +316,55 @@ export default function SwapPage() {
                 disabled={isSwapping}
               />
               <p className="text-xs text-[--text-secondary]">
-                Balance: {isBalanceLoading ? "..." : fromBalanceEntry?.formatted ?? "0"} {fromToken.symbol}
+                Balance:{" "}
+                {isBalanceLoading
+                  ? "..."
+                  : (fromBalanceEntry?.formatted ?? "0")}{" "}
+                {fromToken.symbol}
               </p>
             </div>
 
             <div className="flex justify-center">
-              <Button type="button" variant="ghost" size="sm" onClick={handleFlip}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleFlip}
+              >
                 <ArrowsDownUp size={14} />
                 Flip Pair
               </Button>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">To</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+                To
+              </p>
               <TokenSelector
                 selectedToken={toToken}
                 onSelect={(token) => {
                   setToToken(token);
                   setTxHash(null);
                 }}
-                tokens={TOKEN_REGISTRY.filter((token) => token.address !== fromToken.address)}
+                tokens={TOKEN_REGISTRY.filter(
+                  (token) => token.address !== fromToken.address,
+                )}
               />
-              <div className="rounded-[--radius-md] border border-[--border-default] bg-[--bg-subtle] px-3 py-2.5" aria-live="polite">
-                <p className="font-mono text-lg text-[--text-primary]">{isQuoteFetching ? "Quoting..." : amountOutText}</p>
-                <p className="text-xs text-[--text-secondary]">Estimated output ({toToken.symbol})</p>
+              <div
+                className="rounded-[--radius-md] border border-[--border-default] bg-[--bg-subtle] px-3 py-2.5"
+                aria-live="polite"
+              >
+                <p className="font-mono text-lg text-[--text-primary]">
+                  {isQuoteFetching ? "Quoting..." : amountOutText}
+                </p>
+                <p className="text-xs text-[--text-secondary]">
+                  Estimated output ({toToken.symbol})
+                </p>
               </div>
               <p className="text-xs text-[--text-secondary]">
-                Balance: {isBalanceLoading ? "..." : toBalanceEntry?.formatted ?? "0"} {toToken.symbol}
+                Balance:{" "}
+                {isBalanceLoading ? "..." : (toBalanceEntry?.formatted ?? "0")}{" "}
+                {toToken.symbol}
               </p>
             </div>
 
@@ -313,7 +380,12 @@ export default function SwapPage() {
               </p>
             ) : null}
 
-            <Button type="button" onClick={() => void handleSwap()} disabled={disableSwap} loading={isSwapping}>
+            <Button
+              type="button"
+              onClick={() => void handleSwap()}
+              disabled={disableSwap}
+              loading={isSwapping}
+            >
               {isSwapping ? "Swapping..." : "Swap"}
             </Button>
           </CardContent>
@@ -324,9 +396,16 @@ export default function SwapPage() {
             <CardTitle>Swap Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between" aria-live="polite">
+            <div
+              className="flex items-center justify-between"
+              aria-live="polite"
+            >
               <span className="text-sm text-[--text-secondary]">Status</span>
-              <StatusBadge status={isSwapping ? "pending" : txHash ? "success" : "scheduled"} />
+              <StatusBadge
+                status={
+                  isSwapping ? "pending" : txHash ? "success" : "scheduled"
+                }
+              />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[--text-secondary]">Rate</span>
@@ -339,9 +418,13 @@ export default function SwapPage() {
               <span className="text-sm text-[--text-primary]">0.50%</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[--text-secondary]">Min received</span>
+              <span className="text-sm text-[--text-secondary]">
+                Min received
+              </span>
               <span className="font-mono text-sm text-[--text-primary]">
-                {minAmountOut ? formatUnits(minAmountOut, toToken.decimals) : "-"}
+                {minAmountOut
+                  ? formatUnits(minAmountOut, toToken.decimals)
+                  : "-"}
               </span>
             </div>
             <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2 text-xs text-[--status-success-text]">
@@ -353,9 +436,16 @@ export default function SwapPage() {
                 <p className="inline-flex items-center gap-1.5 text-sm text-[--status-success-text]">
                   <CheckCircle size={14} /> Swap successful
                 </p>
-                <p className="break-all font-mono text-xs text-[--text-secondary]">{txHash}</p>
+                <p className="break-all font-mono text-xs text-[--text-secondary]">
+                  {txHash}
+                </p>
                 <div className="flex gap-2">
-                  <Button type="button" size="sm" variant="secondary" onClick={() => void handleCopy()}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => void handleCopy()}
+                  >
                     <Copy size={12} />
                     {copied ? "Copied" : "Copy"}
                   </Button>

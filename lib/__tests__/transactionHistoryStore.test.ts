@@ -13,7 +13,7 @@ vi.mock("@/lib/store", () => ({
         entries: mockGetEntries(),
         addEntries: mockAddEntries,
       })),
-    }
+    },
   ),
 }));
 

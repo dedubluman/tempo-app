@@ -1,18 +1,28 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { GithubLogo, BookOpen, Globe } from "@phosphor-icons/react"
-import { useMotionSafe } from "@/lib/motion"
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { GithubLogo, BookOpen, Globe } from "@phosphor-icons/react";
+import { useMotionSafe } from "@/lib/motion";
 
 const links = [
-  { icon: GithubLogo, label: "GitHub", href: "https://github.com/dedubluman/tempo-app", external: true },
+  {
+    icon: GithubLogo,
+    label: "GitHub",
+    href: "https://github.com/dedubluman/tempo-app",
+    external: true,
+  },
   { icon: BookOpen, label: "Docs", href: "/docs", external: false },
-  { icon: Globe, label: "Tempo Network", href: "https://tempo.xyz", external: true },
-]
+  {
+    icon: Globe,
+    label: "Tempo Network",
+    href: "https://tempo.xyz",
+    external: true,
+  },
+];
 
 export function LandingCommunity() {
-  const variants = useMotionSafe()
+  const variants = useMotionSafe();
 
   return (
     <motion.section
@@ -23,13 +33,23 @@ export function LandingCommunity() {
       className="py-20 px-4 bg-[--bg-subtle]"
     >
       <div className="max-w-3xl mx-auto text-center flex flex-col gap-8">
-        <motion.h2 variants={variants.fadeUp} className="text-3xl font-bold text-[--text-primary] font-[--font-display]">
+        <motion.h2
+          variants={variants.fadeUp}
+          className="text-3xl font-bold text-[--text-primary] font-[--font-display]"
+        >
           Part of the Tempo ecosystem
         </motion.h2>
-        <motion.p variants={variants.fadeUp} className="text-[--text-secondary]">
-          Fluxus is an open-source application built on the Tempo testnet. Explore the code, read the docs, or connect with the Tempo community.
+        <motion.p
+          variants={variants.fadeUp}
+          className="text-[--text-secondary]"
+        >
+          Fluxus is an open-source application built on the Tempo testnet.
+          Explore the code, read the docs, or connect with the Tempo community.
         </motion.p>
-        <motion.div variants={variants.staggerContainer} className="flex flex-wrap items-center justify-center gap-4">
+        <motion.div
+          variants={variants.staggerContainer}
+          className="flex flex-wrap items-center justify-center gap-4"
+        >
           {links.map(({ icon: Icon, label, href, external }) =>
             external ? (
               <motion.a
@@ -53,10 +73,10 @@ export function LandingCommunity() {
                   {label}
                 </Link>
               </motion.div>
-            )
+            ),
           )}
         </motion.div>
       </div>
     </motion.section>
-  )
+  );
 }

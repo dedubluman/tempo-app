@@ -36,13 +36,25 @@ interface MicroTx {
 function prettyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
-  if (lower.includes("user rejected") || lower.includes("user denied") || lower.includes("rejected")) {
+  if (
+    lower.includes("user rejected") ||
+    lower.includes("user denied") ||
+    lower.includes("rejected")
+  ) {
     return "Action cancelled in passkey confirmation.";
   }
-  if (lower.includes("insufficient") || lower.includes("sponsor") || lower.includes("fee")) {
+  if (
+    lower.includes("insufficient") ||
+    lower.includes("sponsor") ||
+    lower.includes("fee")
+  ) {
     return "Insufficient balance or session key limit reached.";
   }
-  if (lower.includes("network") || lower.includes("timeout") || lower.includes("rpc")) {
+  if (
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("rpc")
+  ) {
     return "Network is slow. Retrying...";
   }
   return message.split("\n")[0] || "Transfer failed";
@@ -53,7 +65,9 @@ const rateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 });
 
 export default function StreamPage() {
   const { address } = useAccount();
-  const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo>(
+    TOKEN_REGISTRY[0],
+  );
   const [recipient, setRecipient] = useState("");
   const [amountPerTick, setAmountPerTick] = useState("0.001");
   const [durationSeconds, setDurationSeconds] = useState(60);
@@ -70,17 +84,25 @@ export default function StreamPage() {
   // Rate limiter UI state
   const [rateLimitRemaining, setRateLimitRemaining] = useState(10);
   const [rateLimitResumeIn, setRateLimitResumeIn] = useState(0);
-  const [rateLimitStatus, setRateLimitStatus] = useState<"ok" | "warn" | "limited" | "throttled">("ok");
+  const [rateLimitStatus, setRateLimitStatus] = useState<
+    "ok" | "warn" | "limited" | "throttled"
+  >("ok");
   const [lastPaymentAt, setLastPaymentAt] = useState(0);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef(0);
 
-  const { balances, isLoading: isBalanceLoading, refetch: refetchBalances } = useTokenBalances();
+  const {
+    balances,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalances,
+  } = useTokenBalances();
   const { mutateAsync: transferSync } = Hooks.token.useTransferSync();
 
-  const balanceEntry = balances.find((b) => b.token.address === selectedToken.address);
+  const balanceEntry = balances.find(
+    (b) => b.token.address === selectedToken.address,
+  );
 
   const totalTicks = Math.floor(durationSeconds / (INTERVAL_MS / 1000));
   const totalCost = totalTicks * Number.parseFloat(amountPerTick || "0");
@@ -164,7 +186,16 @@ export default function StreamPage() {
         return;
       }
     }
-  }, [address, selectedToken.address, recipient, amountPerTick, transferSync, cleanup, lastPaymentAt, syncRateLimitState]);
+  }, [
+    address,
+    selectedToken.address,
+    recipient,
+    amountPerTick,
+    transferSync,
+    cleanup,
+    lastPaymentAt,
+    syncRateLimitState,
+  ]);
 
   const handleStart = () => {
     setErrorMessage("");
@@ -212,7 +243,10 @@ export default function StreamPage() {
       void executeMicroPayment();
     }, INTERVAL_MS);
 
-    showSuccess("Stream started", `Sending ${amountPerTick} ${selectedToken.symbol} every 5s`);
+    showSuccess(
+      "Stream started",
+      `Sending ${amountPerTick} ${selectedToken.symbol} every 5s`,
+    );
   };
 
   const handleStop = () => {
@@ -222,7 +256,10 @@ export default function StreamPage() {
     void refetchBalances();
   };
 
-  const progressPct = durationSeconds > 0 ? Math.min(100, (elapsedSeconds / durationSeconds) * 100) : 0;
+  const progressPct =
+    durationSeconds > 0
+      ? Math.min(100, (elapsedSeconds / durationSeconds) * 100)
+      : 0;
 
   // Rate limit banner content
   const rateLimitBanner = (() => {
@@ -267,7 +304,9 @@ export default function StreamPage() {
         {/* Configuration / Active Stream */}
         <Card variant="elevated" className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>{streamState === "idle" ? "Configure Stream" : "Active Stream"}</CardTitle>
+            <CardTitle>
+              {streamState === "idle" ? "Configure Stream" : "Active Stream"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {streamState === "idle" && (
@@ -281,7 +320,10 @@ export default function StreamPage() {
                     setErrorMessage("");
                   }}
                 />
-                <TokenSelector selectedToken={selectedToken} onSelect={setSelectedToken} />
+                <TokenSelector
+                  selectedToken={selectedToken}
+                  onSelect={setSelectedToken}
+                />
                 <Input
                   label="Amount per interval (5s)"
                   placeholder="0.001"
@@ -291,10 +333,14 @@ export default function StreamPage() {
                   helperText={`Total: ~${totalCost.toFixed(6)} ${selectedToken.symbol} over ${durationSeconds}s (${totalTicks} payments)`}
                 />
                 <p className="text-xs text-[--text-secondary]">
-                  Balance: {isBalanceLoading ? "..." : balanceEntry?.formatted ?? "0"} {selectedToken.symbol}
+                  Balance:{" "}
+                  {isBalanceLoading ? "..." : (balanceEntry?.formatted ?? "0")}{" "}
+                  {selectedToken.symbol}
                 </p>
                 <div>
-                  <label className="mb-1 block text-xs text-[--text-tertiary]">Duration</label>
+                  <label className="mb-1 block text-xs text-[--text-tertiary]">
+                    Duration
+                  </label>
                   <div className="flex gap-2">
                     {DURATION_OPTIONS.map((opt) => (
                       <button
@@ -330,7 +376,9 @@ export default function StreamPage() {
               </>
             )}
 
-            {(streamState === "active" || streamState === "stopped" || streamState === "completed") && (
+            {(streamState === "active" ||
+              streamState === "stopped" ||
+              streamState === "completed") && (
               <>
                 {/* Progress Bar */}
                 <div className="space-y-1">
@@ -359,15 +407,23 @@ export default function StreamPage() {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3 text-center">
-                    <p className="font-mono text-lg font-bold text-[--text-primary]">{txCount}</p>
+                    <p className="font-mono text-lg font-bold text-[--text-primary]">
+                      {txCount}
+                    </p>
                     <p className="text-xs text-[--text-secondary]">Txs Sent</p>
                   </div>
                   <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3 text-center">
-                    <p className="font-mono text-lg font-bold text-[--text-primary]">{totalSent.toFixed(6)}</p>
-                    <p className="text-xs text-[--text-secondary]">{selectedToken.symbol} Sent</p>
+                    <p className="font-mono text-lg font-bold text-[--text-primary]">
+                      {totalSent.toFixed(6)}
+                    </p>
+                    <p className="text-xs text-[--text-secondary]">
+                      {selectedToken.symbol} Sent
+                    </p>
                   </div>
                   <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3 text-center">
-                    <p className="font-mono text-lg font-bold text-[--text-primary]">{failCount}</p>
+                    <p className="font-mono text-lg font-bold text-[--text-primary]">
+                      {failCount}
+                    </p>
                     <p className="text-xs text-[--text-secondary]">Failed</p>
                   </div>
                 </div>
@@ -399,7 +455,11 @@ export default function StreamPage() {
                 )}
 
                 {streamState === "active" && (
-                  <Button type="button" variant="secondary" onClick={handleStop}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleStop}
+                  >
                     <Stop size={14} />
                     Stop Stream
                   </Button>
@@ -409,10 +469,13 @@ export default function StreamPage() {
                   <>
                     <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2">
                       <p className="text-sm font-medium text-[--status-success-text]">
-                        {streamState === "completed" ? "Stream Completed" : "Stream Stopped"}
+                        {streamState === "completed"
+                          ? "Stream Completed"
+                          : "Stream Stopped"}
                       </p>
                       <p className="text-xs text-[--status-success-text]/80">
-                        {txCount} micro-payments totaling {totalSent.toFixed(6)} {selectedToken.symbol}
+                        {txCount} micro-payments totaling {totalSent.toFixed(6)}{" "}
+                        {selectedToken.symbol}
                       </p>
                     </div>
                     <Button
@@ -461,23 +524,38 @@ export default function StreamPage() {
               <span className="text-sm text-[--text-primary]">5 seconds</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[--text-secondary]">Per payment</span>
-              <span className="font-mono text-sm text-[--text-primary]">{amountPerTick} {selectedToken.symbol}</span>
+              <span className="text-sm text-[--text-secondary]">
+                Per payment
+              </span>
+              <span className="font-mono text-sm text-[--text-primary]">
+                {amountPerTick} {selectedToken.symbol}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[--text-secondary]">Est. total</span>
-              <span className="font-mono text-sm text-[--text-primary]">{totalCost.toFixed(6)} {selectedToken.symbol}</span>
+              <span className="text-sm text-[--text-secondary]">
+                Est. total
+              </span>
+              <span className="font-mono text-sm text-[--text-primary]">
+                {totalCost.toFixed(6)} {selectedToken.symbol}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[--text-secondary]">Est. fees</span>
-              <span className="font-mono text-sm text-[--text-primary]">~${(totalTicks * 0.001).toFixed(4)}</span>
+              <span className="font-mono text-sm text-[--text-primary]">
+                ~${(totalTicks * 0.001).toFixed(4)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[--text-secondary]">Sponsor limit</span>
-              <span className="font-mono text-sm text-[--text-primary]">{rateLimitRemaining}/10 remaining</span>
+              <span className="text-sm text-[--text-secondary]">
+                Sponsor limit
+              </span>
+              <span className="font-mono text-sm text-[--text-primary]">
+                {rateLimitRemaining}/10 remaining
+              </span>
             </div>
             <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2 text-xs text-[--status-success-text]">
-              Each micro-payment uses 2D nonces (nonceKey) for parallel execution. Gas is sponsored.
+              Each micro-payment uses 2D nonces (nonceKey) for parallel
+              execution. Gas is sponsored.
             </div>
           </CardContent>
         </Card>

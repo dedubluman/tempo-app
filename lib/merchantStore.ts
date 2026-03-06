@@ -36,7 +36,13 @@ export const useMerchantStore = create<MerchantStore>()(
   persist(
     (set) => ({
       receipts: [],
-      splitConfig: { enabled: false, taxPercent: 0, taxWallet: "", tipPercent: 0, tipWallet: "" },
+      splitConfig: {
+        enabled: false,
+        taxPercent: 0,
+        taxWallet: "",
+        tipPercent: 0,
+        tipWallet: "",
+      },
 
       addReceipt: (receipt) =>
         set((state) => {

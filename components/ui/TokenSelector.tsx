@@ -71,7 +71,13 @@ export function TokenSelector({
           </span>
           <span className="truncate">{label}</span>
         </span>
-        <CaretDown size={14} className={cn("transition-transform", open ? "rotate-180" : "rotate-0")} />
+        <CaretDown
+          size={14}
+          className={cn(
+            "transition-transform",
+            open ? "rotate-180" : "rotate-0",
+          )}
+        />
       </button>
 
       {open ? (
@@ -96,7 +102,9 @@ export function TokenSelector({
               </span>
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate">{token.name}</span>
-                <span className="text-xs text-[--text-secondary]">{token.symbol}</span>
+                <span className="text-xs text-[--text-secondary]">
+                  {token.symbol}
+                </span>
               </span>
             </button>
           ))}

@@ -42,13 +42,17 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
   const [mappedAddress, setMappedAddress] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
-  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
-  const [lastAuthMode, setLastAuthMode] = useState<"sign-up" | "sign-in" | null>(null);
+  const [pendingAction, setPendingAction] = useState<
+    (() => Promise<void>) | null
+  >(null);
+  const [lastAuthMode, setLastAuthMode] = useState<
+    "sign-up" | "sign-in" | null
+  >(null);
   const [showBackupPrompt, setShowBackupPrompt] = useState(false);
 
   const passkeyConnector = useMemo(
     () => config.connectors.find((c) => c.id === "webAuthn"),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -59,10 +63,16 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
       if (typeof window === "undefined") return;
       setSupportsWebAuthn(window.PublicKeyCredential !== undefined);
 
-      const walletCreated = window.localStorage.getItem(WALLET_CREATED_FLAG) === "1";
-      const hasCredential = window.localStorage.getItem("wagmi.webAuthn.activeCredential") !== null
-        || window.localStorage.getItem("wagmi.webAuthn.lastActiveCredential") !== null;
-      const hasKeyManager = Object.keys(window.localStorage).some((k) => k.startsWith("wagmi.keyManager."));
+      const walletCreated =
+        window.localStorage.getItem(WALLET_CREATED_FLAG) === "1";
+      const hasCredential =
+        window.localStorage.getItem("wagmi.webAuthn.activeCredential") !==
+          null ||
+        window.localStorage.getItem("wagmi.webAuthn.lastActiveCredential") !==
+          null;
+      const hasKeyManager = Object.keys(window.localStorage).some((k) =>
+        k.startsWith("wagmi.keyManager."),
+      );
 
       let hasRegistry = false;
       let hasServerRegistry = false;
@@ -74,7 +84,8 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
         const credentialId = getActiveCredentialId();
         if (credentialId) {
           const serverAddress = await getServerMappedAddress(credentialId);
-          restoredAddress = serverAddress || (await getMappedAddress(credentialId));
+          restoredAddress =
+            serverAddress || (await getMappedAddress(credentialId));
         }
       } catch {
         hasRegistry = false;
@@ -93,12 +104,19 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
       }
 
       setHasWalletHistory(
-        walletCreated || hasCredential || hasKeyManager || hasRegistry || hasServerRegistry || Boolean(restoredAddress)
+        walletCreated ||
+          hasCredential ||
+          hasKeyManager ||
+          hasRegistry ||
+          hasServerRegistry ||
+          Boolean(restoredAddress),
       );
     };
 
     void bootstrap();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [open]);
 
   useEffect(() => {
@@ -131,7 +149,10 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
       return mode === "sign-in"
         ? "Passkey request was cancelled. Tap Sign In again and select your original passkey."
         : "Passkey creation was cancelled. No wallet was created.";
-    if (lower.includes("publickey not found") || lower.includes("credential not found"))
+    if (
+      lower.includes("publickey not found") ||
+      lower.includes("credential not found")
+    )
       return "This device cannot find the saved key. If storage was cleared, use your original device or create a new wallet.";
     if (lower.includes("invalidstateerror"))
       return "That passkey is already registered. Use Sign In to reconnect your wallet.";
@@ -139,18 +160,28 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
   };
 
   const handleConnect = async (mode: "sign-up" | "sign-in") => {
-    if (!passkeyConnector) { setAuthMessage("Passkey connector unavailable."); return; }
+    if (!passkeyConnector) {
+      setAuthMessage("Passkey connector unavailable.");
+      return;
+    }
     setAuthMessage(null);
     setIsPending(true);
     setLastAuthMode(mode);
 
     if (mode === "sign-in" && typeof window !== "undefined") {
-      try { window.localStorage.removeItem(ACTIVE_CREDENTIAL_KEY); } catch {}
+      try {
+        window.localStorage.removeItem(ACTIVE_CREDENTIAL_KEY);
+      } catch {}
     }
 
     try {
-      await connectAccount(config, { connector: passkeyConnector, capabilities: { type: mode } });
-      try { window.localStorage.setItem(WALLET_CREATED_FLAG, "1"); } catch {}
+      await connectAccount(config, {
+        connector: passkeyConnector,
+        capabilities: { type: mode },
+      });
+      try {
+        window.localStorage.setItem(WALLET_CREATED_FLAG, "1");
+      } catch {}
       if (mode === "sign-up") setHasWalletHistory(true);
     } catch (error) {
       setAuthMessage(getErrorMessage(mode, error));
@@ -162,14 +193,18 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
   const handleCreateWallet = async () => {
     let existingAddress = mappedAddress;
     if (typeof window !== "undefined") {
-      if (!existingAddress) existingAddress = window.localStorage.getItem(LAST_ADDRESS_KEY);
+      if (!existingAddress)
+        existingAddress = window.localStorage.getItem(LAST_ADDRESS_KEY);
       if (!existingAddress) {
         const credentialId = getActiveCredentialId();
         if (credentialId) {
           try {
             const serverAddress = await getServerMappedAddress(credentialId);
-            existingAddress = serverAddress || (await getMappedAddress(credentialId));
-          } catch { existingAddress = null; }
+            existingAddress =
+              serverAddress || (await getMappedAddress(credentialId));
+          } catch {
+            existingAddress = null;
+          }
         }
       }
     }
@@ -228,30 +263,64 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
               <Key size={24} className="text-[--brand-primary]" />
             </div>
             <p className="text-[--text-secondary] text-sm text-center">
-              {hasWalletHistory ? "Welcome back. Use your passkey to continue." : "Create a new wallet secured by your device passkey."}
+              {hasWalletHistory
+                ? "Welcome back. Use your passkey to continue."
+                : "Create a new wallet secured by your device passkey."}
             </p>
           </div>
 
           {isConnected && address ? (
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-[--text-secondary]">Connected as <span className="font-mono">{formatAddress(address, 8, 6)}</span></p>
-              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" onClick={() => disconnect()} data-testid="auth-signout">Sign Out</Button>
+              <p className="text-xs text-[--text-secondary]">
+                Connected as{" "}
+                <span className="font-mono">
+                  {formatAddress(address, 8, 6)}
+                </span>
+              </p>
+              <Button
+                variant="secondary"
+                className="bg-transparent text-[--text-secondary]"
+                onClick={() => disconnect()}
+                data-testid="auth-signout"
+              >
+                Sign Out
+              </Button>
             </div>
           ) : hasWalletHistory ? (
             <div className="flex flex-col gap-3">
-              <Button loading={isPending} onClick={() => void handleConnect("sign-in")} data-testid="auth-signin">
+              <Button
+                loading={isPending}
+                onClick={() => void handleConnect("sign-in")}
+                data-testid="auth-signin"
+              >
                 {isPending ? "Waiting for passkey…" : "Sign In"}
               </Button>
-              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" disabled={isPending} onClick={() => void handleCreateWallet()} data-testid="auth-create-new">
+              <Button
+                variant="secondary"
+                className="bg-transparent text-[--text-secondary]"
+                disabled={isPending}
+                onClick={() => void handleCreateWallet()}
+                data-testid="auth-create-new"
+              >
                 Create New Wallet
               </Button>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              <Button loading={isPending} onClick={() => void handleCreateWallet()} data-testid="auth-create">
+              <Button
+                loading={isPending}
+                onClick={() => void handleCreateWallet()}
+                data-testid="auth-create"
+              >
                 {isPending ? "Waiting for passkey…" : "Create Wallet"}
               </Button>
-              <Button variant="secondary" className="bg-transparent text-[--text-secondary]" disabled={isPending} onClick={() => void handleConnect("sign-in")} data-testid="auth-have-wallet">
+              <Button
+                variant="secondary"
+                className="bg-transparent text-[--text-secondary]"
+                disabled={isPending}
+                onClick={() => void handleConnect("sign-in")}
+                data-testid="auth-have-wallet"
+              >
                 I Already Have a Wallet
               </Button>
             </div>
@@ -264,16 +333,28 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
           )}
 
           {showBackupPrompt && (
-            <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] p-3" data-testid="backup-passkey-prompt">
-              <p className="text-sm font-semibold text-[--status-warning-text]">Add a backup passkey now</p>
+            <div
+              className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] p-3"
+              data-testid="backup-passkey-prompt"
+            >
+              <p className="text-sm font-semibold text-[--status-warning-text]">
+                Add a backup passkey now
+              </p>
               <p className="mt-1 text-xs text-[--status-warning-text]">
                 Device loss without backup can lock your wallet permanently.
               </p>
               <div className="mt-3 flex gap-2">
-                <Button className="h-9 px-3 text-xs" onClick={handleOpenBackupSetup}>
+                <Button
+                  className="h-9 px-3 text-xs"
+                  onClick={handleOpenBackupSetup}
+                >
                   Add Backup
                 </Button>
-                <Button variant="secondary" className="h-9 px-3 text-xs" onClick={handleContinueAfterPrompt}>
+                <Button
+                  variant="secondary"
+                  className="h-9 px-3 text-xs"
+                  onClick={handleContinueAfterPrompt}
+                >
                   Maybe Later
                 </Button>
               </div>
@@ -282,7 +363,9 @@ export function AuthSheet({ open, onClose, onSuccess }: AuthSheetProps) {
 
           <div className="flex items-center gap-2 text-xs text-[--text-muted] border-t border-[--border-glass] pt-3">
             <ShieldCheck size={13} className="flex-shrink-0" />
-            <span>Your passkey is stored for this domain only. No passwords needed.</span>
+            <span>
+              Your passkey is stored for this domain only. No passwords needed.
+            </span>
           </div>
         </div>
       </BottomSheet>

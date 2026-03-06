@@ -9,8 +9,10 @@ import {
 import { tempoModerato } from "viem/chains";
 import { Abis, Account, Actions, Addresses, withFeePayer } from "viem/tempo";
 
-const RPC_URL = process.env.NEXT_PUBLIC_TEMPO_RPC_URL || "https://rpc.moderato.tempo.xyz";
-const SPONSOR_URL = process.env.SPIKE_SPONSOR_URL || "http://127.0.0.1:3000/api/sponsor";
+const RPC_URL =
+  process.env.NEXT_PUBLIC_TEMPO_RPC_URL || "https://rpc.moderato.tempo.xyz";
+const SPONSOR_URL =
+  process.env.SPIKE_SPONSOR_URL || "http://127.0.0.1:3000/api/sponsor";
 
 const ROOT_PRIVATE_KEY =
   process.env.SPIKE_ROOT_PRIVATE_KEY ||
@@ -21,7 +23,8 @@ const ACCESS_PRIVATE_KEY =
   "0x6c875f57a85f4d8e2af2f6bc92bcfbe3e1e19794b2074fa3437ea1e247e7904d";
 
 const RECIPIENT_ADDRESS =
-  process.env.SPIKE_RECIPIENT_ADDRESS || "0x1234567890AbcdEF1234567890aBcdef12345678";
+  process.env.SPIKE_RECIPIENT_ADDRESS ||
+  "0x1234567890AbcdEF1234567890aBcdef12345678";
 
 const AMOUNT = parseUnits("1", 6);
 const SPENDING_LIMIT = parseUnits("5", 6);
@@ -92,7 +95,9 @@ async function ensureFunding(client, publicClient, accountAddress) {
 
 async function main() {
   const rootAccount = Account.fromSecp256k1(ROOT_PRIVATE_KEY);
-  const accessAccount = Account.fromSecp256k1(ACCESS_PRIVATE_KEY, { access: rootAccount });
+  const accessAccount = Account.fromSecp256k1(ACCESS_PRIVATE_KEY, {
+    access: rootAccount,
+  });
 
   const baseClient = createClient({
     chain: tempoModerato,
@@ -110,12 +115,19 @@ async function main() {
     transport: withFeePayer(http(RPC_URL), http(SPONSOR_URL)),
   });
 
-  const funding = await ensureFunding(baseClient, publicClient, rootAccount.address);
+  const funding = await ensureFunding(
+    baseClient,
+    publicClient,
+    rootAccount.address,
+  );
 
-  const keyAuthorization = await rootAccount.signKeyAuthorization(accessAccount, {
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60,
-    limits: [{ token: Addresses.pathUsd, limit: SPENDING_LIMIT }],
-  });
+  const keyAuthorization = await rootAccount.signKeyAuthorization(
+    accessAccount,
+    {
+      expiry: Math.floor(Date.now() / 1000) + 60 * 60,
+      limits: [{ token: Addresses.pathUsd, limit: SPENDING_LIMIT }],
+    },
+  );
 
   let usedKeyAuthorization = true;
   let hash;
@@ -161,7 +173,11 @@ async function main() {
     address: ACCOUNT_KEYCHAIN_ADDRESS,
     abi: Abis.accountKeychain,
     functionName: "getRemainingLimit",
-    args: [rootAccount.address, accessAccount.accessKeyAddress, Addresses.pathUsd],
+    args: [
+      rootAccount.address,
+      accessAccount.accessKeyAddress,
+      Addresses.pathUsd,
+    ],
   });
 
   const rootBalanceAfter = await publicClient.readContract({

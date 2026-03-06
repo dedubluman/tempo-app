@@ -19,7 +19,10 @@ import {
 type NavItem = {
   href: string;
   label: string;
-  icon: ComponentType<{ size?: number; weight?: "duotone" | "regular" | "fill" }>;
+  icon: ComponentType<{
+    size?: number;
+    weight?: "duotone" | "regular" | "fill";
+  }>;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -48,7 +51,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="relative min-h-screen">
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
         <aside className="hidden md:block md:w-64 md:shrink-0">
-          <nav role="navigation" className="sticky top-6 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <nav
+            role="navigation"
+            className="sticky top-6 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          >
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(pathname, item.href);
@@ -64,11 +70,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                         <motion.span
                           layoutId="app-nav-indicator"
                           className="absolute inset-y-1 left-0 w-1 rounded-full bg-[--brand-primary]"
-                          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 420,
+                            damping: 34,
+                          }}
                         />
                       ) : null}
                       <Icon size={18} weight={active ? "duotone" : "regular"} />
-                      <span className={active ? "text-[--text-primary]" : ""}>{item.label}</span>
+                      <span className={active ? "text-[--text-primary]" : ""}>
+                        {item.label}
+                      </span>
                     </Link>
                   </li>
                 );
@@ -77,12 +89,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </nav>
         </aside>
 
-        <main id="main-content" className="min-w-0 flex-1">{children}</main>
+        <main id="main-content" className="min-w-0 flex-1">
+          {children}
+        </main>
       </div>
 
       <nav
         role="navigation"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-[--border-subtle] bg-[--bg-surface]/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[--bg-glass] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
       >
         <div className="overflow-x-auto px-2">
           <ul className="flex min-w-max items-center gap-1">
@@ -100,11 +114,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       <motion.span
                         layoutId="app-mobile-nav-indicator"
                         className="absolute left-2 right-2 top-0 h-0.5 rounded-full bg-[--brand-primary]"
-                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 34,
+                        }}
                       />
                     ) : null}
                     <Icon size={18} weight={active ? "duotone" : "regular"} />
-                    <span className={active ? "text-[--text-primary]" : ""}>{item.label}</span>
+                    <span className={active ? "text-[--text-primary]" : ""}>
+                      {item.label}
+                    </span>
                   </Link>
                 </li>
               );

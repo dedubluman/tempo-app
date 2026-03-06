@@ -19,7 +19,9 @@ interface NfcWriteOptions {
  * The tag will contain a NDEF URL record identical to the QR code URL.
  * Returns an AbortController to cancel the write operation.
  */
-export function writeNfcPaymentUrl(options: NfcWriteOptions): AbortController | null {
+export function writeNfcPaymentUrl(
+  options: NfcWriteOptions,
+): AbortController | null {
   if (!isNfcSupported()) {
     options.onError(new Error("Web NFC not supported on this device"));
     return null;
@@ -30,7 +32,9 @@ export function writeNfcPaymentUrl(options: NfcWriteOptions): AbortController | 
   (async () => {
     try {
       // NDEFReader is only available in secure contexts on Android Chrome
-      const NDEFReaderClass = (window as unknown as { NDEFReader: new () => NDEFReader }).NDEFReader;
+      const NDEFReaderClass = (
+        window as unknown as { NDEFReader: new () => NDEFReader }
+      ).NDEFReader;
       const reader = new NDEFReaderClass();
       await reader.write(
         {
@@ -46,7 +50,9 @@ export function writeNfcPaymentUrl(options: NfcWriteOptions): AbortController | 
       options.onSuccess();
     } catch (error) {
       if ((error as DOMException).name !== "AbortError") {
-        options.onError(error instanceof Error ? error : new Error(String(error)));
+        options.onError(
+          error instanceof Error ? error : new Error(String(error)),
+        );
       }
     }
   })();
@@ -56,7 +62,10 @@ export function writeNfcPaymentUrl(options: NfcWriteOptions): AbortController | 
 
 // Type augmentation for Web NFC API (not in standard lib.dom.d.ts)
 interface NDEFReader {
-  write(message: NDEFMessageInit, options?: { signal?: AbortSignal }): Promise<void>;
+  write(
+    message: NDEFMessageInit,
+    options?: { signal?: AbortSignal },
+  ): Promise<void>;
 }
 
 interface NDEFMessageInit {

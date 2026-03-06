@@ -54,7 +54,7 @@ test.describe("PWA Offline Mode", () => {
     const response = await request.get("/sw.js");
     const text = await response.text();
     // Verify the exclusion pattern exists
-    expect(text).toContain('/api');
+    expect(text).toContain("/api");
     expect(text).toContain("return");
   });
 

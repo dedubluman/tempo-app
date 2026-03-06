@@ -39,7 +39,8 @@ test.describe("Cross-Tab Synchronization", () => {
       const mockSession = {
         id: "test-session-123",
         rootAddress: "0x1234567890123456789012345678901234567890",
-        accessPrivateKey: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        accessPrivateKey:
+          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         accessKeyAddress: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         createdAtMs: Date.now(),
         expiresAtSec: Math.floor(Date.now() / 1000) + 3600,
@@ -115,7 +116,10 @@ test.describe("Cross-Tab Synchronization", () => {
         version: 0,
       };
 
-      window.localStorage.setItem("fluxus-wallet-storage", JSON.stringify(walletData));
+      window.localStorage.setItem(
+        "fluxus-wallet-storage",
+        JSON.stringify(walletData),
+      );
 
       const bc = new BroadcastChannel("fluxus-store-sync");
       bc.postMessage({
@@ -140,7 +144,9 @@ test.describe("Cross-Tab Synchronization", () => {
     });
 
     expect(tab2WalletState).not.toBeNull();
-    expect(tab2WalletState?.address).toBe("0x1111111111111111111111111111111111111111");
+    expect(tab2WalletState?.address).toBe(
+      "0x1111111111111111111111111111111111111111",
+    );
     expect(tab2WalletState?.isConnected).toBe(true);
 
     await tab1.close();
@@ -164,7 +170,8 @@ test.describe("Cross-Tab Synchronization", () => {
           entries: [
             {
               id: "tx-123",
-              transactionHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              transactionHash:
+                "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
               counterparty: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
               amount: "1000000",
               direction: "sent",
@@ -175,7 +182,10 @@ test.describe("Cross-Tab Synchronization", () => {
         version: 0,
       };
 
-      window.localStorage.setItem("fluxus-txhistory-storage", JSON.stringify(txData));
+      window.localStorage.setItem(
+        "fluxus-txhistory-storage",
+        JSON.stringify(txData),
+      );
 
       const bc = new BroadcastChannel("fluxus-store-sync");
       bc.postMessage({
@@ -216,14 +226,18 @@ test.describe("Cross-Tab Synchronization", () => {
     await page.evaluate(() => {
       // Simulate old localStorage keys
       window.localStorage.setItem("tempo.walletCreated", "1");
-      window.localStorage.setItem("tempo.lastAddress", "0x9999999999999999999999999999999999999999");
+      window.localStorage.setItem(
+        "tempo.lastAddress",
+        "0x9999999999999999999999999999999999999999",
+      );
       window.localStorage.setItem(
         "tempo.sessionStore.v1",
         JSON.stringify([
           {
             id: "old-session",
             rootAddress: "0x9999999999999999999999999999999999999999",
-            accessPrivateKey: "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            accessPrivateKey:
+              "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
             accessKeyAddress: "0xdddddddddddddddddddddddddddddddddddddddd",
             createdAtMs: Date.now(),
             expiresAtSec: Math.floor(Date.now() / 1000) + 3600,
@@ -232,20 +246,21 @@ test.describe("Cross-Tab Synchronization", () => {
             allowedRecipients: [],
             keyAuthorization: null,
           },
-        ])
+        ]),
       );
       window.localStorage.setItem(
         "tempo.transferHistory.v1",
         JSON.stringify([
           {
             id: "old-tx",
-            transactionHash: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            transactionHash:
+              "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             counterparty: "0xffffffffffffffffffffffffffffffffffffffff",
             amount: "250000",
             direction: "received",
             createdAtMs: Date.now(),
           },
-        ])
+        ]),
       );
       window.localStorage.setItem("fluxus-theme", "dark");
     });
@@ -266,7 +281,9 @@ test.describe("Cross-Tab Synchronization", () => {
         // Check if new keys exist
         newWalletStore: window.localStorage.getItem("fluxus-wallet-storage"),
         newSessionStore: window.localStorage.getItem("fluxus-session-storage"),
-        newTxHistoryStore: window.localStorage.getItem("fluxus-txhistory-storage"),
+        newTxHistoryStore: window.localStorage.getItem(
+          "fluxus-txhistory-storage",
+        ),
         newUIStore: window.localStorage.getItem("fluxus-ui-storage"),
       };
     });

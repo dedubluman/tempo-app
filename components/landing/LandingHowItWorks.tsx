@@ -1,32 +1,35 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Key, Wallet, Lightning } from "@phosphor-icons/react"
-import { useMotionSafe } from "@/lib/motion"
+import { motion } from "framer-motion";
+import { Key, Wallet, Lightning } from "@phosphor-icons/react";
+import { useMotionSafe } from "@/lib/motion";
 
 const steps = [
   {
     icon: Key,
     step: "01",
     title: "Create Your Wallet",
-    description: "Register a passkey on your device. No app download, no seed phrase, no password. Your device is your key.",
+    description:
+      "Register a passkey on your device. No app download, no seed phrase, no password. Your device is your key.",
   },
   {
     icon: Wallet,
     step: "02",
     title: "Receive Stablecoins",
-    description: "Share your wallet address to receive pathUSD or other Tempo stablecoins. Funded from any compatible source.",
+    description:
+      "Share your wallet address to receive pathUSD or other Tempo stablecoins. Funded from any compatible source.",
   },
   {
     icon: Lightning,
     step: "03",
     title: "Send Instantly",
-    description: "Enter a recipient and amount. Confirm with your passkey. Done — finalized on-chain in under half a second.",
+    description:
+      "Enter a recipient and amount. Confirm with your passkey. Done — finalized on-chain in under half a second.",
   },
-]
+];
 
 export function LandingHowItWorks() {
-  const variants = useMotionSafe()
+  const variants = useMotionSafe();
 
   return (
     <motion.section
@@ -42,24 +45,39 @@ export function LandingHowItWorks() {
           <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
             Up and running in 60 seconds
           </h2>
-          <p className="text-[--text-secondary]">No apps, no exchanges, no friction.</p>
+          <p className="text-[--text-secondary]">
+            No apps, no exchanges, no friction.
+          </p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map(({ icon: Icon, step, title, description }) => (
-            <motion.div key={step} variants={variants.fadeUp} className="flex flex-col gap-4 p-5 rounded-[--radius-2xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md">
+            <motion.div
+              key={step}
+              variants={variants.fadeUp}
+              className="flex flex-col gap-4 p-5 rounded-[--radius-2xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-[--radius-xl] flex items-center justify-center flex-shrink-0" style={{ background: "var(--gradient-flux)" }}>
+                <div
+                  className="w-12 h-12 rounded-[--radius-xl] flex items-center justify-center flex-shrink-0"
+                  style={{ background: "var(--gradient-flux)" }}
+                >
                   <Icon size={22} className="text-[--brand-contrast]" />
                 </div>
-                <span className="text-2xl font-bold text-[--text-muted] font-[--font-display]">{step}</span>
+                <span className="text-2xl font-bold text-[--text-muted] font-[--font-display]">
+                  {step}
+                </span>
               </div>
-              <h3 className="font-semibold text-[--text-primary] text-lg">{title}</h3>
-              <p className="text-sm text-[--text-secondary] leading-relaxed">{description}</p>
+              <h3 className="font-semibold text-[--text-primary] text-lg">
+                {title}
+              </h3>
+              <p className="text-sm text-[--text-secondary] leading-relaxed">
+                {description}
+              </p>
             </motion.div>
           ))}
         </div>
       </div>
     </motion.section>
-  )
+  );
 }

@@ -17,7 +17,16 @@ function formatDate(ts: number): string {
   return new Date(ts).toLocaleString();
 }
 
-function exportCSV(receipts: { amount: string; token: string; sender: string; txHash: string; timestamp: number; memo: string }[]) {
+function exportCSV(
+  receipts: {
+    amount: string;
+    token: string;
+    sender: string;
+    txHash: string;
+    timestamp: number;
+    memo: string;
+  }[],
+) {
   const header = "Date,Amount,Token,Sender,TxHash,Memo";
   const rows = receipts.map((r) =>
     [
@@ -72,7 +81,8 @@ export default function ReceiptHistoryPage() {
             Receipt History
           </h1>
           <p className="mt-1 text-sm text-[--text-secondary]">
-            {receipts.length} receipt{receipts.length !== 1 ? "s" : ""} stored locally
+            {receipts.length} receipt{receipts.length !== 1 ? "s" : ""} stored
+            locally
           </p>
         </div>
         <div className="flex gap-2">
@@ -100,7 +110,11 @@ export default function ReceiptHistoryPage() {
       {receipts.length === 0 ? (
         <Card variant="elevated">
           <CardContent className="py-12 text-center">
-            <Receipt size={48} className="mx-auto mb-3 text-[--text-tertiary]" weight="thin" />
+            <Receipt
+              size={48}
+              className="mx-auto mb-3 text-[--text-tertiary]"
+              weight="thin"
+            />
             <p className="text-sm text-[--text-secondary]">
               No receipts yet. Complete a POS payment to see it here.
             </p>

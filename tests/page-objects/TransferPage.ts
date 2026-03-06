@@ -53,12 +53,18 @@ export class TransferPage {
   }
 
   async getRecipientError(): Promise<string | null> {
-    const error = this.page.locator("text=Recipient").locator("..").locator("text=/error/i");
+    const error = this.page
+      .locator("text=Recipient")
+      .locator("..")
+      .locator("text=/error/i");
     return error.textContent();
   }
 
   async getAmountError(): Promise<string | null> {
-    const error = this.page.locator("text=Amount").locator("..").locator("text=/error/i");
+    const error = this.page
+      .locator("text=Amount")
+      .locator("..")
+      .locator("text=/error/i");
     return error.textContent();
   }
 

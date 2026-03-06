@@ -29,7 +29,10 @@ export async function createWalletAndGoToDashboard(page: Page) {
       page.once("dialog", (dialog) => {
         void dialog.accept();
       });
-      await page.getByRole("button", { name: /Create Wallet|Create New Wallet/i }).first().click();
+      await page
+        .getByRole("button", { name: /Create Wallet|Create New Wallet/i })
+        .first()
+        .click();
       await page.waitForURL(/\/app/, { timeout: 45_000 });
 
       const address = await page
@@ -50,5 +53,7 @@ export async function createWalletAndGoToDashboard(page: Page) {
     }
   }
 
-  throw new Error(`Passkey signup failed after ${maxAttempts} attempts: ${String(lastError)}`);
+  throw new Error(
+    `Passkey signup failed after ${maxAttempts} attempts: ${String(lastError)}`,
+  );
 }

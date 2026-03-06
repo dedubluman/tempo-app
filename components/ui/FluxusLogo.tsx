@@ -19,9 +19,7 @@ export function FluxusLogo({
   const id = `flux-grad-${size}`;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 ${className ?? ""}`}
-    >
+    <span className={`inline-flex items-center gap-1.5 ${className ?? ""}`}>
       <svg
         width={px}
         height={px}
@@ -31,7 +29,14 @@ export function FluxusLogo({
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id={id}
+            x1="0"
+            y1="0"
+            x2="32"
+            y2="32"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stopColor="#fcd34d" />
             <stop offset="52%" stopColor="#f59e0b" />
             <stop offset="100%" stopColor="#b45309" />
@@ -58,12 +63,7 @@ export function FluxusLogo({
         />
 
         {/* Amber dot — focal accent */}
-        <circle
-          cx="16"
-          cy="16"
-          r="2.5"
-          fill={`url(#${id})`}
-        />
+        <circle cx="16" cy="16" r="2.5" fill={`url(#${id})`} />
 
         {/* Arrow tip on outer arc */}
         <path

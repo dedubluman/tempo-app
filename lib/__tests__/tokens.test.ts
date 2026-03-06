@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   TOKEN_REGISTRY,
-  TOKENS_BY_SYMBOL,
-  TOKENS_BY_ADDRESS,
   getTokenBySymbol,
   getTokenByAddress,
 } from "@/lib/tokens";
@@ -55,7 +53,7 @@ describe("getTokenBySymbol", () => {
 describe("getTokenByAddress", () => {
   it("should return token by address (case-insensitive)", () => {
     const token = getTokenByAddress(
-      "0x20c0000000000000000000000000000000000000"
+      "0x20c0000000000000000000000000000000000000",
     );
     expect(token).toBeDefined();
     expect(token?.symbol).toBe("pathUSD");
@@ -63,7 +61,7 @@ describe("getTokenByAddress", () => {
 
   it("should return token by lowercase address", () => {
     const token = getTokenByAddress(
-      "0x20c0000000000000000000000000000000000001".toLowerCase()
+      "0x20c0000000000000000000000000000000000001".toLowerCase(),
     );
     expect(token).toBeDefined();
     expect(token?.symbol).toBe("AlphaUSD");

@@ -26,7 +26,7 @@ function EmptyState({
     <div
       className={cn(
         "flex flex-col items-center justify-center text-center gap-4 py-12 px-4",
-        className
+        className,
       )}
     >
       <div className="w-12 h-12 rounded-[--radius-2xl] bg-[--bg-surface] border border-[--border-glass] flex items-center justify-center text-[--brand-primary]/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
@@ -34,7 +34,9 @@ function EmptyState({
       </div>
       <p className="text-[--text-primary] font-semibold text-base">{title}</p>
       {description && (
-        <p className="text-[--text-secondary] text-sm max-w-xs">{description}</p>
+        <p className="text-[--text-secondary] text-sm max-w-xs">
+          {description}
+        </p>
       )}
       {action && (
         <button

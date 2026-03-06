@@ -21,7 +21,9 @@ export interface Subscription {
 
 interface SubscriptionStore {
   subscriptions: Subscription[];
-  addSubscription: (sub: Omit<Subscription, "id" | "createdAt" | "totalPaid" | "paymentCount">) => void;
+  addSubscription: (
+    sub: Omit<Subscription, "id" | "createdAt" | "totalPaid" | "paymentCount">,
+  ) => void;
   cancelSubscription: (id: string) => void;
   recordPayment: (id: string, amount: string) => void;
   clearAll: () => void;

@@ -2,13 +2,13 @@ name: CI
 
 on:
   pull_request:
-    branches: ['*']
+    branches: ["*"]
   push:
-    branches: ['main']
+    branches: ["main"]
 
 env:
   NEXT_PUBLIC_TEMPO_RPC_URL: https://rpc.moderato.tempo.xyz
-  NEXT_PUBLIC_E2E_MOCK_AUTH: '1'
+  NEXT_PUBLIC_E2E_MOCK_AUTH: "1"
 
 jobs:
   lint-and-type-check:
@@ -20,8 +20,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -42,8 +42,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci

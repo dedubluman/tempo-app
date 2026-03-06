@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle, Copy, ShareNetwork } from "@phosphor-icons/react";
 import { getAddress, isAddress, parseUnits } from "viem";
 import { useAccount } from "wagmi";
-import { RecentRequests, type RequestHistoryEntry } from "@/components/request/RecentRequests";
+import {
+  RecentRequests,
+  type RequestHistoryEntry,
+} from "@/components/request/RecentRequests";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -58,7 +61,10 @@ export default function RequestPage() {
     }
   }, []);
 
-  const memoRemaining = useMemo(() => 32 - new TextEncoder().encode(memo).length, [memo]);
+  const memoRemaining = useMemo(
+    () => 32 - new TextEncoder().encode(memo).length,
+    [memo],
+  );
 
   const persistHistory = (entries: RequestHistoryEntry[]) => {
     setHistory(entries);
@@ -132,12 +138,17 @@ export default function RequestPage() {
 
     const relativeUrl = `/pay?${params.toString()}`;
     const fullUrl =
-      typeof window !== "undefined" ? `${window.location.origin}${relativeUrl}` : relativeUrl;
+      typeof window !== "undefined"
+        ? `${window.location.origin}${relativeUrl}`
+        : relativeUrl;
 
     setGeneratedUrl(fullUrl);
 
     const nextEntry: RequestHistoryEntry = {
-      id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+      id:
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `${Date.now()}`,
       to: checksummedRecipient,
       amount,
       token: selectedToken.symbol,
@@ -181,7 +192,8 @@ export default function RequestPage() {
       });
       showSuccess("Request shared");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Share cancelled";
+      const message =
+        error instanceof Error ? error.message : "Share cancelled";
       showError("Share cancelled", message);
     } finally {
       dismissToast(loadingId);
@@ -191,8 +203,12 @@ export default function RequestPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Request</h1>
-        <p className="mt-1 text-sm text-[--text-secondary]">Create shareable payment links with memo reconciliation.</p>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">
+          Request
+        </h1>
+        <p className="mt-1 text-sm text-[--text-secondary]">
+          Create shareable payment links with memo reconciliation.
+        </p>
       </div>
 
       <div className="space-y-5">
@@ -216,7 +232,9 @@ export default function RequestPage() {
             />
 
             <div className="space-y-1">
-              <p className="text-sm font-medium text-[--text-secondary]">Token</p>
+              <p className="text-sm font-medium text-[--text-secondary]">
+                Token
+              </p>
               <TokenSelector
                 selectedToken={selectedToken}
                 onSelect={(token) => {
@@ -227,14 +245,20 @@ export default function RequestPage() {
             </div>
 
             <div>
-              <p className="mb-1 text-sm font-medium text-[--text-secondary]">Amount</p>
+              <p className="mb-1 text-sm font-medium text-[--text-secondary]">
+                Amount
+              </p>
               <AmountInput
                 value={amount}
                 onChange={(value) => setAmount(value)}
                 token={selectedToken}
                 placeholder="0.00"
               />
-              {amountError ? <p className="mt-1 text-sm text-[--status-error-text]">{amountError}</p> : null}
+              {amountError ? (
+                <p className="mt-1 text-sm text-[--status-error-text]">
+                  {amountError}
+                </p>
+              ) : null}
             </div>
 
             <Input
@@ -259,13 +283,25 @@ export default function RequestPage() {
                 <div className="flex justify-center overflow-x-auto rounded-[--radius-sm] bg-white p-2">
                   <QRCodeDisplay data={generatedUrl} size={200} />
                 </div>
-                <p className="break-all font-mono text-xs text-[--text-secondary]">{generatedUrl}</p>
+                <p className="break-all font-mono text-xs text-[--text-secondary]">
+                  {generatedUrl}
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="secondary" size="sm" onClick={() => void handleCopy(generatedUrl)}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => void handleCopy(generatedUrl)}
+                  >
                     <Copy size={12} />
                     {copied ? "Copied" : "Copy Link"}
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => void handleShare()}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void handleShare()}
+                  >
                     <ShareNetwork size={12} />
                     Share
                   </Button>
@@ -280,7 +316,11 @@ export default function RequestPage() {
             <CardTitle>Recent Requests</CardTitle>
           </CardHeader>
           <CardContent>
-            <RecentRequests entries={history} onCopy={handleCopy} onDelete={handleDeleteRequest} />
+            <RecentRequests
+              entries={history}
+              onCopy={handleCopy}
+              onDelete={handleDeleteRequest}
+            />
           </CardContent>
         </Card>
       </div>

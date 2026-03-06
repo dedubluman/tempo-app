@@ -21,7 +21,20 @@ import { FeatureFlag } from "@/lib/featureFlags";
 
 type PosState = "keypad" | "qr" | "success";
 
-const KEYPAD_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"] as const;
+const KEYPAD_KEYS = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  ".",
+  "0",
+  "del",
+] as const;
 /** TIP-1009: max expiry window is 30s; we use 15s to stay well within limit */
 const PAYMENT_WINDOW_SECS = 15;
 const DEBOUNCE_SECS = 3;
@@ -67,7 +80,9 @@ function playSuccessSound(): void {
 
 export default function PosPage() {
   const { address } = useAccount();
-  const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo>(
+    TOKEN_REGISTRY[0],
+  );
   const [amount, setAmount] = useState("0");
   const [memo, setMemo] = useState("");
   const [state, setState] = useState<PosState>("keypad");
@@ -81,6 +96,7 @@ export default function PosPage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Duplicate TX tracking (last MAX_RECENT_TXS payment events)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [recentTxHashes, setRecentTxHashes] = useState<string[]>([]);
   const recentTxHashesRef = useRef<string[]>([]);
   const [duplicateWarning, setDuplicateWarning] = useState(false);
@@ -88,7 +104,9 @@ export default function PosPage() {
   // Payment window countdown
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isExpired, setIsExpired] = useState(false);
-  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
   const { balances, refetch: refetchBalances } = useTokenBalances();
   const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -96,7 +114,9 @@ export default function PosPage() {
   const prevBalanceRef = useRef<bigint | undefined>(undefined);
 
   // Track balance for payment detection
-  const currentBalance = balances.find((b) => b.token.address === selectedToken.address)?.balance;
+  const currentBalance = balances.find(
+    (b) => b.token.address === selectedToken.address,
+  )?.balance;
 
   function stopCountdown() {
     if (countdownIntervalRef.current) {
@@ -163,7 +183,10 @@ export default function PosPage() {
       if (recentTxHashesRef.current.includes(detectionId)) {
         setDuplicateWarning(true);
       } else {
-        const updated = [detectionId, ...recentTxHashesRef.current].slice(0, MAX_RECENT_TXS);
+        const updated = [detectionId, ...recentTxHashesRef.current].slice(
+          0,
+          MAX_RECENT_TXS,
+        );
         recentTxHashesRef.current = updated;
         setRecentTxHashes(updated);
         window.setTimeout(() => {
@@ -246,7 +269,13 @@ export default function PosPage() {
     if (!address || !amount || Number.parseFloat(amount) <= 0) return;
     // TIP-1009: validBefore = now + 15s (well within the 30s Tempo protocol limit)
     const validBefore = Math.floor(Date.now() / 1000) + PAYMENT_WINDOW_SECS;
-    const url = buildPayUrl(address, amount, selectedToken.symbol, memo, validBefore);
+    const url = buildPayUrl(
+      address,
+      amount,
+      selectedToken.symbol,
+      memo,
+      validBefore,
+    );
     setPayUrl(url);
     prevBalanceRef.current = currentBalance;
     setIsExpired(false);
@@ -266,10 +295,16 @@ export default function PosPage() {
     <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
         <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary] flex items-center gap-2">
-          <Storefront size={24} className="mr-2 inline-block" weight="duotone" />
+          <Storefront
+            size={24}
+            className="mr-2 inline-block"
+            weight="duotone"
+          />
           POS Terminal
         </h1>
-        <p className="mt-1 text-sm text-[--text-secondary]">Merchant receive mode — generate QR for customer payments.</p>
+        <p className="mt-1 text-sm text-[--text-secondary]">
+          Merchant receive mode — generate QR for customer payments.
+        </p>
       </div>
 
       {/* Keypad State */}
@@ -282,8 +317,12 @@ export default function PosPage() {
             <CardContent className="space-y-4">
               {/* Amount Display */}
               <div className="rounded-[--radius-md] border border-[--border-default] bg-[--bg-subtle] px-4 py-6 text-center">
-                <p className="font-mono text-4xl font-bold text-[--text-primary]">{amount}</p>
-                <p className="mt-1 text-sm text-[--text-secondary]">{selectedToken.symbol}</p>
+                <p className="font-mono text-4xl font-bold text-[--text-primary]">
+                  {amount}
+                </p>
+                <p className="mt-1 text-sm text-[--text-secondary]">
+                  {selectedToken.symbol}
+                </p>
               </div>
 
               {/* Keypad Grid */}
@@ -300,7 +339,10 @@ export default function PosPage() {
                 ))}
               </div>
 
-              <TokenSelector selectedToken={selectedToken} onSelect={setSelectedToken} />
+              <TokenSelector
+                selectedToken={selectedToken}
+                onSelect={setSelectedToken}
+              />
 
               <Input
                 label="Order Number / Memo (optional)"
@@ -312,7 +354,12 @@ export default function PosPage() {
               <Button
                 type="button"
                 onClick={handleGenerateQR}
-                disabled={!address || amount === "0" || Number.parseFloat(amount) <= 0 || isDebounced}
+                disabled={
+                  !address ||
+                  amount === "0" ||
+                  Number.parseFloat(amount) <= 0 ||
+                  isDebounced
+                }
               >
                 {isDebounced ? "Wait..." : "Generate QR Code"}
               </Button>
@@ -329,14 +376,20 @@ export default function PosPage() {
                 <StatusBadge status="scheduled" />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[--text-secondary]">Merchant</span>
+                <span className="text-sm text-[--text-secondary]">
+                  Merchant
+                </span>
                 <span className="font-mono text-xs text-[--text-primary]">
-                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not connected"}
+                  {address
+                    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+                    : "Not connected"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[--text-secondary]">Token</span>
-                <span className="text-sm text-[--text-primary]">{selectedToken.symbol}</span>
+                <span className="text-sm text-[--text-primary]">
+                  {selectedToken.symbol}
+                </span>
               </div>
               <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2 text-xs text-[--status-success-text]">
                 Payments are gasless for customers via fee sponsorship.
@@ -365,8 +418,12 @@ export default function PosPage() {
                     onClick={() => {
                       writeNfcPaymentUrl({
                         paymentUrl: payUrl,
-                        onSuccess: () => { /* NFC write success handled silently */ },
-                        onError: () => { /* NFC errors are non-critical */ },
+                        onSuccess: () => {
+                          /* NFC write success handled silently */
+                        },
+                        onError: () => {
+                          /* NFC errors are non-critical */
+                        },
                       });
                     }}
                   >
@@ -375,31 +432,39 @@ export default function PosPage() {
                 )}
               </FeatureGate>
               <div className="space-y-1">
-                <p className="font-mono text-3xl font-bold text-[--text-primary]">{amount}</p>
-                <p className="text-sm text-[--text-secondary]">{selectedToken.symbol}</p>
-                {memo && <p className="text-xs text-[--text-tertiary]">Ref: {memo}</p>}
+                <p className="font-mono text-3xl font-bold text-[--text-primary]">
+                  {amount}
+                </p>
+                <p className="text-sm text-[--text-secondary]">
+                  {selectedToken.symbol}
+                </p>
+                {memo && (
+                  <p className="text-xs text-[--text-tertiary]">Ref: {memo}</p>
+                )}
               </div>
 
               {/* Payment window countdown / expiry indicator */}
               <div aria-live="polite" aria-atomic="true">
-              {isExpired ? (
-                <div className="rounded-[--radius-md] border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
-                  Expired — Generate new QR
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-xs text-[--text-secondary]">
-                  <span
-                    className={`inline-block h-2 w-2 animate-pulse rounded-full ${
-                      paymentDetected ? "bg-[--status-success-text]" : "bg-[--brand-primary]"
-                    }`}
-                  />
-                  {paymentDetected
-                    ? "Payment detected! Confirming..."
-                    : countdown !== null
-                    ? `Payment window: ${countdown}s`
-                    : "Waiting for payment..."}
-                </div>
-              )}
+                {isExpired ? (
+                  <div className="rounded-[--radius-md] border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
+                    Expired — Generate new QR
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-xs text-[--text-secondary]">
+                    <span
+                      className={`inline-block h-2 w-2 animate-pulse rounded-full ${
+                        paymentDetected
+                          ? "bg-[--status-success-text]"
+                          : "bg-[--brand-primary]"
+                      }`}
+                    />
+                    {paymentDetected
+                      ? "Payment detected! Confirming..."
+                      : countdown !== null
+                        ? `Payment window: ${countdown}s`
+                        : "Waiting for payment..."}
+                  </div>
+                )}
               </div>
 
               {/* Duplicate payment warning */}
@@ -424,14 +489,26 @@ export default function PosPage() {
             <CardContent className="space-y-4 py-8">
               <div className="flex justify-center">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/15">
-                  <CheckCircle size={48} weight="fill" className="text-emerald-400" />
+                  <CheckCircle
+                    size={48}
+                    weight="fill"
+                    className="text-emerald-400"
+                  />
                 </div>
               </div>
-              <p className="text-xl font-bold text-[--status-success-text]">Payment Received!</p>
+              <p className="text-xl font-bold text-[--status-success-text]">
+                Payment Received!
+              </p>
               <div className="space-y-1">
-                <p className="font-mono text-3xl font-bold text-[--text-primary]">{amount}</p>
-                <p className="text-sm text-[--text-secondary]">{selectedToken.symbol}</p>
-                {memo && <p className="text-xs text-[--text-tertiary]">Ref: {memo}</p>}
+                <p className="font-mono text-3xl font-bold text-[--text-primary]">
+                  {amount}
+                </p>
+                <p className="text-sm text-[--text-secondary]">
+                  {selectedToken.symbol}
+                </p>
+                {memo && (
+                  <p className="text-xs text-[--text-tertiary]">Ref: {memo}</p>
+                )}
               </div>
               {receivedTxHash && (
                 <a
@@ -443,7 +520,9 @@ export default function PosPage() {
                   View on Explorer
                 </a>
               )}
-              <p className="text-xs text-[--text-tertiary]">Auto-resetting in 5 seconds...</p>
+              <p className="text-xs text-[--text-tertiary]">
+                Auto-resetting in 5 seconds...
+              </p>
               <Button type="button" onClick={handleReset}>
                 Next Transaction
               </Button>

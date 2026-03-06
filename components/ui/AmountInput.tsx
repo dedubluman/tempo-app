@@ -55,7 +55,9 @@ export function AmountInput({
               Max
             </Button>
           ) : null}
-          <span className="text-xs font-semibold text-[--text-secondary] bg-[--bg-subtle] rounded-full px-2 py-0.5 border border-[--border-subtle]">{token.symbol}</span>
+          <span className="text-xs font-semibold text-[--text-secondary] bg-[--bg-subtle] rounded-full px-2 py-0.5 border border-[--border-subtle]">
+            {token.symbol}
+          </span>
         </div>
       }
     />

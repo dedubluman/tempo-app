@@ -40,14 +40,14 @@ test.describe("POS Replay Protection", () => {
     await page.waitForLoadState("networkidle");
 
     expect(errors).toHaveLength(0);
-    await expect(page.locator('text=Receipt History')).toBeVisible();
+    await expect(page.locator("text=Receipt History")).toBeVisible();
   });
 
   test("receipt history shows empty state", async ({ page }) => {
     await page.goto("/app/pos/history");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('text=No receipts yet')).toBeVisible();
+    await expect(page.locator("text=No receipts yet")).toBeVisible();
   });
 
   test("receipt history has export CSV button", async ({ page }) => {

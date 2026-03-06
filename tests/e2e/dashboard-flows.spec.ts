@@ -49,7 +49,10 @@ function receiveSection(page: Page) {
 }
 
 function balancePanel(page: Page) {
-  return page.locator("[data-testid='account-card'], [data-testid='receive-card']").first().locator("..");
+  return page
+    .locator("[data-testid='account-card'], [data-testid='receive-card']")
+    .first()
+    .locator("..");
 }
 
 function transferCard(page: Page) {
@@ -95,7 +98,9 @@ test.describe("Dashboard Flows", () => {
 
     // Assert: Receive section with full address
     await expect(receiveSection(page)).toBeVisible();
-    await expect(receiveSection(page).getByText(userAddress, { exact: true })).toBeVisible();
+    await expect(
+      receiveSection(page).getByText(userAddress, { exact: true }),
+    ).toBeVisible();
 
     // Assert: Transfer card visible
     await expect(transferCard(page)).toBeVisible();
@@ -125,7 +130,9 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Balance shows formatted value (2 decimals)
-    const balanceDisplay = balancePanel(page).getByText("123.45", { exact: true });
+    const balanceDisplay = balancePanel(page).getByText("123.45", {
+      exact: true,
+    });
     await expect(balanceDisplay).toBeVisible();
 
     // Assert: "Raw: X pathUSD" text visible
@@ -133,7 +140,9 @@ test.describe("Dashboard Flows", () => {
     await expect(rawBalance).toBeVisible();
 
     // Assert: "6 decimals" badge visible
-    const decimalsLabel = balancePanel(page).getByText("6 decimals", { exact: true });
+    const decimalsLabel = balancePanel(page).getByText("6 decimals", {
+      exact: true,
+    });
     await expect(decimalsLabel).toBeVisible();
 
     // Assert: "pathUSD" token badge visible
@@ -151,7 +160,9 @@ test.describe("Dashboard Flows", () => {
     // Act: Click refresh button
     await refreshButton.click();
 
-    const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
+    const refreshingBadge = balancePanel(page).getByText("Refreshing", {
+      exact: true,
+    });
     await expect(refreshingBadge).toBeHidden({ timeout: 5000 });
   });
 
@@ -165,11 +176,15 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Faucet guidance text visible
-    const faucetText = balancePanel(page).getByText(/No funds yet\. Get testnet tokens from the faucet/);
+    const faucetText = balancePanel(page).getByText(
+      /No funds yet\. Get testnet tokens from the faucet/,
+    );
     await expect(faucetText).toBeVisible();
 
     // Assert: "Open faucet" link visible
-    const faucetLink = balancePanel(page).getByRole("link", { name: "Open faucet" });
+    const faucetLink = balancePanel(page).getByRole("link", {
+      name: "Open faucet",
+    });
     await expect(faucetLink).toBeVisible();
     await expect(faucetLink).toHaveAttribute("href", /docs.tempo.xyz/);
   });
@@ -179,7 +194,9 @@ test.describe("Dashboard Flows", () => {
   // ============================================================================
   test("6. Disconnect navigation", async ({ page }) => {
     // Arrange: Dashboard is loaded
-    const disconnectButton = page.getByRole("button", { name: "Disconnect Wallet" });
+    const disconnectButton = page.getByRole("button", {
+      name: "Disconnect Wallet",
+    });
 
     // Act: Click disconnect button
     await disconnectButton.click();
@@ -195,7 +212,8 @@ test.describe("Dashboard Flows", () => {
   // ============================================================================
   test("7. Transaction detail navigation", async ({ page }) => {
     // Arrange: Mock a successful transfer result
-    const mockTxHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    const mockTxHash =
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
     await mockTransferResult(page, mockTxHash);
 
     // Act: Navigate to transaction detail page
@@ -203,7 +221,9 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Transaction hash displayed
-    const txSurface = page.getByText(/Transaction Result|Transaction not found\./);
+    const txSurface = page.getByText(
+      /Transaction Result|Transaction not found\./,
+    );
     await expect(txSurface.first()).toBeVisible();
   });
 
@@ -212,7 +232,8 @@ test.describe("Dashboard Flows", () => {
   // ============================================================================
   test("8. Explorer link", async ({ page }) => {
     // Arrange: Navigate to transaction detail page
-    const mockTxHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    const mockTxHash =
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
     await page.goto(`/tx/${mockTxHash}`);
     await page.waitForLoadState("networkidle");
 
@@ -231,7 +252,8 @@ test.describe("Dashboard Flows", () => {
   // ============================================================================
   test("9. Back to Wallet navigation", async ({ page }) => {
     // Arrange: Navigate to transaction detail page
-    const mockTxHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    const mockTxHash =
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
     await page.goto(`/tx/${mockTxHash}`);
     await page.waitForLoadState("networkidle");
 
@@ -258,10 +280,14 @@ test.describe("Dashboard Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: "RPC Error" badge visible
-    const errorBadge = balancePanel(page).getByText("RPC Error", { exact: true });
+    const errorBadge = balancePanel(page).getByText("RPC Error", {
+      exact: true,
+    });
     await expect(errorBadge).toBeVisible();
 
-    const errorMessage = balancePanel(page).getByText("Network is slow. Please try again. We could not load your latest balance.");
+    const errorMessage = balancePanel(page).getByText(
+      "Network is slow. Please try again. We could not load your latest balance.",
+    );
     await expect(errorMessage).toBeVisible();
 
     // Assert: "Retry" button visible and clickable
@@ -299,11 +325,17 @@ test.describe("Dashboard Integration Flows", () => {
     await expect(mainHeading).toContainText("Wallet Dashboard");
 
     // Assert: Subtitle
-    const subtitle = page.getByText("Send pathUSD with sponsored fees and passkey security.", { exact: true });
+    const subtitle = page.getByText(
+      "Send pathUSD with sponsored fees and passkey security.",
+      { exact: true },
+    );
     await expect(subtitle).toBeVisible();
 
     // Assert: Feature badge
-    const featureBadge = page.getByText("Stablecoin transfers with instant finality", { exact: true });
+    const featureBadge = page.getByText(
+      "Stablecoin transfers with instant finality",
+      { exact: true },
+    );
     await expect(featureBadge).toBeVisible();
 
     // Assert: Account section
@@ -356,7 +388,9 @@ test.describe("Dashboard Integration Flows", () => {
       await page.waitForLoadState("networkidle");
 
       // Assert: Correct display format
-      const balanceDisplay = balancePanel(page).getByText(testCase.display, { exact: true });
+      const balanceDisplay = balancePanel(page).getByText(testCase.display, {
+        exact: true,
+      });
       await expect(balanceDisplay).toBeVisible();
     }
   });
@@ -369,17 +403,25 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Verify address display in Receive section
 
     // Assert: Full address visible
-    await expect(receiveSection(page).getByText(userAddress, { exact: true })).toBeVisible();
+    await expect(
+      receiveSection(page).getByText(userAddress, { exact: true }),
+    ).toBeVisible();
 
     // Assert: Short address visible
-    await expect(receiveSection(page).getByText(shortAddress, { exact: true })).toBeVisible();
+    await expect(
+      receiveSection(page).getByText(shortAddress, { exact: true }),
+    ).toBeVisible();
 
     // Assert: "Wallet Address" badge visible
-    const walletBadge = receiveSection(page).getByText("Wallet Address", { exact: true });
+    const walletBadge = receiveSection(page).getByText("Wallet Address", {
+      exact: true,
+    });
     await expect(walletBadge).toBeVisible();
 
     // Assert: Faucet link visible
-    const faucetLink = receiveSection(page).getByRole("link", { name: "Get testnet tokens" });
+    const faucetLink = receiveSection(page).getByRole("link", {
+      name: "Get testnet tokens",
+    });
     await expect(faucetLink).toBeVisible();
   });
 
@@ -391,14 +433,18 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Verify disconnect button in Account section
 
     // Assert: Disconnect button visible
-    const disconnectButton = page.getByRole("button", { name: "Disconnect Wallet" });
+    const disconnectButton = page.getByRole("button", {
+      name: "Disconnect Wallet",
+    });
     await expect(disconnectButton).toBeVisible();
 
     // Assert: Button is enabled
     await expect(disconnectButton).toBeEnabled();
 
     // Assert: Help text visible
-    const helpText = accountSection(page).getByText(/Disconnect logs you out and clears the active session/);
+    const helpText = accountSection(page).getByText(
+      /Disconnect logs you out and clears the active session/,
+    );
     await expect(helpText).toBeVisible();
   });
 
@@ -419,7 +465,9 @@ test.describe("Dashboard Integration Flows", () => {
     // Assert: Button remains enabled during refresh
     await expect(refreshButton).toBeEnabled();
 
-    const refreshingBadge = balancePanel(page).getByText("Refreshing", { exact: true });
+    const refreshingBadge = balancePanel(page).getByText("Refreshing", {
+      exact: true,
+    });
     await expect(refreshingBadge).toBeHidden({ timeout: 5000 });
   });
 
@@ -435,14 +483,18 @@ test.describe("Dashboard Integration Flows", () => {
     await page.waitForLoadState("networkidle");
 
     // Assert: Error message visible
-    const errorMessage = page.getByText("Invalid transaction hash", { exact: true });
+    const errorMessage = page.getByText("Invalid transaction hash", {
+      exact: true,
+    });
     await expect(errorMessage).toBeVisible();
 
     // Assert: Navigation links visible
     const goToWalletLink = page.getByRole("link", { name: /Go to Wallet/i });
     await expect(goToWalletLink).toBeVisible();
 
-    const explorerLink = page.getByRole("link", { name: /Open Explorer Home/i });
+    const explorerLink = page.getByRole("link", {
+      name: /Open Explorer Home/i,
+    });
     await expect(explorerLink).toBeVisible();
   });
 
@@ -451,14 +503,17 @@ test.describe("Dashboard Integration Flows", () => {
   // ============================================================================
   test("Navigation from dashboard to transaction detail", async ({ page }) => {
     // Arrange: Dashboard is loaded
-    const mockTxHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+    const mockTxHash =
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
 
     // Act: Navigate to transaction detail
     await page.goto(`/tx/${mockTxHash}`);
     await page.waitForLoadState("networkidle");
 
     // Assert: Transaction detail page loaded
-    const txDetailHeading = page.getByText(/Transaction Result|Transaction not found\./);
+    const txDetailHeading = page.getByText(
+      /Transaction Result|Transaction not found\./,
+    );
     await expect(txDetailHeading.first()).toBeVisible();
 
     // Act: Click back to wallet
@@ -479,10 +534,14 @@ test.describe("Dashboard Integration Flows", () => {
     // Act: Verify address appears consistently
 
     // Assert: Address in Account section
-    await expect(accountSection(page).getByText(shortAddress, { exact: true })).toBeVisible();
+    await expect(
+      accountSection(page).getByText(shortAddress, { exact: true }),
+    ).toBeVisible();
 
     // Assert: Full address in Receive section
-    const receiveAddress = receiveSection(page).getByText(userAddress, { exact: true });
+    const receiveAddress = receiveSection(page).getByText(userAddress, {
+      exact: true,
+    });
     await expect(receiveAddress).toBeVisible();
 
     // Assert: Both are the same address

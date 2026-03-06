@@ -55,94 +55,108 @@ export function useAgentChat(): UseAgentChatReturn {
     }
   }, [messages]);
 
-  const addAssistantMessage = useCallback((content: string, intent?: ParsedIntent): string => {
-    const id = generateId();
-    const msg: ChatMessage = {
-      id,
-      role: "assistant",
-      content,
-      intent,
-      timestamp: Date.now(),
-    };
-    setMessages((prev) => {
-      const next = [...prev, msg];
-      saveMessages(next);
-      return next;
-    });
-    return id;
-  }, []);
-
-  const updateMessageTxHash = useCallback((messageId: string, txHash: string) => {
-    setMessages((prev) => {
-      const next = prev.map((m) => (m.id === messageId ? { ...m, txHash } : m));
-      saveMessages(next);
-      return next;
-    });
-  }, []);
-
-  const sendMessage = useCallback(async (text: string): Promise<ParsedIntent | null> => {
-    const userMsg: ChatMessage = {
-      id: generateId(),
-      role: "user",
-      content: text,
-      timestamp: Date.now(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setIsProcessing(true);
-
-    try {
-      const response = await fetch("/api/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
-      });
-
-      const data = (await response.json()) as ParsedIntent;
-
-      // Build assistant message
-      let content: string;
-      if (data.action === "transfer") {
-        content = `Transfer ${data.amount} ${data.token || "pathUSD"} to ${data.recipient}`;
-        if (data.memo) content += ` (memo: ${data.memo})`;
-      } else if (data.action === "balance") {
-        content = "Here are your current balances:";
-      } else {
-        content = data.error || "I couldn't understand that. Try: \"Send 5 pathUSD to 0x...\"";
-      }
-
-      const assistantMsg: ChatMessage = {
-        id: generateId(),
+  const addAssistantMessage = useCallback(
+    (content: string, intent?: ParsedIntent): string => {
+      const id = generateId();
+      const msg: ChatMessage = {
+        id,
         role: "assistant",
         content,
-        intent: data,
+        intent,
         timestamp: Date.now(),
       };
       setMessages((prev) => {
-        const next = [...prev, assistantMsg];
+        const next = [...prev, msg];
         saveMessages(next);
         return next;
       });
+      return id;
+    },
+    [],
+  );
 
-      return data;
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Request failed";
-      const assistantMsg: ChatMessage = {
-        id: generateId(),
-        role: "assistant",
-        content: errorMsg,
-        intent: { action: "unknown", error: errorMsg },
-        timestamp: Date.now(),
-      };
+  const updateMessageTxHash = useCallback(
+    (messageId: string, txHash: string) => {
       setMessages((prev) => {
-        const next = [...prev, assistantMsg];
+        const next = prev.map((m) =>
+          m.id === messageId ? { ...m, txHash } : m,
+        );
         saveMessages(next);
         return next;
       });
-      return null;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, []);
+    },
+    [],
+  );
+
+  const sendMessage = useCallback(
+    async (text: string): Promise<ParsedIntent | null> => {
+      const userMsg: ChatMessage = {
+        id: generateId(),
+        role: "user",
+        content: text,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+      setIsProcessing(true);
+
+      try {
+        const response = await fetch("/api/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+
+        const data = (await response.json()) as ParsedIntent;
+
+        // Build assistant message
+        let content: string;
+        if (data.action === "transfer") {
+          content = `Transfer ${data.amount} ${data.token || "pathUSD"} to ${data.recipient}`;
+          if (data.memo) content += ` (memo: ${data.memo})`;
+        } else if (data.action === "balance") {
+          content = "Here are your current balances:";
+        } else {
+          content =
+            data.error ||
+            'I couldn\'t understand that. Try: "Send 5 pathUSD to 0x..."';
+        }
+
+        const assistantMsg: ChatMessage = {
+          id: generateId(),
+          role: "assistant",
+          content,
+          intent: data,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => {
+          const next = [...prev, assistantMsg];
+          saveMessages(next);
+          return next;
+        });
+
+        return data;
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error ? error.message : "Request failed";
+        const assistantMsg: ChatMessage = {
+          id: generateId(),
+          role: "assistant",
+          content: errorMsg,
+          intent: { action: "unknown", error: errorMsg },
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => {
+          const next = [...prev, assistantMsg];
+          saveMessages(next);
+          return next;
+        });
+        return null;
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [],
+  );
 
   const clearHistory = useCallback(() => {
     setMessages([]);

@@ -24,7 +24,7 @@ function hasActiveCredentialOnDevice(): boolean {
   try {
     return Boolean(
       window.localStorage.getItem(ACTIVE_CREDENTIAL_KEY) ||
-        window.localStorage.getItem(LAST_ACTIVE_CREDENTIAL_KEY),
+      window.localStorage.getItem(LAST_ACTIVE_CREDENTIAL_KEY),
     );
   } catch {
     return false;
@@ -43,7 +43,9 @@ function hasSessionKeysOnDevice(): boolean {
     }
 
     const parsed = JSON.parse(raw) as { state?: { sessions?: unknown[] } };
-    return Array.isArray(parsed.state?.sessions) && parsed.state.sessions.length > 0;
+    return (
+      Array.isArray(parsed.state?.sessions) && parsed.state.sessions.length > 0
+    );
   } catch {
     return false;
   }
@@ -75,7 +77,10 @@ export default function RecoverPage() {
 
     try {
       if (E2E_MOCK_AUTH) {
-        const fallbackAddress = typeof window !== "undefined" ? window.localStorage.getItem(LAST_ADDRESS_KEY) : null;
+        const fallbackAddress =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem(LAST_ADDRESS_KEY)
+            : null;
         if (fallbackAddress && typeof window !== "undefined") {
           window.localStorage.setItem(WALLET_CREATED_FLAG, "1");
           window.localStorage.setItem(LAST_ADDRESS_KEY, fallbackAddress);
@@ -115,7 +120,12 @@ export default function RecoverPage() {
 
         await createSession({
           durationMinutes: 60,
-          spendLimits: new Map([["0x20c0000000000000000000000000000000000000" as `0x${string}`, parseUnits("25", PATHUSD_DECIMALS)]]),
+          spendLimits: new Map([
+            [
+              "0x20c0000000000000000000000000000000000000" as `0x${string}`,
+              parseUnits("25", PATHUSD_DECIMALS),
+            ],
+          ]),
           allowedRecipients: [],
         });
       }
@@ -136,11 +146,16 @@ export default function RecoverPage() {
   if (!PASSKEY_RECOVERY_ENABLED) {
     return (
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-10">
-        <section className="rounded-2xl border border-[--border-default] bg-[--bg-surface] p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Account Recovery</p>
-          <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">Feature not enabled</h1>
+        <section className="rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] p-5 sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+            Account Recovery
+          </p>
+          <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">
+            Feature not enabled
+          </h1>
           <p className="mt-2 text-sm text-[--text-secondary]">
-            Enable <code>NEXT_PUBLIC_FF_PASSKEY_RECOVERY=1</code> to open recovery flow.
+            Enable <code>NEXT_PUBLIC_FF_PASSKEY_RECOVERY=1</code> to open
+            recovery flow.
           </p>
         </section>
       </main>
@@ -148,21 +163,38 @@ export default function RecoverPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl space-y-4 px-4 py-8 sm:py-10" data-testid="recovery-flow-page">
-      <section className="rounded-2xl border border-[--border-default] bg-[--bg-surface] p-5 sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Account Recovery</p>
-        <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">Recover access on this device</h1>
+    <main
+      className="mx-auto w-full max-w-2xl space-y-4 px-4 py-8 sm:py-10"
+      data-testid="recovery-flow-page"
+    >
+      <section className="rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] p-5 sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+          Account Recovery
+        </p>
+        <h1 className="mt-2 text-xl font-semibold text-[--text-primary]">
+          Recover access on this device
+        </h1>
         <p className="mt-2 text-sm text-[--text-secondary]">
-          Authenticate with any registered passkey, then new session keys will be created automatically.
+          Authenticate with any registered passkey, then new session keys will
+          be created automatically.
         </p>
       </section>
 
-      <section className="rounded-2xl border border-[--border-default] bg-[--bg-surface] p-5 sm:p-6" data-testid="recovery-status">
+      <section
+        className="rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] p-5 sm:p-6"
+        data-testid="recovery-status"
+      >
         <p className="text-sm text-[--text-secondary]">
-          Active credential on device: <span className="font-semibold">{hasLocalCredential ? "Yes" : "No"}</span>
+          Active credential on device:{" "}
+          <span className="font-semibold">
+            {hasLocalCredential ? "Yes" : "No"}
+          </span>
         </p>
         <p className="mt-1 text-sm text-[--text-secondary]">
-          Session keys on device: <span className="font-semibold">{hasLocalSession ? "Yes" : "No"}</span>
+          Session keys on device:{" "}
+          <span className="font-semibold">
+            {hasLocalSession ? "Yes" : "No"}
+          </span>
         </p>
         <p className="mt-3 text-sm text-[--text-secondary]">
           {recoveryNeeded
@@ -171,7 +203,7 @@ export default function RecoverPage() {
         </p>
       </section>
 
-      <section className="rounded-2xl border border-[--border-default] bg-[--bg-surface] p-5 sm:p-6">
+      <section className="rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] p-5 sm:p-6">
         <button
           className="inline-flex h-11 items-center rounded-xl bg-[--brand-primary] px-4 text-sm font-semibold text-[--text-inverse] disabled:opacity-60"
           disabled={isRecovering}
@@ -194,7 +226,10 @@ export default function RecoverPage() {
           </p>
         ) : null}
 
-        <Link href="/" className="mt-3 inline-flex text-sm text-[--brand-primary] hover:underline">
+        <Link
+          href="/"
+          className="mt-3 inline-flex text-sm text-[--brand-primary] hover:underline"
+        >
           Back to landing
         </Link>
       </section>

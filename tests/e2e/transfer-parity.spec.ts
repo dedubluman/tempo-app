@@ -22,9 +22,7 @@ test.describe("TransferForm Parity (Golden Baseline)", () => {
   test("validation: empty recipient shows error", async ({ page }) => {
     const sendButton = page.getByRole("button", { name: /^Send$/ });
     await sendButton.click();
-    await expect(
-      page.locator("text=Recipient address required")
-    ).toBeVisible();
+    await expect(page.locator("text=Recipient address required")).toBeVisible();
   });
 
   test("validation: invalid address format shows error", async ({ page }) => {
@@ -39,7 +37,7 @@ test.describe("TransferForm Parity (Golden Baseline)", () => {
     await recipientInput.fill(ZERO_ADDRESS);
     await page.getByRole("button", { name: /^Send$/ }).click();
     await expect(
-      page.locator("text=Cannot send to zero address")
+      page.locator("text=Cannot send to zero address"),
     ).toBeVisible();
   });
 
@@ -50,7 +48,7 @@ test.describe("TransferForm Parity (Golden Baseline)", () => {
     await amountInput.fill("0");
     await page.getByRole("button", { name: /^Send$/ }).click();
     await expect(
-      page.locator("text=/amount must be greater than/i")
+      page.locator("text=/amount must be greater than/i"),
     ).toBeVisible();
   });
 
@@ -58,7 +56,7 @@ test.describe("TransferForm Parity (Golden Baseline)", () => {
     const batchButton = page.getByRole("button", { name: /Batch/i });
     await batchButton.click();
     await expect(
-      page.getByRole("button", { name: /Add Recipient/i })
+      page.getByRole("button", { name: /Add Recipient/i }),
     ).toBeVisible();
   });
 

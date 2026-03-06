@@ -33,7 +33,9 @@ function getClientIp(request: NextRequest): string {
   return forwardedFor.split(",")[0]?.trim() || "unknown";
 }
 
-function enforceRateLimit(ip: string): { limited: false } | { limited: true; retryAfterSeconds: number } {
+function enforceRateLimit(
+  ip: string,
+): { limited: false } | { limited: true; retryAfterSeconds: number } {
   const now = Date.now();
   const existing = rateLimitStore.get(ip);
 
@@ -43,7 +45,10 @@ function enforceRateLimit(ip: string): { limited: false } | { limited: true; ret
   }
 
   if (existing.count >= MAX_REQUESTS) {
-    const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((existing.resetAt - now) / 1000),
+    );
     return { limited: true, retryAfterSeconds };
   }
 
@@ -66,7 +71,11 @@ function parseActionPayload(value: unknown): ActionPayload | null {
   }
 
   if (value.action === "resolve") {
-    if (typeof value.credentialId !== "string" || value.credentialId.length < 8 || value.credentialId.length > 4096) {
+    if (
+      typeof value.credentialId !== "string" ||
+      value.credentialId.length < 8 ||
+      value.credentialId.length > 4096
+    ) {
       return null;
     }
     return {
@@ -147,7 +156,10 @@ export async function POST(request: NextRequest) {
   const origin = new URL(request.url).origin;
 
   if (payload.action === "hasAny") {
-    return NextResponse.json({ hasAny: hasAnyPasskeyMappings() }, { status: 200 });
+    return NextResponse.json(
+      { hasAny: hasAnyPasskeyMappings() },
+      { status: 200 },
+    );
   }
 
   if (payload.action === "resolve") {

@@ -15,8 +15,7 @@ const badgeVariants = cva(
           "bg-[--status-error-bg] border-[--status-error-border] text-[--status-error-text]",
         warning:
           "bg-[--status-warning-bg] border-[--status-warning-border] text-[--status-warning-text]",
-        info:
-          "bg-[--status-info-bg] border-[--status-info-border] text-[--status-info-text]",
+        info: "bg-[--status-info-bg] border-[--status-info-border] text-[--status-info-text]",
         neutral:
           "bg-[--bg-subtle] border-[--border-default] text-[--text-secondary]",
         brand:
@@ -31,11 +30,12 @@ const badgeVariants = cva(
       variant: "neutral",
       size: "md",
     },
-  }
+  },
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
+  extends
+    React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {
   dot?: boolean;
   pulse?: boolean;
@@ -59,7 +59,7 @@ function Badge({
         <span
           className={cn(
             "w-1.5 h-1.5 rounded-full bg-current flex-shrink-0",
-            pulse && "animate-dot-pulse"
+            pulse && "animate-dot-pulse",
           )}
         />
       )}

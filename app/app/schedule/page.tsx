@@ -26,7 +26,12 @@ import type { TokenInfo } from "@/types/token";
 
 const STORAGE_KEY = "tempo.scheduledPayments.v1";
 
-type ScheduledStatus = "pending" | "broadcasting" | "confirmed" | "expired" | "failed";
+type ScheduledStatus =
+  | "pending"
+  | "broadcasting"
+  | "confirmed"
+  | "expired"
+  | "failed";
 
 interface ScheduledPayment {
   id: string;
@@ -45,16 +50,28 @@ interface ScheduledPayment {
 function prettyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
-  if (lower.includes("user rejected") || lower.includes("user denied") || lower.includes("rejected")) {
+  if (
+    lower.includes("user rejected") ||
+    lower.includes("user denied") ||
+    lower.includes("rejected")
+  ) {
     return "Action cancelled in passkey confirmation.";
   }
-  if (lower.includes("insufficient") || lower.includes("sponsor") || lower.includes("fee")) {
+  if (
+    lower.includes("insufficient") ||
+    lower.includes("sponsor") ||
+    lower.includes("fee")
+  ) {
     return "Insufficient balance or fee sponsorship issue.";
   }
   if (lower.includes("expired") || lower.includes("valid")) {
     return "Transaction time window has expired.";
   }
-  if (lower.includes("network") || lower.includes("timeout") || lower.includes("rpc")) {
+  if (
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("rpc")
+  ) {
     return "Network is slow. Please retry in a moment.";
   }
   return message.split("\n")[0] || "Operation failed";
@@ -86,7 +103,9 @@ function formatCountdown(seconds: number): string {
 }
 
 export default function SchedulePage() {
-  const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo>(
+    TOKEN_REGISTRY[0],
+  );
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [memoText, setMemoText] = useState("");
@@ -94,11 +113,14 @@ export default function SchedulePage() {
   const [windowMinutes, setWindowMinutes] = useState("5");
   const [errorMessage, setErrorMessage] = useState("");
   const [isAuthorizing, setIsAuthorizing] = useState(false);
-  const [scheduled, setScheduled] = useState<ScheduledPayment[]>(() => loadScheduled());
+  const [scheduled, setScheduled] = useState<ScheduledPayment[]>(() =>
+    loadScheduled(),
+  );
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
 
   const { balances, isLoading: isBalanceLoading } = useTokenBalances();
-  const { mutateAsync: transferSync, isPending: isScheduling } = Hooks.token.useTransferSync();
+  const { mutateAsync: transferSync, isPending: isScheduling } =
+    Hooks.token.useTransferSync();
   const isSchedulingAction = isScheduling || isAuthorizing;
 
   const balanceEntry = useMemo(
@@ -117,7 +139,8 @@ export default function SchedulePage() {
   // Execute pending payments when their window opens
   const executePending = useCallback(async () => {
     const pending = scheduled.filter(
-      (p) => p.status === "pending" && now >= p.validAfter && now < p.validBefore,
+      (p) =>
+        p.status === "pending" && now >= p.validAfter && now < p.validBefore,
     );
     if (pending.length === 0) return;
 
@@ -141,7 +164,9 @@ export default function SchedulePage() {
           throw new Error("Session key is unavailable. Recreate the schedule.");
         }
 
-        const tokenInfo = TOKEN_REGISTRY.find((token) => token.address === payment.token);
+        const tokenInfo = TOKEN_REGISTRY.find(
+          (token) => token.address === payment.token,
+        );
         const tokenDecimals = tokenInfo?.decimals ?? 6;
         const amountUnits = parseUnits(payment.amount, tokenDecimals);
         const memoBytes32 = payment.memo.trim()
@@ -160,11 +185,17 @@ export default function SchedulePage() {
             return await transferSync({
               ...baseRequest,
               account: accessAccount,
-              ...(session.keyAuthorization ? { keyAuthorization: session.keyAuthorization } : {}),
+              ...(session.keyAuthorization
+                ? { keyAuthorization: session.keyAuthorization }
+                : {}),
             });
           } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            if (session.keyAuthorization && message.includes("KeyAlreadyExists")) {
+            const message =
+              error instanceof Error ? error.message : String(error);
+            if (
+              session.keyAuthorization &&
+              message.includes("KeyAlreadyExists")
+            ) {
               clearSessionAuthorization(session.id);
               return transferSync({
                 ...baseRequest,
@@ -180,7 +211,11 @@ export default function SchedulePage() {
           throw new Error("Transaction hash missing from scheduled execution.");
         }
 
-        applySessionSpend(session.id, payment.token as `0x${string}`, amountUnits);
+        applySessionSpend(
+          session.id,
+          payment.token as `0x${string}`,
+          amountUnits,
+        );
         if (session.keyAuthorization) {
           clearSessionAuthorization(session.id);
         }
@@ -194,7 +229,10 @@ export default function SchedulePage() {
           saveScheduled(next);
           return next;
         });
-        showSuccess("Scheduled payment executed", `Tx: ${hash?.slice(0, 10)}...`);
+        showSuccess(
+          "Scheduled payment executed",
+          `Tx: ${hash?.slice(0, 10)}...`,
+        );
       } catch (error) {
         const pretty = prettyError(error);
         setScheduled((prev) => {
@@ -300,7 +338,10 @@ export default function SchedulePage() {
     setRecipient("");
     setAmount("");
     setMemoText("");
-    showSuccess("Payment scheduled", `Authorized now, will execute in ${delayMinutes} minute(s)`);
+    showSuccess(
+      "Payment scheduled",
+      `Authorized now, will execute in ${delayMinutes} minute(s)`,
+    );
     setIsAuthorizing(false);
   };
 
@@ -313,9 +354,12 @@ export default function SchedulePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Scheduled Payments</h1>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">
+          Scheduled Payments
+        </h1>
         <p className="mt-1 text-sm text-[--text-secondary]">
-          Time-lock payments with validAfter/validBefore — auto-execute when the time window opens.
+          Time-lock payments with validAfter/validBefore — auto-execute when the
+          time window opens.
         </p>
       </div>
 
@@ -337,7 +381,10 @@ export default function SchedulePage() {
               disabled={isSchedulingAction}
             />
 
-            <TokenSelector selectedToken={selectedToken} onSelect={setSelectedToken} />
+            <TokenSelector
+              selectedToken={selectedToken}
+              onSelect={setSelectedToken}
+            />
 
             <AmountInput
               value={amount}
@@ -350,7 +397,9 @@ export default function SchedulePage() {
               disabled={isSchedulingAction}
             />
             <p className="text-xs text-[--text-secondary]">
-              Balance: {isBalanceLoading ? "..." : balanceEntry?.formatted ?? "0"} {selectedToken.symbol}
+              Balance:{" "}
+              {isBalanceLoading ? "..." : (balanceEntry?.formatted ?? "0")}{" "}
+              {selectedToken.symbol}
             </p>
 
             <Input
@@ -363,7 +412,9 @@ export default function SchedulePage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-[--text-tertiary]">Execute after (minutes)</label>
+                <label className="mb-1 block text-xs text-[--text-tertiary]">
+                  Execute after (minutes)
+                </label>
                 <select
                   value={delayMinutes}
                   onChange={(e) => setDelayMinutes(e.target.value)}
@@ -378,7 +429,9 @@ export default function SchedulePage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-[--text-tertiary]">Execution window</label>
+                <label className="mb-1 block text-xs text-[--text-tertiary]">
+                  Execution window
+                </label>
                 <select
                   value={windowMinutes}
                   onChange={(e) => setWindowMinutes(e.target.value)}
@@ -390,7 +443,8 @@ export default function SchedulePage() {
                   <option value="60">1 hour</option>
                 </select>
                 <p className="mt-1 text-xs text-[--text-tertiary]">
-                  How long after the delay the payment can execute. If the window expires, payment is cancelled.
+                  How long after the delay the payment can execute. If the
+                  window expires, payment is cancelled.
                 </p>
               </div>
             </div>
@@ -422,8 +476,14 @@ export default function SchedulePage() {
             <div className="space-y-3 text-xs text-[--text-secondary]">
               <p>1. Set recipient, amount, and time delay.</p>
               <p>2. Payment queues locally with a countdown timer.</p>
-              <p>3. When the time window opens, the payment auto-executes via Tempo validAfter/validBefore.</p>
-              <p>4. If the window expires without execution, the payment is marked expired.</p>
+              <p>
+                3. When the time window opens, the payment auto-executes via
+                Tempo validAfter/validBefore.
+              </p>
+              <p>
+                4. If the window expires without execution, the payment is
+                marked expired.
+              </p>
             </div>
             <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-3 py-2 text-xs text-[--status-success-text]">
               Gas is sponsored and paid in stablecoin.
@@ -438,14 +498,22 @@ export default function SchedulePage() {
       {/* Scheduled Payments Queue */}
       {scheduled.length > 0 && (
         <div className="mt-8">
-          <h2 className="mb-4 font-[--font-display] text-lg text-[--text-primary]">Payment Queue</h2>
+          <h2 className="mb-4 font-[--font-display] text-lg text-[--text-primary]">
+            Payment Queue
+          </h2>
           <div className="space-y-3">
             {scheduled.map((payment) => {
-              const tokenInfo = TOKEN_REGISTRY.find((t) => t.address === payment.token);
+              const tokenInfo = TOKEN_REGISTRY.find(
+                (t) => t.address === payment.token,
+              );
               const secondsUntil = payment.validAfter - now;
-              const isInWindow = now >= payment.validAfter && now < payment.validBefore;
-              const isWindowExpired = payment.status === "pending" && now >= payment.validBefore;
-              const displayStatus: ScheduledStatus = isWindowExpired ? "expired" : payment.status;
+              const isInWindow =
+                now >= payment.validAfter && now < payment.validBefore;
+              const isWindowExpired =
+                payment.status === "pending" && now >= payment.validBefore;
+              const displayStatus: ScheduledStatus = isWindowExpired
+                ? "expired"
+                : payment.status;
 
               return (
                 <Card key={payment.id} variant="elevated">
@@ -455,10 +523,13 @@ export default function SchedulePage() {
                         {payment.amount} {tokenInfo?.symbol ?? "?"}
                       </p>
                       <p className="font-mono text-xs text-[--text-secondary]">
-                        → {payment.recipient.slice(0, 8)}...{payment.recipient.slice(-6)}
+                        → {payment.recipient.slice(0, 8)}...
+                        {payment.recipient.slice(-6)}
                       </p>
                       {payment.memo && (
-                        <p className="text-xs text-[--text-tertiary]">Memo: {payment.memo}</p>
+                        <p className="text-xs text-[--text-tertiary]">
+                          Memo: {payment.memo}
+                        </p>
                       )}
                     </div>
 
@@ -466,7 +537,9 @@ export default function SchedulePage() {
                       {displayStatus === "pending" && (
                         <div className="text-right">
                           {isInWindow ? (
-                            <p className="text-xs text-[--brand-primary]">Executing...</p>
+                            <p className="text-xs text-[--brand-primary]">
+                              Executing...
+                            </p>
                           ) : (
                             <p className="font-mono text-sm text-[--text-primary]">
                               {formatCountdown(secondsUntil)}
@@ -474,7 +547,17 @@ export default function SchedulePage() {
                           )}
                         </div>
                       )}
-                      <StatusBadge status={displayStatus === "confirmed" ? "success" : displayStatus === "broadcasting" ? "pending" : displayStatus === "expired" ? "failed" : displayStatus} />
+                      <StatusBadge
+                        status={
+                          displayStatus === "confirmed"
+                            ? "success"
+                            : displayStatus === "broadcasting"
+                              ? "pending"
+                              : displayStatus === "expired"
+                                ? "failed"
+                                : displayStatus
+                        }
+                      />
                       {payment.txHash && (
                         <Link
                           href={`${EXPLORER_URL}/tx/${payment.txHash}`}
@@ -484,7 +567,9 @@ export default function SchedulePage() {
                           Tx
                         </Link>
                       )}
-                      {(displayStatus === "confirmed" || displayStatus === "expired" || displayStatus === "failed") && (
+                      {(displayStatus === "confirmed" ||
+                        displayStatus === "expired" ||
+                        displayStatus === "failed") && (
                         <button
                           type="button"
                           onClick={() => handleDelete(payment.id)}

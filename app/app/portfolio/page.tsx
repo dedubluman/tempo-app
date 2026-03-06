@@ -54,18 +54,26 @@ export default function PortfolioPage() {
         <div className="relative" aria-live="polite">
           <div
             className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-15"
-            style={{ background: "radial-gradient(ellipse at 20% 50%, #fbbf24 0%, transparent 70%)" }}
+            style={{
+              background:
+                "radial-gradient(ellipse at 20% 50%, #fbbf24 0%, transparent 70%)",
+            }}
             aria-hidden="true"
           />
           {isLoading ? (
             <Skeleton variant="text" height={52} width={160} />
           ) : (
-            <p className="font-mono font-bold tracking-tighter text-[--text-primary]" style={{ fontSize: "clamp(2rem, 5vw, 3rem)" }}>
+            <p
+              className="font-mono font-bold tracking-tighter text-[--text-primary]"
+              style={{ fontSize: "clamp(2rem, 5vw, 3rem)" }}
+            >
               ${totalValue.toFixed(2)}
             </p>
           )}
         </div>
-        <p className="text-xs text-[--text-tertiary]">USD equivalent across all stablecoins</p>
+        <p className="text-xs text-[--text-tertiary]">
+          USD equivalent across all stablecoins
+        </p>
       </div>
 
       {error && (
@@ -75,10 +83,13 @@ export default function PortfolioPage() {
       )}
 
       {/* Token list — 2-col asymmetric on md+ (featured + secondary) */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-4 md:gap-6">
         {isLoading
           ? [0, 1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-4 py-3 border-b border-[--border-glass]">
+              <div
+                key={i}
+                className="flex items-center gap-4 py-3 border-b border-[--border-glass]"
+              >
                 <Skeleton variant="circle" width={40} height={40} />
                 <div className="flex-1 space-y-1.5">
                   <Skeleton variant="text" width={100} />
@@ -101,8 +112,12 @@ export default function PortfolioPage() {
 
                 {/* Token info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[--text-primary]">{entry.token.name}</p>
-                  <p className="text-xs text-[--text-tertiary]">{entry.token.symbol}</p>
+                  <p className="text-sm font-semibold text-[--text-primary]">
+                    {entry.token.name}
+                  </p>
+                  <p className="text-xs text-[--text-tertiary]">
+                    {entry.token.symbol}
+                  </p>
                 </div>
 
                 {/* Balance */}

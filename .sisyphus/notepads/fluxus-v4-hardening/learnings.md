@@ -1,9 +1,11 @@
 # Task 6: next-intl i18n Infrastructure
 
 ## Summary
+
 Successfully installed and configured next-intl for the Fluxus app with API route compatibility.
 
 ## What Was Done
+
 1. Installed `next-intl` package (v3.x)
 2. Created i18n configuration:
    - `i18n/request.ts`: Server-side request configuration with default locale "en"
@@ -21,19 +23,24 @@ Successfully installed and configured next-intl for the Fluxus app with API rout
    - Bottom nav labels (Wallet, Docs)
 
 ## Key Patterns
+
 ### Middleware Matcher (CRITICAL)
+
 ```typescript
 export const config = {
   matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
 ```
+
 This pattern excludes:
+
 - `/api/*` routes (prevents SSRF/breakage)
 - `/_next/*` (Next.js internals)
 - `/_vercel/*` (Vercel internals)
 - Static files with extensions
 
 ### Server-Side Layout Pattern
+
 ```typescript
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -49,6 +56,7 @@ export default async function RootLayout({ children }) {
 ```
 
 ### Client Component Usage
+
 ```typescript
 import { useTranslations } from "next-intl";
 
@@ -59,6 +67,7 @@ export default function Component() {
 ```
 
 ## Verification
+
 - ✓ `tsc --noEmit`: 0 errors
 - ✓ `next build`: Success (32 routes compiled)
 - ✓ `/api/sponsor`: Responds correctly (200 with RPC error from upstream)
@@ -67,12 +76,14 @@ export default function Component() {
 - ✓ Middleware matcher successfully excludes API routes
 
 ## Next Steps for Future Tasks
+
 - T18 (a11y): Use translation keys for aria-label attributes
 - Add locale switcher UI when multi-language support is needed
 - Extract remaining hardcoded strings (only infrastructure + POC done)
 - Consider using `getTranslations()` in Server Components for better performance
 
 ## Evidence
+
 - `.sisyphus/evidence/task-6-api-routes-ok.txt`: curl tests showing all API routes functional
 
 ---

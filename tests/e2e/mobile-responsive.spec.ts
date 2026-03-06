@@ -11,12 +11,16 @@ const VIEWPORTS = [
 ] as const;
 
 async function assertNoHorizontalOverflow(page: Page) {
-  const hasOverflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+  const hasOverflow = await page.evaluate(
+    () => document.body.scrollWidth > window.innerWidth,
+  );
   expect(hasOverflow).toBe(false);
 }
 
 test.describe("Mobile Responsive Polish", () => {
-  test("landing page has no horizontal overflow at 375/768/1024", async ({ page }) => {
+  test("landing page has no horizontal overflow at 375/768/1024", async ({
+    page,
+  }) => {
     for (const viewport of VIEWPORTS) {
       await page.setViewportSize(viewport);
       await page.goto(`${AUTH_BASE_URL}/`);
@@ -27,8 +31,13 @@ test.describe("Mobile Responsive Polish", () => {
     }
   });
 
-  test("dashboard touch targets and overflow checks at mobile widths", async ({ page }) => {
-    test.skip(!RUN_DASHBOARD_SCENARIOS, "Requires stable dashboard auth baseline in E2E environment.");
+  test("dashboard touch targets and overflow checks at mobile widths", async ({
+    page,
+  }) => {
+    test.skip(
+      !RUN_DASHBOARD_SCENARIOS,
+      "Requires stable dashboard auth baseline in E2E environment.",
+    );
 
     await page.addInitScript((address) => {
       window.localStorage.setItem("wagmi.webAuthn.activeCredential", "1");
@@ -41,7 +50,9 @@ test.describe("Mobile Responsive Polish", () => {
       await page.goto(`${AUTH_BASE_URL}/app`);
       await page.waitForLoadState("networkidle");
 
-      await expect(page.getByRole("heading", { name: /Wallet Dashboard/i })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: /Wallet Dashboard/i }),
+      ).toBeVisible();
       await assertNoHorizontalOverflow(page);
 
       const buttons = page.getByRole("button");

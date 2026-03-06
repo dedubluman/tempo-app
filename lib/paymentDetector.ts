@@ -9,7 +9,7 @@ const WS_CONNECT_TIMEOUT_MS = 5_000;
 // ABI selectors for TIP-20 transfer functions
 const TRANSFER_SELECTOR = toFunctionSelector("transfer(address,uint256)");
 const TRANSFER_WITH_MEMO_SELECTOR = toFunctionSelector(
-  "transferWithMemo(address,uint256,bytes32)"
+  "transferWithMemo(address,uint256,bytes32)",
 );
 
 export type PaymentCallback = (txHash: string) => void;
@@ -85,14 +85,19 @@ async function fetchLatestBlock(): Promise<RpcBlock | null> {
  * transferWithMemo(address,uint256,bytes32) — both share the same first two
  * ABI-encoded parameters.
  */
-function isPaymentMatch(tx: RpcTransaction, opts: PaymentDetectorOptions): boolean {
+function isPaymentMatch(
+  tx: RpcTransaction,
+  opts: PaymentDetectorOptions,
+): boolean {
   if (!tx.to || !tx.input || tx.input.length < 10) return false;
 
   if (tx.to.toLowerCase() !== opts.expectedToken.toLowerCase()) return false;
 
   const input = tx.input.toLowerCase();
   const isTransfer = input.startsWith(TRANSFER_SELECTOR.toLowerCase());
-  const isMemoTransfer = input.startsWith(TRANSFER_WITH_MEMO_SELECTOR.toLowerCase());
+  const isMemoTransfer = input.startsWith(
+    TRANSFER_WITH_MEMO_SELECTOR.toLowerCase(),
+  );
 
   if (!isTransfer && !isMemoTransfer) return false;
 
@@ -154,7 +159,7 @@ export function createPaymentDetector(options: PaymentDetectorOptions): {
               id: 2,
               method: "eth_unsubscribe",
               params: [subscriptionId],
-            })
+            }),
           );
         } catch {
           // ignore send errors during teardown
@@ -249,7 +254,7 @@ export function createPaymentDetector(options: PaymentDetectorOptions): {
           id: 1,
           method: "eth_subscribe",
           params: ["newPendingTransactions"],
-        })
+        }),
       );
     };
 

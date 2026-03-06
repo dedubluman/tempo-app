@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Stop, Clock, Trash } from "@phosphor-icons/react";
+import { ArrowLeft, Plus, Stop, Clock } from "@phosphor-icons/react";
 import { isAddress } from "viem";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -32,7 +32,9 @@ export default function SubscriptionsPage() {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [frequency, setFrequency] = useState<SubscriptionFrequency>("weekly");
-  const [selectedToken, setSelectedToken] = useState<TokenInfo>(TOKEN_REGISTRY[0]);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo>(
+    TOKEN_REGISTRY[0],
+  );
   const [error, setError] = useState("");
 
   const handleCreate = () => {
@@ -73,7 +75,10 @@ export default function SubscriptionsPage() {
     <FeatureGate flag={FeatureFlag.STREAMING_SUBSCRIPTIONS}>
       <div className="mx-auto max-w-3xl px-4 py-8 pb-24 md:pb-8">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/app/stream" className="flex items-center gap-1 text-sm text-[--text-secondary] hover:text-[--text-primary]">
+          <Link
+            href="/app/stream"
+            className="flex items-center gap-1 text-sm text-[--text-secondary] hover:text-[--text-primary]"
+          >
             <ArrowLeft size={16} />
             Back to Streaming
           </Link>
@@ -107,7 +112,10 @@ export default function SubscriptionsPage() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
               />
-              <TokenSelector selectedToken={selectedToken} onSelect={setSelectedToken} />
+              <TokenSelector
+                selectedToken={selectedToken}
+                onSelect={setSelectedToken}
+              />
               <Input
                 label="Amount per payment"
                 type="number"
@@ -116,7 +124,9 @@ export default function SubscriptionsPage() {
                 onChange={(e) => setAmount(e.target.value)}
               />
               <div>
-                <label className="mb-1 block text-xs text-[--text-tertiary]">Frequency</label>
+                <label className="mb-1 block text-xs text-[--text-tertiary]">
+                  Frequency
+                </label>
                 <div className="flex gap-2">
                   {FREQUENCIES.map((f) => (
                     <button
@@ -134,10 +144,20 @@ export default function SubscriptionsPage() {
                   ))}
                 </div>
               </div>
-              {error && <p className="text-sm text-[--status-error-text]">{error}</p>}
+              {error && (
+                <p className="text-sm text-[--status-error-text]">{error}</p>
+              )}
               <div className="flex gap-2">
-                <Button type="button" onClick={handleCreate}>Create</Button>
-                <Button type="button" variant="secondary" onClick={() => setShowCreate(false)}>Cancel</Button>
+                <Button type="button" onClick={handleCreate}>
+                  Create
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowCreate(false)}
+                >
+                  Cancel
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -146,7 +166,11 @@ export default function SubscriptionsPage() {
         {subscriptions.length === 0 ? (
           <Card variant="elevated">
             <CardContent className="py-12 text-center">
-              <Clock size={48} className="mx-auto mb-3 text-[--text-tertiary]" weight="thin" />
+              <Clock
+                size={48}
+                className="mx-auto mb-3 text-[--text-tertiary]"
+                weight="thin"
+              />
               <p className="text-sm text-[--text-secondary]">
                 No subscriptions yet. Create one to schedule recurring payments.
               </p>
@@ -162,13 +186,15 @@ export default function SubscriptionsPage() {
                       {sub.amount} {sub.tokenSymbol} / {sub.frequency}
                     </p>
                     <p className="text-xs text-[--text-secondary]">
-                      To: {sub.recipient.slice(0, 8)}...{sub.recipient.slice(-4)}
+                      To: {sub.recipient.slice(0, 8)}...
+                      {sub.recipient.slice(-4)}
                     </p>
                     <p className="text-xs text-[--text-tertiary]">
                       {sub.active
                         ? `Next: ${new Date(sub.nextPaymentAt).toLocaleDateString()}`
                         : "Cancelled"}
-                      {" | "}{sub.paymentCount} payments ({sub.totalPaid} total)
+                      {" | "}
+                      {sub.paymentCount} payments ({sub.totalPaid} total)
                     </p>
                   </div>
                   {sub.active && (

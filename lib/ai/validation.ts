@@ -62,7 +62,10 @@ export function validateAddress(address: string): AddressValidationResult {
     const normalized = getAddress(address);
 
     if (BLACKLISTED_ADDRESSES.has(normalized.toLowerCase())) {
-      return { isValid: false, error: "This address is blocked for security reasons" };
+      return {
+        isValid: false,
+        error: "This address is blocked for security reasons",
+      };
     }
 
     return { isValid: true, normalized };
@@ -92,7 +95,10 @@ export function validateAmount(amount: string): AmountValidationResult {
   }
 
   if (num > MAX_TRANSFER_AMOUNT) {
-    return { isValid: false, error: `Maximum transfer amount is ${MAX_TRANSFER_AMOUNT.toLocaleString()}` };
+    return {
+      isValid: false,
+      error: `Maximum transfer amount is ${MAX_TRANSFER_AMOUNT.toLocaleString()}`,
+    };
   }
 
   return { isValid: true };

@@ -4,12 +4,22 @@ import { useBalanceStore, useCustomTokenStore } from "@/lib/store";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { decodeFunctionResult, encodeFunctionData, formatUnits, getAddress, isAddress } from "viem";
+import {
+  decodeFunctionResult,
+  encodeFunctionData,
+  formatUnits,
+  getAddress,
+  isAddress,
+} from "viem";
 import type { Address } from "viem";
 import { TOKEN_REGISTRY } from "@/lib/tokens";
 import { multicall3Abi, pathUsdAbi } from "@/lib/abi";
 import { MULTICALL3_ADDRESS } from "@/lib/constants";
-import type { TokenBalance, TokenInfo, UseTokenBalancesReturn } from "@/types/token";
+import type {
+  TokenBalance,
+  TokenInfo,
+  UseTokenBalancesReturn,
+} from "@/types/token";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 
@@ -19,13 +29,19 @@ export function useTokenBalances(): UseTokenBalancesReturn {
 
   // E2E mock auth fallback
   const mockAddress =
-    E2E_MOCK_AUTH && typeof window !== "undefined" && window.localStorage.getItem("tempo.walletCreated") === "1"
+    E2E_MOCK_AUTH &&
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("tempo.walletCreated") === "1"
       ? window.localStorage.getItem("tempo.lastAddress") || ""
       : "";
-  const normalizedMockAddress = isAddress(mockAddress.toLowerCase()) ? getAddress(mockAddress.toLowerCase()) : undefined;
+  const normalizedMockAddress = isAddress(mockAddress.toLowerCase())
+    ? getAddress(mockAddress.toLowerCase())
+    : undefined;
 
-  const normalizedAddress = address && isAddress(address) ? getAddress(address) : undefined;
-  const effectiveAddress: Address | undefined = normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
+  const normalizedAddress =
+    address && isAddress(address) ? getAddress(address) : undefined;
+  const effectiveAddress: Address | undefined =
+    normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
   const customTokens = useCustomTokenStore((state) => state.customTokens);
 
   // Use Zustand store for balances
@@ -126,7 +142,15 @@ export function useTokenBalances(): UseTokenBalancesReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [effectiveAddress, markFetched, publicClient, setBalances, setError, setIsLoading, tokenList]);
+  }, [
+    effectiveAddress,
+    markFetched,
+    publicClient,
+    setBalances,
+    setError,
+    setIsLoading,
+    tokenList,
+  ]);
 
   // Fetch on mount and when address changes
   useEffect(() => {

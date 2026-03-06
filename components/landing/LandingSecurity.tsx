@@ -1,34 +1,43 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { ShieldCheck, CurrencyDollar, Globe, Code } from "@phosphor-icons/react"
-import { useMotionSafe } from "@/lib/motion"
+import { motion } from "framer-motion";
+import {
+  ShieldCheck,
+  CurrencyDollar,
+  Globe,
+  Code,
+} from "@phosphor-icons/react";
+import { useMotionSafe } from "@/lib/motion";
 
 const trustItems = [
   {
     icon: ShieldCheck,
     title: "Passkey Security",
-    description: "WebAuthn passkeys are cryptographically bound to your device. No passwords to steal, no seed phrases to lose.",
+    description:
+      "WebAuthn passkeys are cryptographically bound to your device. No passwords to steal, no seed phrases to lose.",
   },
   {
     icon: CurrencyDollar,
     title: "Sponsored Gas",
-    description: "Every transfer is gas-sponsored by the Tempo fee sponsorship system. You never pay transaction fees.",
+    description:
+      "Every transfer is gas-sponsored by the Tempo fee sponsorship system. You never pay transaction fees.",
   },
   {
     icon: Globe,
     title: "Tempo Blockchain",
-    description: "Built on Tempo — an EVM-compatible chain with native stablecoin support, sub-second finality, and passkey auth.",
+    description:
+      "Built on Tempo — an EVM-compatible chain with native stablecoin support, sub-second finality, and passkey auth.",
   },
   {
     icon: Code,
     title: "Open Source",
-    description: "Fluxus is fully open source. Inspect the code, verify the logic, and contribute on GitHub.",
+    description:
+      "Fluxus is fully open source. Inspect the code, verify the logic, and contribute on GitHub.",
   },
-]
+];
 
 export function LandingSecurity() {
-  const variants = useMotionSafe()
+  const variants = useMotionSafe();
 
   return (
     <motion.section
@@ -45,7 +54,8 @@ export function LandingSecurity() {
             Built for trust
           </h2>
           <p className="text-[--text-secondary] max-w-lg mx-auto">
-            Security and transparency are non-negotiable. Here&apos;s what protects your funds.
+            Security and transparency are non-negotiable. Here&apos;s what
+            protects your funds.
           </p>
         </motion.div>
 
@@ -60,13 +70,17 @@ export function LandingSecurity() {
                 <Icon size={20} />
               </div>
               <div>
-                <h3 className="font-semibold text-[--text-primary] mb-1">{title}</h3>
-                <p className="text-sm text-[--text-secondary] leading-relaxed">{description}</p>
+                <h3 className="font-semibold text-[--text-primary] mb-1">
+                  {title}
+                </h3>
+                <p className="text-sm text-[--text-secondary] leading-relaxed">
+                  {description}
+                </p>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
     </motion.section>
-  )
+  );
 }

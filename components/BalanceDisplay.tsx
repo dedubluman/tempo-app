@@ -14,13 +14,19 @@ const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 export function BalanceDisplay() {
   const { address } = useAccount();
   const mockAddress =
-    E2E_MOCK_AUTH && typeof window !== "undefined" && window.localStorage.getItem("tempo.walletCreated") === "1"
+    E2E_MOCK_AUTH &&
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("tempo.walletCreated") === "1"
       ? window.localStorage.getItem("tempo.lastAddress") || ""
       : "";
-  const normalizedMockAddress = isAddress(mockAddress.toLowerCase()) ? getAddress(mockAddress.toLowerCase()) : undefined;
+  const normalizedMockAddress = isAddress(mockAddress.toLowerCase())
+    ? getAddress(mockAddress.toLowerCase())
+    : undefined;
 
-  const normalizedAddress = address && isAddress(address) ? getAddress(address) : undefined;
-  const effectiveAddress: `0x${string}` | undefined = normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
+  const normalizedAddress =
+    address && isAddress(address) ? getAddress(address) : undefined;
+  const effectiveAddress: `0x${string}` | undefined =
+    normalizedAddress ?? (E2E_MOCK_AUTH ? normalizedMockAddress : undefined);
   const forcedError =
     E2E_MOCK_AUTH &&
     typeof window !== "undefined" &&
@@ -42,7 +48,14 @@ export function BalanceDisplay() {
       : undefined;
   const hasForcedBalance = forcedBalance !== undefined;
 
-  const { data: balance, isLoading, isFetching, isError, isRefetchError, refetch } = useReadContract({
+  const {
+    data: balance,
+    isLoading,
+    isFetching,
+    isError,
+    isRefetchError,
+    refetch,
+  } = useReadContract({
     address: PATHUSD_ADDRESS,
     abi: pathUsdAbi,
     functionName: "balanceOf",
@@ -111,7 +124,9 @@ export function BalanceDisplay() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
           Available Balance
         </p>
-        <p className="text-sm text-[--status-error-text]">Could not load balance. Network may be slow.</p>
+        <p className="text-sm text-[--status-error-text]">
+          Could not load balance. Network may be slow.
+        </p>
         <button
           className="inline-flex h-9 items-center rounded-[--radius-md] border border-[--border-default] px-3 text-sm font-medium text-[--text-secondary] transition-colors hover:bg-[--bg-subtle]"
           onClick={() => refetch()}
@@ -124,7 +139,9 @@ export function BalanceDisplay() {
   }
 
   const resolvedBalance = hasForcedBalance ? forcedBalance : balance;
-  const formattedFull = resolvedBalance ? formatUnits(resolvedBalance, PATHUSD_DECIMALS) : "0";
+  const formattedFull = resolvedBalance
+    ? formatUnits(resolvedBalance, PATHUSD_DECIMALS)
+    : "0";
   const [whole, fraction = "00"] = formattedFull.split(".");
   const twoDecimals = `${whole}.${fraction.padEnd(2, "0").slice(0, 2)}`;
   const isZeroBalance = !balance || formattedFull === "0";
@@ -148,7 +165,10 @@ export function BalanceDisplay() {
             type="button"
             aria-label="Refresh balance"
           >
-            <ArrowClockwise size={14} className={cn(showRefreshing && "animate-spin")} />
+            <ArrowClockwise
+              size={14}
+              className={cn(showRefreshing && "animate-spin")}
+            />
           </button>
         </div>
       </div>
@@ -158,7 +178,10 @@ export function BalanceDisplay() {
         {/* Ambient glow behind number */}
         <div
           className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-20"
-          style={{ background: "radial-gradient(ellipse at 30% 50%, #fbbf24 0%, transparent 70%)" }}
+          style={{
+            background:
+              "radial-gradient(ellipse at 30% 50%, #fbbf24 0%, transparent 70%)",
+          }}
           aria-hidden="true"
         />
         <p

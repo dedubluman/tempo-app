@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -140,17 +141,24 @@ function migrateOldLocalStorage() {
     // Migrate wallet data
     const walletCreated = window.localStorage.getItem("tempo.walletCreated");
     const lastAddress = window.localStorage.getItem("tempo.lastAddress");
-    
+
     if (walletCreated || lastAddress) {
       const walletData = {
         walletCreated: walletCreated === "1",
         lastAddress: lastAddress || null,
         address: null,
         isConnected: false,
-        activeCredentialId: window.localStorage.getItem("wagmi.webAuthn.activeCredential"),
-        lastActiveCredentialId: window.localStorage.getItem("wagmi.webAuthn.lastActiveCredential"),
+        activeCredentialId: window.localStorage.getItem(
+          "wagmi.webAuthn.activeCredential",
+        ),
+        lastActiveCredentialId: window.localStorage.getItem(
+          "wagmi.webAuthn.lastActiveCredential",
+        ),
       };
-      window.localStorage.setItem("fluxus-wallet-storage", JSON.stringify({ state: walletData }));
+      window.localStorage.setItem(
+        "fluxus-wallet-storage",
+        JSON.stringify({ state: walletData }),
+      );
     }
 
     // Migrate sessions
@@ -160,12 +168,18 @@ function migrateOldLocalStorage() {
         const sessions = JSON.parse(sessionsRaw);
         window.localStorage.setItem(
           "fluxus-session-storage",
-          JSON.stringify({ state: { sessions: Array.isArray(sessions) ? sessions.map((s: any) => ({
-            ...s,
-            spendLimit: s.spendLimit,
-            spent: s.spent,
-            keyAuthorization: null,
-          })) : [] } })
+          JSON.stringify({
+            state: {
+              sessions: Array.isArray(sessions)
+                ? sessions.map((s: any) => ({
+                    ...s,
+                    spendLimit: s.spendLimit,
+                    spent: s.spent,
+                    keyAuthorization: null,
+                  }))
+                : [],
+            },
+          }),
         );
       } catch {
         // Ignore parse errors
@@ -173,16 +187,24 @@ function migrateOldLocalStorage() {
     }
 
     // Migrate transaction history
-    const txHistoryRaw = window.localStorage.getItem("tempo.transferHistory.v1");
+    const txHistoryRaw = window.localStorage.getItem(
+      "tempo.transferHistory.v1",
+    );
     if (txHistoryRaw) {
       try {
         const entries = JSON.parse(txHistoryRaw);
         window.localStorage.setItem(
           "fluxus-txhistory-storage",
-          JSON.stringify({ state: { entries: Array.isArray(entries) ? entries.map((e: any) => ({
-            ...e,
-            amount: e.amount,
-          })) : [] } })
+          JSON.stringify({
+            state: {
+              entries: Array.isArray(entries)
+                ? entries.map((e: any) => ({
+                    ...e,
+                    amount: e.amount,
+                  }))
+                : [],
+            },
+          }),
         );
       } catch {
         // Ignore parse errors
@@ -191,10 +213,15 @@ function migrateOldLocalStorage() {
 
     // Migrate theme
     const theme = window.localStorage.getItem("fluxus-theme");
-    if (theme && (theme === "light" || theme === "dark" || theme === "system")) {
+    if (
+      theme &&
+      (theme === "light" || theme === "dark" || theme === "system")
+    ) {
       window.localStorage.setItem(
         "fluxus-ui-storage",
-        JSON.stringify({ state: { theme, selectedTokenAddress: null, activeFeature: null } })
+        JSON.stringify({
+          state: { theme, selectedTokenAddress: null, activeFeature: null },
+        }),
       );
     }
 
@@ -203,7 +230,9 @@ function migrateOldLocalStorage() {
       window.localStorage.removeItem(key);
     });
 
-    console.warn("[Zustand Migration] Old localStorage keys migrated and removed");
+    console.warn(
+      "[Zustand Migration] Old localStorage keys migrated and removed",
+    );
   } catch (error) {
     console.error("[Zustand Migration] Failed to migrate:", error);
   }
@@ -229,9 +258,13 @@ function broadcastStoreUpdate(storeName: string, state: any) {
   if (broadcastChannel) {
     // Strip functions — BroadcastChannel requires structured-cloneable (JSON-safe) data
     const serializable = Object.fromEntries(
-      Object.entries(state).filter(([, v]) => typeof v !== "function")
+      Object.entries(state).filter(([, v]) => typeof v !== "function"),
     );
-    broadcastChannel.postMessage({ storeName, state: serializable, timestamp: Date.now() });
+    broadcastChannel.postMessage({
+      storeName,
+      state: serializable,
+      timestamp: Date.now(),
+    });
   }
 }
 
@@ -284,8 +317,8 @@ export const useWalletStore = create<WalletState>()(
     {
       name: "fluxus-wallet-storage",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 // Listen for cross-tab updates
@@ -341,8 +374,8 @@ export const useBalanceStore = create<BalanceState>()(
         balances: state.balances,
         lastFetchedAt: state.lastFetchedAt,
       }),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -363,7 +396,9 @@ const initialSessionState = {
 
 // Custom serializer for sessions (bigint handling)
 // Custom serializer for sessions (bigint and Map handling)
-function isEncryptedPrivateKey(value: unknown): value is { ciphertext: string; iv: string } {
+function isEncryptedPrivateKey(
+  value: unknown,
+): value is { ciphertext: string; iv: string } {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -382,60 +417,76 @@ const sessionStorage = {
       const parsed = JSON.parse(str);
       if (parsed.state?.sessions) {
         const encryptionKey = await getOrCreateSessionEncryptionKey();
-        const hydratedSessions = await Promise.all(parsed.state.sessions.map(async (s: any) => {
-          // Migrate old format if needed
-          const migrated = migrateSessionToMultiToken(s);
-          
-          // Convert serialized maps back to Map instances
-          const spendLimits = new Map<`0x${string}`, bigint>();
-          const spent = new Map<`0x${string}`, bigint>();
-          
-          if (Array.isArray(migrated.spendLimits)) {
-            for (const [token, limit] of migrated.spendLimits) {
-              spendLimits.set(token as `0x${string}`, typeof limit === 'string' ? BigInt(limit) : limit);
+        const hydratedSessions = await Promise.all(
+          parsed.state.sessions.map(async (s: any) => {
+            // Migrate old format if needed
+            const migrated = migrateSessionToMultiToken(s);
+
+            // Convert serialized maps back to Map instances
+            const spendLimits = new Map<`0x${string}`, bigint>();
+            const spent = new Map<`0x${string}`, bigint>();
+
+            if (Array.isArray(migrated.spendLimits)) {
+              for (const [token, limit] of migrated.spendLimits) {
+                spendLimits.set(
+                  token as `0x${string}`,
+                  typeof limit === "string" ? BigInt(limit) : limit,
+                );
+              }
+            } else if (migrated.spendLimits instanceof Map) {
+              for (const [token, limit] of migrated.spendLimits.entries()) {
+                spendLimits.set(
+                  token,
+                  typeof limit === "string" ? BigInt(limit) : limit,
+                );
+              }
             }
-          } else if (migrated.spendLimits instanceof Map) {
-            for (const [token, limit] of migrated.spendLimits.entries()) {
-              spendLimits.set(token, typeof limit === 'string' ? BigInt(limit) : limit);
+
+            if (Array.isArray(migrated.spent)) {
+              for (const [token, amount] of migrated.spent) {
+                spent.set(
+                  token as `0x${string}`,
+                  typeof amount === "string" ? BigInt(amount) : amount,
+                );
+              }
+            } else if (migrated.spent instanceof Map) {
+              for (const [token, amount] of migrated.spent.entries()) {
+                spent.set(
+                  token,
+                  typeof amount === "string" ? BigInt(amount) : amount,
+                );
+              }
             }
-          }
-          
-          if (Array.isArray(migrated.spent)) {
-            for (const [token, amount] of migrated.spent) {
-              spent.set(token as `0x${string}`, typeof amount === 'string' ? BigInt(amount) : amount);
-            }
-          } else if (migrated.spent instanceof Map) {
-            for (const [token, amount] of migrated.spent.entries()) {
-              spent.set(token, typeof amount === 'string' ? BigInt(amount) : amount);
-            }
-          }
-          
-          let accessPrivateKey = migrated.accessPrivateKey;
-          if (isEncryptedPrivateKey(accessPrivateKey)) {
-            try {
-              const decrypted = await decryptPrivateKey(
-                accessPrivateKey.ciphertext,
-                accessPrivateKey.iv,
-                encryptionKey,
-              );
-              if (!decrypted.startsWith("0x")) {
+
+            let accessPrivateKey = migrated.accessPrivateKey;
+            if (isEncryptedPrivateKey(accessPrivateKey)) {
+              try {
+                const decrypted = await decryptPrivateKey(
+                  accessPrivateKey.ciphertext,
+                  accessPrivateKey.iv,
+                  encryptionKey,
+                );
+                if (!decrypted.startsWith("0x")) {
+                  return null;
+                }
+                accessPrivateKey = decrypted as `0x${string}`;
+              } catch {
                 return null;
               }
-              accessPrivateKey = decrypted as `0x${string}`;
-            } catch {
-              return null;
             }
-          }
 
-          return {
-            ...migrated,
-            accessPrivateKey,
-            spendLimits,
-            spent,
-            keyAuthorization: null,
-          };
-        }));
-        parsed.state.sessions = hydratedSessions.filter((session: SessionRecord | null) => session !== null);
+            return {
+              ...migrated,
+              accessPrivateKey,
+              spendLimits,
+              spent,
+              keyAuthorization: null,
+            };
+          }),
+        );
+        parsed.state.sessions = hydratedSessions.filter(
+          (session: SessionRecord | null) => session !== null,
+        );
       }
       return JSON.stringify(parsed);
     } catch {
@@ -447,25 +498,45 @@ const sessionStorage = {
       const parsed = JSON.parse(value);
       if (parsed.state?.sessions) {
         const encryptionKey = await getOrCreateSessionEncryptionKey();
-        parsed.state.sessions = await Promise.all(parsed.state.sessions.map(async (s: any) => {
-          let accessPrivateKey = s.accessPrivateKey;
-          if (typeof accessPrivateKey === "string" && accessPrivateKey.startsWith("0x")) {
-            accessPrivateKey = await encryptPrivateKey(accessPrivateKey, encryptionKey);
-          }
+        parsed.state.sessions = await Promise.all(
+          parsed.state.sessions.map(async (s: any) => {
+            let accessPrivateKey = s.accessPrivateKey;
+            if (
+              typeof accessPrivateKey === "string" &&
+              accessPrivateKey.startsWith("0x")
+            ) {
+              accessPrivateKey = await encryptPrivateKey(
+                accessPrivateKey,
+                encryptionKey,
+              );
+            }
 
-          return {
-            ...s,
-            accessPrivateKey,
-            // Convert Map → Array of [key, value] tuples with bigint → string
-            spendLimits: s.spendLimits instanceof Map
-              ? Array.from(s.spendLimits.entries()).map((entry: any) => [entry[0], typeof entry[1] === "bigint" ? entry[1].toString() : entry[1]])
-              : s.spendLimits,
-            spent: s.spent instanceof Map
-              ? Array.from(s.spent.entries()).map((entry: any) => [entry[0], typeof entry[1] === "bigint" ? entry[1].toString() : entry[1]])
-              : s.spent,
-            keyAuthorization: null,
-          };
-        }));
+            return {
+              ...s,
+              accessPrivateKey,
+              // Convert Map → Array of [key, value] tuples with bigint → string
+              spendLimits:
+                s.spendLimits instanceof Map
+                  ? Array.from(s.spendLimits.entries()).map((entry: any) => [
+                      entry[0],
+                      typeof entry[1] === "bigint"
+                        ? entry[1].toString()
+                        : entry[1],
+                    ])
+                  : s.spendLimits,
+              spent:
+                s.spent instanceof Map
+                  ? Array.from(s.spent.entries()).map((entry: any) => [
+                      entry[0],
+                      typeof entry[1] === "bigint"
+                        ? entry[1].toString()
+                        : entry[1],
+                    ])
+                  : s.spent,
+              keyAuthorization: null,
+            };
+          }),
+        );
       }
       localStorage.setItem(name, JSON.stringify(parsed));
     } catch {
@@ -498,7 +569,7 @@ export const useSessionStore = create<SessionState>()(
       updateSession: (sessionId, updates) => {
         set((state) => ({
           sessions: state.sessions.map((s) =>
-            s.id === sessionId ? { ...s, ...updates } : s
+            s.id === sessionId ? { ...s, ...updates } : s,
           ),
         }));
         broadcastStoreUpdate("session", get());
@@ -515,8 +586,8 @@ export const useSessionStore = create<SessionState>()(
     {
       name: "fluxus-session-storage",
       storage: createJSONStorage(() => sessionStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -587,8 +658,8 @@ export const useTxHistoryStore = create<TxHistoryState>()(
           const seen = new Set(
             state.entries.map(
               (e) =>
-                `${e.transactionHash}-${e.counterparty}-${e.amount.toString()}-${e.direction}`
-            )
+                `${e.transactionHash}-${e.counterparty}-${e.amount.toString()}-${e.direction}`,
+            ),
           );
 
           const merged = [...state.entries];
@@ -614,8 +685,8 @@ export const useTxHistoryStore = create<TxHistoryState>()(
     {
       name: "fluxus-txhistory-storage",
       storage: createJSONStorage(() => txHistoryStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -660,8 +731,8 @@ export const useUIStore = create<UIState>()(
     {
       name: "fluxus-ui-storage",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -692,8 +763,8 @@ export const useOfflineStore = create<OfflineState>()(
     {
       name: "fluxus-offline-storage",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -734,8 +805,8 @@ export const useTxQueueStore = create<TxQueueState>()(
     {
       name: "fluxus-txqueue-storage",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {
@@ -757,7 +828,8 @@ export const useCustomTokenStore = create<CustomTokenState>()(
       addCustomToken: (token) => {
         set((state) => {
           const existingIndex = state.customTokens.findIndex(
-            (entry) => entry.address.toLowerCase() === token.address.toLowerCase(),
+            (entry) =>
+              entry.address.toLowerCase() === token.address.toLowerCase(),
           );
           if (existingIndex >= 0) {
             const next = [...state.customTokens];
@@ -785,8 +857,8 @@ export const useCustomTokenStore = create<CustomTokenState>()(
     {
       name: "fluxus-custom-tokens",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 if (broadcastChannel) {

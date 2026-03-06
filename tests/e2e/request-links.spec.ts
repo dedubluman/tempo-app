@@ -25,14 +25,22 @@ test.describe("Payment Request Links", () => {
 
     await expect(page.locator("div.bg-white svg").first()).toBeVisible();
 
-    await expect(page.getByRole("button", { name: /Copy Link|Copied/ })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Copy Link|Copied/ }),
+    ).toBeVisible();
   });
 
-  test("public pay page shows connect prompt without wallet", async ({ page }) => {
-    await page.goto(`/pay?to=${VALID_RECIPIENT}&amount=5&token=pathUSD&memo=test`);
+  test("public pay page shows connect prompt without wallet", async ({
+    page,
+  }) => {
+    await page.goto(
+      `/pay?to=${VALID_RECIPIENT}&amount=5&token=pathUSD&memo=test`,
+    );
 
     await expect(page.locator("text=Payment Request")).toBeVisible();
-    await expect(page.getByText("5 pathUSD", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText("5 pathUSD", { exact: true }).first(),
+    ).toBeVisible();
     await expect(page.getByText("Memo", { exact: true }).first()).toBeVisible();
     await expect(page.locator("text=Connect Wallet to Pay")).toBeVisible();
     await expect(page.getByRole("button", { name: /Pay Now/ })).toHaveCount(0);

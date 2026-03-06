@@ -15,25 +15,25 @@ test.describe("Streaming Rate Limiter", () => {
     await page.goto("/app/stream");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('text=Streaming Payments')).toBeVisible();
-    await expect(page.locator('text=Configure Stream')).toBeVisible();
+    await expect(page.locator("text=Streaming Payments")).toBeVisible();
+    await expect(page.locator("text=Configure Stream")).toBeVisible();
   });
 
   test("stream page shows duration options", async ({ page }) => {
     await page.goto("/app/stream");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('button', { hasText: /^1 min$/ })).toBeVisible();
-    await expect(page.locator('button', { hasText: /^5 min$/ })).toBeVisible();
-    await expect(page.locator('button', { hasText: /^15 min$/ })).toBeVisible();
+    await expect(page.locator("button", { hasText: /^1 min$/ })).toBeVisible();
+    await expect(page.locator("button", { hasText: /^5 min$/ })).toBeVisible();
+    await expect(page.locator("button", { hasText: /^15 min$/ })).toBeVisible();
   });
 
   test("stream page shows sponsor limit info", async ({ page }) => {
     await page.goto("/app/stream");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('text=Sponsor limit')).toBeVisible();
-    await expect(page.locator('text=/\\d+\\/10 remaining/')).toBeVisible();
+    await expect(page.locator("text=Sponsor limit")).toBeVisible();
+    await expect(page.locator("text=/\\d+\\/10 remaining/")).toBeVisible();
   });
 
   test("start stream button disabled without address", async ({ page }) => {

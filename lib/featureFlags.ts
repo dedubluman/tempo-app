@@ -44,7 +44,8 @@ export function isFeatureEnabled(flag: FeatureFlag): boolean {
     [FeatureFlag.PASSKEY_RECOVERY]: process.env.NEXT_PUBLIC_FF_PASSKEY_RECOVERY,
     [FeatureFlag.OFFLINE_MODE]: process.env.NEXT_PUBLIC_FF_OFFLINE_MODE,
     [FeatureFlag.NFC_PAYMENT]: process.env.NEXT_PUBLIC_FF_NFC_PAYMENT,
-    [FeatureFlag.STREAMING_SUBSCRIPTIONS]: process.env.NEXT_PUBLIC_FF_STREAMING_SUBSCRIPTIONS,
+    [FeatureFlag.STREAMING_SUBSCRIPTIONS]:
+      process.env.NEXT_PUBLIC_FF_STREAMING_SUBSCRIPTIONS,
     [FeatureFlag.ATOMIC_SPLIT]: process.env.NEXT_PUBLIC_FF_ATOMIC_SPLIT,
   };
   const envValue = envValues[flag];

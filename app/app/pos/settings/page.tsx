@@ -23,7 +23,8 @@ export default function PosSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
-  const netPercent = 100 - (Number(taxPercent) || 0) - (Number(tipPercent) || 0);
+  const netPercent =
+    100 - (Number(taxPercent) || 0) - (Number(tipPercent) || 0);
 
   const handleSave = () => {
     setError("");
@@ -59,7 +60,10 @@ export default function PosSettingsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-24 md:pb-8">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/app/pos" className="flex items-center gap-1 text-sm text-[--text-secondary] hover:text-[--text-primary]">
+        <Link
+          href="/app/pos"
+          className="flex items-center gap-1 text-sm text-[--text-secondary] hover:text-[--text-primary]"
+        >
           <ArrowLeft size={16} />
           Back to POS
         </Link>
@@ -83,7 +87,9 @@ export default function PosSettingsPage() {
                 onChange={(e) => setEnabled(e.target.checked)}
                 className="h-4 w-4 accent-[--brand-primary]"
               />
-              <span className="text-sm text-[--text-primary]">Enable atomic split payments</span>
+              <span className="text-sm text-[--text-primary]">
+                Enable atomic split payments
+              </span>
             </label>
 
             {enabled && (
@@ -121,8 +127,12 @@ export default function PosSettingsPage() {
                 </div>
 
                 <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2 text-sm">
-                  <span className="text-[--text-secondary]">Net to merchant: </span>
-                  <span className="font-mono font-bold text-[--text-primary]">{netPercent}%</span>
+                  <span className="text-[--text-secondary]">
+                    Net to merchant:{" "}
+                  </span>
+                  <span className="font-mono font-bold text-[--text-primary]">
+                    {netPercent}%
+                  </span>
                 </div>
               </>
             )}
@@ -144,7 +154,10 @@ export default function PosSettingsPage() {
           <CardTitle>Quick Links</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Link href="/app/pos/history" className="block text-sm text-[--text-brand] underline hover:opacity-80">
+          <Link
+            href="/app/pos/history"
+            className="block text-sm text-[--text-brand] underline hover:opacity-80"
+          >
             View Receipt History
           </Link>
         </CardContent>

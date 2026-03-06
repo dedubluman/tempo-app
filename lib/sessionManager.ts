@@ -98,16 +98,23 @@ export async function createSession(policy: SessionPolicy) {
     address: `0x${string}`;
     signKeyAuthorization?: (
       key: { accessKeyAddress: `0x${string}`; keyType: string },
-      parameters: { expiry: number; limits: { token: `0x${string}`; limit: bigint }[] },
+      parameters: {
+        expiry: number;
+        limits: { token: `0x${string}`; limit: bigint }[];
+      },
     ) => Promise<KeyAuthorization.Signed>;
   };
 
   if (!rootAccount?.signKeyAuthorization) {
-    throw new Error("Connected account does not support Access Key authorization.");
+    throw new Error(
+      "Connected account does not support Access Key authorization.",
+    );
   }
 
   const accessPrivateKey = generatePrivateKey();
-  const accessAccount = Account.fromSecp256k1(accessPrivateKey, { access: rootAccount.address });
+  const accessAccount = Account.fromSecp256k1(accessPrivateKey, {
+    access: rootAccount.address,
+  });
   const expiry = nowSec() + policy.durationMinutes * 60;
   const keyAuthorization = await rootAccount.signKeyAuthorization(
     {
@@ -116,22 +123,32 @@ export async function createSession(policy: SessionPolicy) {
     },
     {
       expiry,
-      limits: Array.from(policy.spendLimits.entries()).map(([token, limit]) => ({ token, limit })),
+      limits: Array.from(policy.spendLimits.entries()).map(
+        ([token, limit]) => ({ token, limit }),
+      ),
     },
   );
 
   const sessionEncryptionKey = await getOrCreateSessionEncryptionKey();
-  const encryptedPrivateKey = await encryptPrivateKey(accessPrivateKey, sessionEncryptionKey);
+  const encryptedPrivateKey = await encryptPrivateKey(
+    accessPrivateKey,
+    sessionEncryptionKey,
+  );
 
   const session: SessionRecord = {
-    id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+    id:
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}`,
     rootAddress: getAddress(rootAccount.address),
     accessPrivateKey: encryptedPrivateKey,
     accessKeyAddress: getAddress(accessAccount.accessKeyAddress),
     createdAtMs: Date.now(),
     expiresAtSec: expiry,
     spendLimits: new Map(policy.spendLimits),
-    spent: new Map(Array.from(policy.spendLimits.keys()).map(token => [token, BigInt(0)])),
+    spent: new Map(
+      Array.from(policy.spendLimits.keys()).map((token) => [token, BigInt(0)]),
+    ),
     allowedRecipients: normalizeRecipients(policy.allowedRecipients),
     keyAuthorization,
   };
@@ -168,28 +185,44 @@ export function cleanupExpiredSessions() {
 }
 
 export function clearSessionAuthorization(sessionId: string) {
-  const session = useSessionStore.getState().sessions.find((s) => s.id === sessionId);
+  const session = useSessionStore
+    .getState()
+    .sessions.find((s) => s.id === sessionId);
   if (session?.keyAuthorization) {
-    useSessionStore.getState().updateSession(sessionId, { keyAuthorization: null });
+    useSessionStore
+      .getState()
+      .updateSession(sessionId, { keyAuthorization: null });
   }
 }
 
 export function getSessionById(sessionId: string) {
-  return useSessionStore.getState().sessions.find((session) => session.id === sessionId);
+  return useSessionStore
+    .getState()
+    .sessions.find((session) => session.id === sessionId);
 }
 
 // Overload signatures for backward compatibility
 export function applySessionSpend(sessionId: string, amount: bigint): void;
-export function applySessionSpend(sessionId: string, token: `0x${string}`, amount: bigint): void;
-export function applySessionSpend(sessionId: string, tokenOrAmount: `0x${string}` | bigint, amount?: bigint): void {
-  const session = useSessionStore.getState().sessions.find((s) => s.id === sessionId);
+export function applySessionSpend(
+  sessionId: string,
+  token: `0x${string}`,
+  amount: bigint,
+): void;
+export function applySessionSpend(
+  sessionId: string,
+  tokenOrAmount: `0x${string}` | bigint,
+  amount?: bigint,
+): void {
+  const session = useSessionStore
+    .getState()
+    .sessions.find((s) => s.id === sessionId);
   if (!session) return;
-  
+
   // Detect if called with old 2-arg signature (sessionId, amount) or new 3-arg (sessionId, token, amount)
   let token: `0x${string}`;
   let spendAmount: bigint;
-  
-  if (typeof tokenOrAmount === 'bigint') {
+
+  if (typeof tokenOrAmount === "bigint") {
     // Old signature: applySessionSpend(sessionId, amount)
     token = PATHUSD_ADDRESS;
     spendAmount = tokenOrAmount;
@@ -198,7 +231,7 @@ export function applySessionSpend(sessionId: string, tokenOrAmount: `0x${string}
     token = tokenOrAmount;
     spendAmount = amount!;
   }
-  
+
   const currentSpent = session.spent.get(token) || BigInt(0);
   const newSpent = new Map(session.spent);
   newSpent.set(token, currentSpent + spendAmount);
@@ -206,9 +239,20 @@ export function applySessionSpend(sessionId: string, tokenOrAmount: `0x${string}
 }
 
 // Overload signatures for backward compatibility
-export function getSessionForTransfer(parameters: { recipient: string; amount: bigint }): SessionRecord | undefined;
-export function getSessionForTransfer(parameters: { recipient: string; token: `0x${string}`; amount: bigint }): SessionRecord | undefined;
-export function getSessionForTransfer(parameters: { recipient: string; token?: `0x${string}`; amount: bigint }): SessionRecord | undefined {
+export function getSessionForTransfer(parameters: {
+  recipient: string;
+  amount: bigint;
+}): SessionRecord | undefined;
+export function getSessionForTransfer(parameters: {
+  recipient: string;
+  token: `0x${string}`;
+  amount: bigint;
+}): SessionRecord | undefined;
+export function getSessionForTransfer(parameters: {
+  recipient: string;
+  token?: `0x${string}`;
+  amount: bigint;
+}): SessionRecord | undefined {
   const recipient = getAddress(parameters.recipient);
   const token = parameters.token || PATHUSD_ADDRESS;
   const current = nowSec();
@@ -226,9 +270,20 @@ export function getSessionForTransfer(parameters: { recipient: string; token?: `
 }
 
 // Overload signatures for backward compatibility
-export function getSessionForBatch(parameters: { recipients: string[]; amount: bigint }): SessionRecord | undefined;
-export function getSessionForBatch(parameters: { recipients: string[]; token: `0x${string}`; amount: bigint }): SessionRecord | undefined;
-export function getSessionForBatch(parameters: { recipients: string[]; token?: `0x${string}`; amount: bigint }): SessionRecord | undefined {
+export function getSessionForBatch(parameters: {
+  recipients: string[];
+  amount: bigint;
+}): SessionRecord | undefined;
+export function getSessionForBatch(parameters: {
+  recipients: string[];
+  token: `0x${string}`;
+  amount: bigint;
+}): SessionRecord | undefined;
+export function getSessionForBatch(parameters: {
+  recipients: string[];
+  token?: `0x${string}`;
+  amount: bigint;
+}): SessionRecord | undefined {
   const current = nowSec();
   const recipients = parameters.recipients.map((item) => getAddress(item));
   const token = parameters.token || PATHUSD_ADDRESS;
@@ -244,19 +299,25 @@ export function getSessionForBatch(parameters: { recipients: string[]; token?: `
     if (!hasRecipientPolicy) {
       return true;
     }
-    return recipients.every((recipient) => session.allowedRecipients.includes(recipient));
+    return recipients.every((recipient) =>
+      session.allowedRecipients.includes(recipient),
+    );
   });
 }
 
 export function getAccessAccountForSession(session: SessionRecord) {
   if (!isEncryptedPrivateKey(session.accessPrivateKey)) {
     sessionPrivateKeyCache.set(session.id, session.accessPrivateKey);
-    return Account.fromSecp256k1(session.accessPrivateKey, { access: session.rootAddress });
+    return Account.fromSecp256k1(session.accessPrivateKey, {
+      access: session.rootAddress,
+    });
   }
 
   const cachedPrivateKey = sessionPrivateKeyCache.get(session.id);
   if (cachedPrivateKey) {
-    return Account.fromSecp256k1(cachedPrivateKey, { access: session.rootAddress });
+    return Account.fromSecp256k1(cachedPrivateKey, {
+      access: session.rootAddress,
+    });
   }
 
   throw new Error("Session key is locked. Refresh and recover session access.");
@@ -290,11 +351,17 @@ export async function decryptSessionPrivateKey(
   }
 }
 
-export function getSessionRemainingSpend(session: SessionRecord, token?: `0x${string}`) {
+export function getSessionRemainingSpend(
+  session: SessionRecord,
+  token?: `0x${string}`,
+) {
   return remainingSpend(session, token || PATHUSD_ADDRESS);
 }
 
-export function parseSpendLimitFromInput(value: string, decimals: number = PATHUSD_DECIMALS) {
+export function parseSpendLimitFromInput(
+  value: string,
+  decimals: number = PATHUSD_DECIMALS,
+) {
   return parseUnits(value, decimals);
 }
 
@@ -303,7 +370,9 @@ type LegacySessionRecord = Omit<SessionRecord, "spendLimits" | "spent"> & {
   spent?: bigint;
 };
 
-function hasMultiTokenSpend(session: SessionRecord | LegacySessionRecord): session is SessionRecord {
+function hasMultiTokenSpend(
+  session: SessionRecord | LegacySessionRecord,
+): session is SessionRecord {
   return (
     "spendLimits" in session &&
     session.spendLimits instanceof Map &&
@@ -313,7 +382,9 @@ function hasMultiTokenSpend(session: SessionRecord | LegacySessionRecord): sessi
 }
 
 // Migration helper: convert old single-token sessions to multi-token format
-export function migrateSessionToMultiToken(session: SessionRecord | LegacySessionRecord): SessionRecord {
+export function migrateSessionToMultiToken(
+  session: SessionRecord | LegacySessionRecord,
+): SessionRecord {
   // If already migrated (has Map), return as-is
   if (hasMultiTokenSpend(session)) {
     return session;
@@ -323,10 +394,10 @@ export function migrateSessionToMultiToken(session: SessionRecord | LegacySessio
   const spendLimits = new Map<`0x${string}`, bigint>();
   const spent = new Map<`0x${string}`, bigint>();
 
-  if (typeof session.spendLimit === 'bigint') {
+  if (typeof session.spendLimit === "bigint") {
     spendLimits.set(PATHUSD_ADDRESS, session.spendLimit);
   }
-  if (typeof session.spent === 'bigint') {
+  if (typeof session.spent === "bigint") {
     spent.set(PATHUSD_ADDRESS, session.spent);
   }
 

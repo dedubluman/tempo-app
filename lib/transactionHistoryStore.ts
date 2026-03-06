@@ -22,7 +22,9 @@ export function getTransferHistorySnapshot(): LocalTransferHistoryEntry[] {
   return useTxHistoryStore.getState().entries;
 }
 
-export function addTransferHistoryEntries(entries: LocalTransferHistoryEntry[]) {
+export function addTransferHistoryEntries(
+  entries: LocalTransferHistoryEntry[],
+) {
   if (entries.length === 0) {
     return;
   }

@@ -12,13 +12,16 @@ import { useCountUp } from "@/hooks/useCountUp";
 
 describe("useCountUp", () => {
   let rafCallback: ((time: number) => void) | null = null;
-  
+
   beforeEach(() => {
     rafCallback = null;
-    vi.stubGlobal("requestAnimationFrame", vi.fn((cb: (time: number) => void) => {
-      rafCallback = cb;
-      return 1;
-    }));
+    vi.stubGlobal(
+      "requestAnimationFrame",
+      vi.fn((cb: (time: number) => void) => {
+        rafCallback = cb;
+        return 1;
+      }),
+    );
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     vi.stubGlobal("performance", { now: () => 0 });
     vi.mocked(useInView).mockReturnValue(false);
@@ -67,13 +70,15 @@ describe("useCountUp", () => {
   it("completes animation to target value", () => {
     vi.mocked(useInView).mockReturnValue(true);
     vi.mocked(useReducedMotion).mockReturnValue(false);
-    const { result } = renderHook(() => useCountUp({ raw: "100", duration: 1 }));
-    
+    const { result } = renderHook(() =>
+      useCountUp({ raw: "100", duration: 1 }),
+    );
+
     act(() => {
       // Fire RAF callback with time well past duration (2000ms > 1000ms duration)
       if (rafCallback) rafCallback(2000);
     });
-    
+
     expect(result.current.displayValue).toBe("100");
   });
 });

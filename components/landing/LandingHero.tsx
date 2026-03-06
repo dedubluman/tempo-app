@@ -77,10 +77,8 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
 
           <motion.div variants={variants.fadeUp}>
             <h1 className="text-5xl md:text-7xl tracking-tighter leading-[0.9] font-bold text-[--text-primary]">
-              Instant{" "}
-              <br className="hidden md:block" />
-              Stablecoin{" "}
-              <br className="hidden md:block" />
+              Instant <br className="hidden md:block" />
+              Stablecoin <br className="hidden md:block" />
               <span
                 style={{
                   background:
@@ -180,35 +178,59 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
             {/* Card 1 — Transfer confirmed */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 4.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
               className="p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Transfer sent</span>
-                <CheckCircle size={14} className="text-[--status-success-text]" weight="fill" />
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">
+                  Transfer sent
+                </span>
+                <CheckCircle
+                  size={14}
+                  className="text-[--status-success-text]"
+                  weight="fill"
+                />
               </div>
-              <p className="font-mono text-2xl font-bold text-[--text-primary]">25.00</p>
+              <p className="font-mono text-2xl font-bold text-[--text-primary]">
+                25.00
+              </p>
               <p className="text-xs text-[--text-muted] mt-0.5">pathUSD</p>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-[--status-success-text]">Confirmed in 0.4s</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--status-success-bg] text-[--status-success-text] border border-[--status-success-border]">Success</span>
+                <span className="text-xs text-[--status-success-text]">
+                  Confirmed in 0.4s
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--status-success-bg] text-[--status-success-text] border border-[--status-success-border]">
+                  Success
+                </span>
               </div>
             </motion.div>
 
             {/* Card 2 — Gas fee */}
             <motion.div
               animate={{ y: [0, -7, 0] }}
-              transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+              transition={{
+                duration: 3.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.8,
+              }}
               className="ml-8 p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Gas fee</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">
+                  Gas fee
+                </span>
                 <ArrowUpRight size={12} className="text-[--brand-primary]" />
               </div>
               <p
                 className="font-mono text-2xl font-bold"
                 style={{
-                  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
+                  background:
+                    "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -216,21 +238,34 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
               >
                 $0.00
               </p>
-              <p className="text-xs text-[--text-muted] mt-0.5">Sponsored by Tempo</p>
+              <p className="text-xs text-[--text-muted] mt-0.5">
+                Sponsored by Tempo
+              </p>
             </motion.div>
 
             {/* Card 3 — Passkey */}
             <motion.div
               animate={{ y: [0, -9, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.6 }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1.6,
+              }}
               className="mr-4 p-4 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">Auth</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[--text-muted]">
+                  Auth
+                </span>
                 <Shield size={12} className="text-[--brand-primary]" />
               </div>
-              <p className="text-sm font-semibold text-[--text-primary]">Passkey verified</p>
-              <p className="text-xs text-[--text-muted] mt-0.5">No password needed</p>
+              <p className="text-sm font-semibold text-[--text-primary]">
+                Passkey verified
+              </p>
+              <p className="text-xs text-[--text-muted] mt-0.5">
+                No password needed
+              </p>
             </motion.div>
           </div>
         </motion.div>

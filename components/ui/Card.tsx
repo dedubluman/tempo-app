@@ -8,11 +8,12 @@ const cardVariants = cva("rounded-[--radius-xl] overflow-hidden", {
   variants: {
     variant: {
       flat: "bg-[--bg-surface]",
-      elevated: "bg-[--bg-surface] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]",
+      elevated: "bg-[--bg-surface] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]",
       outlined: "bg-transparent border border-[--border-default]",
-      brand: "bg-[--bg-surface] ring-1 ring-[--brand-primary]/40 shadow-[var(--shadow-brand)]",
+      brand:
+        "bg-[--bg-surface] ring-1 ring-[--brand-primary]/40 shadow-[var(--shadow-brand)]",
       glass:
-        "bg-[--bg-glass] backdrop-blur-xl border border-[--border-glass] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
+        "bg-[--bg-glass] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
     },
   },
   defaultVariants: {
@@ -21,7 +22,8 @@ const cardVariants = cva("rounded-[--radius-xl] overflow-hidden", {
 });
 
 export interface CardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {}
 
 function Card({ className, variant, children, ...props }: CardProps) {
@@ -32,7 +34,11 @@ function Card({ className, variant, children, ...props }: CardProps) {
   );
 }
 
-function CardHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function CardHeader({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn("px-5 py-4 border-b border-[--border-subtle]", className)}
@@ -43,7 +49,11 @@ function CardHeader({ className, children, ...props }: React.HTMLAttributes<HTML
   );
 }
 
-function CardTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+function CardTitle({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       className={cn("text-[--text-primary] font-semibold text-base", className)}
@@ -54,7 +64,11 @@ function CardTitle({ className, children, ...props }: React.HTMLAttributes<HTMLH
   );
 }
 
-function CardContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function CardContent({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn("px-5 py-4", className)} {...props}>
       {children}
@@ -62,12 +76,16 @@ function CardContent({ className, children, ...props }: React.HTMLAttributes<HTM
   );
 }
 
-function CardFooter({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function CardFooter({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
         "px-5 py-4 border-t border-[--border-subtle] flex items-center justify-between",
-        className
+        className,
       )}
       {...props}
     >

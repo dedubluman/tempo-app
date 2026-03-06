@@ -12,7 +12,13 @@ export interface BottomSheetProps {
   className?: string;
 }
 
-function BottomSheet({ open, onClose, title, children, className }: BottomSheetProps) {
+function BottomSheet({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+}: BottomSheetProps) {
   const prefersReducedMotion = useReducedMotion();
 
   React.useEffect(() => {
@@ -48,7 +54,9 @@ function BottomSheet({ open, onClose, title, children, className }: BottomSheetP
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
+            transition={
+              prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }
+            }
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={onClose}
             aria-hidden="true"
@@ -77,14 +85,16 @@ function BottomSheet({ open, onClose, title, children, className }: BottomSheetP
               "shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_-20px_60px_-15px_rgba(0,0,0,0.5)]",
               "rounded-t-[--radius-3xl]",
               "md:max-w-[480px] md:mx-auto",
-              className
+              className,
             )}
           >
             <div className="w-12 h-1 bg-[--border-glass] rounded-full mx-auto mt-3 mb-2 cursor-grab active:cursor-grabbing" />
 
             {title && (
               <div className="px-5 pb-4 border-b border-[--border-glass]">
-                <h2 className="text-[--text-primary] font-semibold text-lg">{title}</h2>
+                <h2 className="text-[--text-primary] font-semibold text-lg">
+                  {title}
+                </h2>
               </div>
             )}
 

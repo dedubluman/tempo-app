@@ -29,17 +29,27 @@ const MAX_INPUT_LENGTH = 500;
 function prettyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
-  if (lower.includes("user rejected") || lower.includes("user denied")) return "Action cancelled in passkey confirmation.";
-  if (lower.includes("insufficient") || lower.includes("fee")) return "Insufficient balance or fee sponsorship issue.";
-  if (lower.includes("timeout") || lower.includes("network")) return "Network issue. Please retry.";
+  if (lower.includes("user rejected") || lower.includes("user denied"))
+    return "Action cancelled in passkey confirmation.";
+  if (lower.includes("insufficient") || lower.includes("fee"))
+    return "Insufficient balance or fee sponsorship issue.";
+  if (lower.includes("timeout") || lower.includes("network"))
+    return "Network issue. Please retry.";
   return message.split("\n")[0] || "Operation failed";
 }
 
 export default function AgentPage() {
   const { address } = useAccount();
-  const { messages, isProcessing, sendMessage, updateMessageTxHash, clearHistory } = useAgentChat();
+  const {
+    messages,
+    isProcessing,
+    sendMessage,
+    updateMessageTxHash,
+    clearHistory,
+  } = useAgentChat();
   const { balances, refetch: refetchBalances } = useTokenBalances();
-  const { mutateAsync: transferSync, isPending: isTransferring } = Hooks.token.useTransferSync();
+  const { mutateAsync: transferSync, isPending: isTransferring } =
+    Hooks.token.useTransferSync();
 
   const [userInput, setUserInput] = useState("");
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
@@ -47,7 +57,10 @@ export default function AgentPage() {
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const handleSend = async () => {
@@ -69,10 +82,19 @@ export default function AgentPage() {
   };
 
   const handleConfirmTransfer = async (msg: ChatMessage) => {
-    if (!msg.intent || msg.intent.action !== "transfer" || !msg.intent.recipient || !msg.intent.amount) return;
+    if (
+      !msg.intent ||
+      msg.intent.action !== "transfer" ||
+      !msg.intent.recipient ||
+      !msg.intent.amount
+    )
+      return;
 
     const tokenSymbol = msg.intent.token || "pathUSD";
-    const tokenInfo = TOKEN_REGISTRY.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase()) ?? TOKEN_REGISTRY[0];
+    const tokenInfo =
+      TOKEN_REGISTRY.find(
+        (t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase(),
+      ) ?? TOKEN_REGISTRY[0];
 
     setPendingConfirmId(msg.id);
     const loadingId = showLoading("Executing transfer...");
@@ -82,7 +104,10 @@ export default function AgentPage() {
         typeof window !== "undefined"
           ? (
               window as Window & {
-                __MOCK_TRANSFER_RESULT__?: { hash?: string; status?: "success" | "error" };
+                __MOCK_TRANSFER_RESULT__?: {
+                  hash?: string;
+                  status?: "success" | "error";
+                };
               }
             ).__MOCK_TRANSFER_RESULT__
           : undefined;
@@ -93,7 +118,10 @@ export default function AgentPage() {
         /^0x[a-fA-F0-9]{64}$/.test(mockTransferResult.hash)
       ) {
         updateMessageTxHash(msg.id, mockTransferResult.hash);
-        showSuccess("Transfer executed", `Tx: ${mockTransferResult.hash.slice(0, 10)}...`);
+        showSuccess(
+          "Transfer executed",
+          `Tx: ${mockTransferResult.hash.slice(0, 10)}...`,
+        );
         void refetchBalances();
         return;
       }
@@ -125,8 +153,14 @@ export default function AgentPage() {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <RobotIcon size={22} weight="duotone" className="text-[--text-primary]" />
-          <h1 className="font-[--font-display] text-xl font-bold text-[--text-primary]">AI Agent</h1>
+          <RobotIcon
+            size={22}
+            weight="duotone"
+            className="text-[--text-primary]"
+          />
+          <h1 className="font-[--font-display] text-xl font-bold text-[--text-primary]">
+            AI Agent
+          </h1>
           <span className="rounded-full bg-[--status-success-bg] px-2 py-0.5 text-[10px] font-medium text-[--status-success-text]">
             Gemini
           </span>
@@ -138,7 +172,13 @@ export default function AgentPage() {
             </span>
           )}
           {messages.length > 0 && (
-            <Button type="button" variant="ghost" size="sm" onClick={clearHistory} title="Clear chat">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearHistory}
+              title="Clear chat"
+            >
               <TrashIcon size={14} />
             </Button>
           )}
@@ -152,12 +192,19 @@ export default function AgentPage() {
           {showWelcome && (
             <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[--bg-subtle]">
-                <RobotIcon size={28} weight="duotone" className="text-[--text-secondary]" />
+                <RobotIcon
+                  size={28}
+                  weight="duotone"
+                  className="text-[--text-secondary]"
+                />
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-[--text-primary]">Payment Assistant</p>
+                <p className="text-sm font-medium text-[--text-primary]">
+                  Payment Assistant
+                </p>
                 <p className="max-w-sm text-xs text-[--text-tertiary]">
-                  Describe your payment intent in natural language. I&apos;ll parse it and ask for your confirmation before executing.
+                  Describe your payment intent in natural language. I&apos;ll
+                  parse it and ask for your confirmation before executing.
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
@@ -178,7 +225,9 @@ export default function AgentPage() {
               </div>
               <div className="mt-2 flex items-center gap-1.5 text-[10px] text-[--text-tertiary]">
                 <ShieldCheckIcon size={12} />
-                <span>Every transaction requires your passkey confirmation</span>
+                <span>
+                  Every transaction requires your passkey confirmation
+                </span>
               </div>
             </div>
           )}
@@ -201,7 +250,10 @@ export default function AgentPage() {
                     <RobotIcon size={14} className="text-[--text-secondary]" />
                   </div>
                   <div className="rounded-xl rounded-tl-sm bg-[--bg-subtle] px-3 py-2">
-                    <SpinnerIcon size={16} className="animate-spin text-[--text-tertiary]" />
+                    <SpinnerIcon
+                      size={16}
+                      className="animate-spin text-[--text-tertiary]"
+                    />
                   </div>
                 </div>
               )}
@@ -216,7 +268,9 @@ export default function AgentPage() {
               type="text"
               placeholder='Try: "Send 5 pathUSD to 0x..."'
               value={userInput}
-              onChange={(e) => setUserInput(e.target.value.slice(0, MAX_INPUT_LENGTH))}
+              onChange={(e) =>
+                setUserInput(e.target.value.slice(0, MAX_INPUT_LENGTH))
+              }
               onKeyDown={handleKeyDown}
               disabled={isProcessing || isTransferring}
               className="h-10 flex-1 rounded-[--radius-md] border border-[--border-default] bg-[--bg-surface] px-3 text-sm text-[--text-primary] placeholder:text-[--text-tertiary] focus:border-[--border-focus] focus:outline-none disabled:opacity-50"
@@ -245,18 +299,29 @@ export default function AgentPage() {
 
 interface MessageBubbleProps {
   message: ChatMessage;
-  balances: Array<{ token: { symbol: string; address: string }; formatted: string }>;
+  balances: Array<{
+    token: { symbol: string; address: string };
+    formatted: string;
+  }>;
   isTransferring: boolean;
   onConfirm: () => void;
 }
 
-function MessageBubble({ message, balances, isTransferring, onConfirm }: MessageBubbleProps) {
+function MessageBubble({
+  message,
+  balances,
+  isTransferring,
+  onConfirm,
+}: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] rounded-xl rounded-br-sm px-3 py-2 text-sm text-white" style={{ background: "var(--gradient-flux)" }}>
+        <div
+          className="max-w-[80%] rounded-xl rounded-br-sm px-3 py-2 text-sm text-white"
+          style={{ background: "var(--gradient-flux)" }}
+        >
           {message.content}
         </div>
       </div>
@@ -274,10 +339,20 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
         {/* Transfer Intent */}
         {intent?.action === "transfer" && (
           <div className="rounded-xl rounded-tl-sm border border-[--border-subtle] bg-[--bg-subtle] p-3">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[--text-tertiary]">Transfer Intent</p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[--text-tertiary]">
+              Transfer Intent
+            </p>
             <div className="space-y-1.5">
-              <Row label="Recipient" value={`${intent.recipient?.slice(0, 8)}...${intent.recipient?.slice(-6)}`} mono />
-              <Row label="Amount" value={`${intent.amount} ${intent.token || "pathUSD"}`} highlight />
+              <Row
+                label="Recipient"
+                value={`${intent.recipient?.slice(0, 8)}...${intent.recipient?.slice(-6)}`}
+                mono
+              />
+              <Row
+                label="Amount"
+                value={`${intent.amount} ${intent.token || "pathUSD"}`}
+                highlight
+              />
               {intent.memo && <Row label="Memo" value={intent.memo} />}
               <Row label="Gas" value="Sponsored ✓" success />
             </div>
@@ -288,7 +363,9 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
                 <p className="flex items-center gap-1 text-xs text-[--status-success-text]">
                   <CheckCircleIcon size={12} weight="bold" /> Transfer executed
                 </p>
-                <p className="mt-1 break-all font-mono text-[10px] text-[--text-tertiary]">{message.txHash}</p>
+                <p className="mt-1 break-all font-mono text-[10px] text-[--text-tertiary]">
+                  {message.txHash}
+                </p>
                 <Link
                   href={`${EXPLORER_URL}/tx/${message.txHash}`}
                   target="_blank"
@@ -299,11 +376,22 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
               </div>
             ) : (
               <div className="mt-3 flex gap-2">
-                <Button type="button" size="sm" onClick={onConfirm} loading={isTransferring} disabled={isTransferring}>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={onConfirm}
+                  loading={isTransferring}
+                  disabled={isTransferring}
+                >
                   <CheckCircleIcon size={12} />
                   Confirm & Execute
                 </Button>
-                <Button type="button" size="sm" variant="ghost" disabled={isTransferring}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={isTransferring}
+                >
                   Cancel
                 </Button>
               </div>
@@ -314,12 +402,18 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
         {/* Balance */}
         {intent?.action === "balance" && (
           <div className="w-fit min-w-[240px] rounded-xl rounded-tl-sm border border-[--border-subtle] bg-[--bg-subtle] p-3 px-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[--text-tertiary]">Balances</p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[--text-tertiary]">
+              Balances
+            </p>
             <div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1">
               {balances.map((b) => (
                 <Fragment key={b.token.address}>
-                  <span className="text-xs text-[--text-secondary]">{b.token.symbol}</span>
-                  <span className="whitespace-nowrap text-right font-mono text-xs tabular-nums text-[--text-primary]">{b.formatted}</span>
+                  <span className="text-xs text-[--text-secondary]">
+                    {b.token.symbol}
+                  </span>
+                  <span className="whitespace-nowrap text-right font-mono text-xs tabular-nums text-[--text-primary]">
+                    {b.formatted}
+                  </span>
                 </Fragment>
               ))}
             </div>
@@ -331,7 +425,8 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
           <div className="rounded-xl rounded-tl-sm border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2">
             <p className="flex items-center gap-1 text-xs text-[--status-error-text]">
               <WarningIcon size={12} />
-              {intent.error || "I couldn't understand that. Try: \"Send 5 pathUSD to 0x...\""}
+              {intent.error ||
+                'I couldn\'t understand that. Try: "Send 5 pathUSD to 0x..."'}
             </p>
           </div>
         )}
@@ -349,7 +444,13 @@ function MessageBubble({ message, balances, isTransferring, onConfirm }: Message
 
 // --- Helper ---
 
-function Row({ label, value, mono, highlight, success }: {
+function Row({
+  label,
+  value,
+  mono,
+  highlight,
+  success,
+}: {
   label: string;
   value: string;
   mono?: boolean;

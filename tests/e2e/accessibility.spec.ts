@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.describe("Accessibility (WCAG 2.1 AA)", () => {
-  test("landing page has no critical or serious violations", async ({ page }) => {
+  test("landing page has no critical or serious violations", async ({
+    page,
+  }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -11,12 +13,15 @@ test.describe("Accessibility (WCAG 2.1 AA)", () => {
       .analyze();
 
     const criticalOrSerious = results.violations.filter(
-      (v) => v.impact === "critical" || v.impact === "serious"
+      (v) => v.impact === "critical" || v.impact === "serious",
     );
 
     if (criticalOrSerious.length > 0) {
       const summary = criticalOrSerious
-        .map((v) => `[${v.impact}] ${v.id}: ${v.description} (${v.nodes.length} node(s))`)
+        .map(
+          (v) =>
+            `[${v.impact}] ${v.id}: ${v.description} (${v.nodes.length} node(s))`,
+        )
         .join("\n");
       console.error("WCAG violations found:\n" + summary);
     }
@@ -33,7 +38,7 @@ test.describe("Accessibility (WCAG 2.1 AA)", () => {
       localStorage.setItem("tempo.walletCreated", "1");
       localStorage.setItem(
         "tempo.lastAddress",
-        "0x1234567890abcdef1234567890abcdef12345678"
+        "0x1234567890abcdef1234567890abcdef12345678",
       );
     });
 
@@ -47,19 +52,21 @@ test.describe("Accessibility (WCAG 2.1 AA)", () => {
       .analyze();
 
     const criticalOrSerious = results.violations.filter(
-      (v) => v.impact === "critical" || v.impact === "serious"
+      (v) => v.impact === "critical" || v.impact === "serious",
     );
 
     if (criticalOrSerious.length > 0) {
       const summary = criticalOrSerious
         .map((v) => `[${v.impact}] ${v.id}: ${v.description}`)
         .join("\n");
-      console.warn("WCAG violations found (non-blocking for mocked routes):\n" + summary);
+      console.warn(
+        "WCAG violations found (non-blocking for mocked routes):\n" + summary,
+      );
     }
 
     // Log result for evidence
     console.log(
-      `Accessibility check: ${results.violations.length} total violations, ${criticalOrSerious.length} critical/serious`
+      `Accessibility check: ${results.violations.length} total violations, ${criticalOrSerious.length} critical/serious`,
     );
   });
 
@@ -72,7 +79,7 @@ test.describe("Accessibility (WCAG 2.1 AA)", () => {
       .analyze();
 
     const criticalOrSerious = results.violations.filter(
-      (v) => v.impact === "critical" || v.impact === "serious"
+      (v) => v.impact === "critical" || v.impact === "serious",
     );
 
     if (criticalOrSerious.length > 0) {

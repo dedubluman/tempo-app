@@ -2,7 +2,10 @@
 
 export function MeshGradient() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
       <style>{`
         @keyframes blob-drift-1 {
           0%, 100% { transform: translate3d(0, 0, 0) scale(1); }

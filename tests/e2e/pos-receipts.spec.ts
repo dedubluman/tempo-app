@@ -6,7 +6,7 @@ test.describe("POS Merchant Receipts", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.locator('h1:has-text("Receipt History")')).toBeVisible();
-    await expect(page.locator('text=Back to POS')).toBeVisible();
+    await expect(page.locator("text=Back to POS")).toBeVisible();
   });
 
   test("receipt history shows receipt count", async ({ page }) => {
@@ -14,7 +14,7 @@ test.describe("POS Merchant Receipts", () => {
     await page.waitForLoadState("networkidle");
 
     // Should show "0 receipts stored locally"
-    await expect(page.locator('text=stored locally')).toBeVisible();
+    await expect(page.locator("text=stored locally")).toBeVisible();
   });
 
   test("injecting mock receipts renders table", async ({ page }) => {
@@ -32,7 +32,8 @@ test.describe("POS Merchant Receipts", () => {
               token: "pathUSD",
               tokenAddress: "0x20c0000000000000000000000000000000000000",
               sender: "0x1234567890abcdef1234567890abcdef12345678",
-              txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+              txHash:
+                "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
               timestamp: Date.now(),
               memo: "Test payment",
             },
@@ -40,7 +41,10 @@ test.describe("POS Merchant Receipts", () => {
         },
         version: 0,
       };
-      localStorage.setItem("fluxus-merchant-receipts", JSON.stringify(mockData));
+      localStorage.setItem(
+        "fluxus-merchant-receipts",
+        JSON.stringify(mockData),
+      );
     });
 
     // Reload to pick up the stored data
@@ -48,9 +52,9 @@ test.describe("POS Merchant Receipts", () => {
     await page.waitForLoadState("networkidle");
 
     // Should show the receipt
-    await expect(page.locator('text=pathUSD')).toBeVisible();
-    await expect(page.locator('text=10.50')).toBeVisible();
-    await expect(page.locator('text=Test payment')).toBeVisible();
+    await expect(page.locator("text=pathUSD")).toBeVisible();
+    await expect(page.locator("text=10.50")).toBeVisible();
+    await expect(page.locator("text=Test payment")).toBeVisible();
   });
 
   test("clear all button works", async ({ page }) => {
@@ -66,7 +70,8 @@ test.describe("POS Merchant Receipts", () => {
               token: "AlphaUSD",
               tokenAddress: "0x20c0000000000000000000000000000000000001",
               sender: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
-              txHash: "0x1111111111111111111111111111111111111111111111111111111111111111",
+              txHash:
+                "0x1111111111111111111111111111111111111111111111111111111111111111",
               timestamp: Date.now(),
               memo: "",
             },
@@ -74,7 +79,10 @@ test.describe("POS Merchant Receipts", () => {
         },
         version: 0,
       };
-      localStorage.setItem("fluxus-merchant-receipts", JSON.stringify(mockData));
+      localStorage.setItem(
+        "fluxus-merchant-receipts",
+        JSON.stringify(mockData),
+      );
     });
 
     await page.reload();
@@ -87,6 +95,6 @@ test.describe("POS Merchant Receipts", () => {
     await clearBtn.click();
 
     // Should show empty state after clearing
-    await expect(page.locator('text=No receipts yet')).toBeVisible();
+    await expect(page.locator("text=No receipts yet")).toBeVisible();
   });
 });

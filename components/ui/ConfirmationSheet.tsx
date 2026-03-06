@@ -27,7 +27,9 @@ export function ConfirmationSheet({
   return (
     <BottomSheet open={open} onClose={onCancel} title={title}>
       <div className="flex flex-col gap-5">
-        <p className="text-sm text-[--text-secondary] leading-relaxed">{message}</p>
+        <p className="text-sm text-[--text-secondary] leading-relaxed">
+          {message}
+        </p>
         <div className="flex gap-3">
           <Button
             variant="secondary"

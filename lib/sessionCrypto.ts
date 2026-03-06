@@ -98,7 +98,9 @@ export async function importKey(base64: string): Promise<CryptoKey> {
 }
 
 export async function getOrCreateSessionEncryptionKey(): Promise<CryptoKey> {
-  const persisted = window.sessionStorage.getItem(SESSION_ENCRYPTION_KEY_STORAGE);
+  const persisted = window.sessionStorage.getItem(
+    SESSION_ENCRYPTION_KEY_STORAGE,
+  );
   if (persisted) {
     try {
       return await importKey(persisted);

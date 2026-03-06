@@ -13,10 +13,7 @@ function addressToColors(address: string): [string, string] {
   const hex = address.toLowerCase().replace("0x", "");
   const h1 = parseInt(hex.slice(0, 4), 16) % 360;
   const h2 = (h1 + 137) % 360;
-  return [
-    `hsl(${h1}, 70%, 60%)`,
-    `hsl(${h2}, 70%, 55%)`,
-  ];
+  return [`hsl(${h1}, 70%, 60%)`, `hsl(${h2}, 70%, 55%)`];
 }
 
 function truncateAddress(address: string): string {
@@ -29,7 +26,12 @@ const sizeMap = {
   lg: "w-12 h-12 text-sm",
 };
 
-export function AddressAvatar({ address, size = "md", label, className }: AddressAvatarProps) {
+export function AddressAvatar({
+  address,
+  size = "md",
+  label,
+  className,
+}: AddressAvatarProps) {
   const [color1, color2] = addressToColors(address);
 
   return (

@@ -20,13 +20,17 @@ test.describe("Cross-Feature Navigation", () => {
     for (const { path, heading } of FEATURE_TABS) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
-      await expect(page.getByText(heading).first()).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByText(heading).first()).toBeVisible({
+        timeout: 10_000,
+      });
     }
 
     expect(errors).toHaveLength(0);
   });
 
-  test("sequential tab navigation preserves no console errors", async ({ page }) => {
+  test("sequential tab navigation preserves no console errors", async ({
+    page,
+  }) => {
     const errors: string[] = [];
     page.on("pageerror", (err) => errors.push(err.message));
 
@@ -41,7 +45,9 @@ test.describe("Cross-Feature Navigation", () => {
     expect(errors).toHaveLength(0);
   });
 
-  test("portfolio page shows summary and refresh controls", async ({ page }) => {
+  test("portfolio page shows summary and refresh controls", async ({
+    page,
+  }) => {
     await page.goto("/app/portfolio");
     await page.waitForLoadState("networkidle");
     await expect(page.getByText("Portfolio").first()).toBeVisible();

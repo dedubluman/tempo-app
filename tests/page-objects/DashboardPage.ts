@@ -13,7 +13,9 @@ export class DashboardPage {
   constructor(page: Page) {
     this.page = page;
     this.refreshButton = page.getByRole("button", { name: /Refresh/i });
-    this.copyAddressButton = page.getByRole("button", { name: /Copy Address/i });
+    this.copyAddressButton = page.getByRole("button", {
+      name: /Copy Address/i,
+    });
     this.disconnectButton = page.getByRole("button", { name: /Disconnect/i });
     this.balanceDisplay = page.locator("text=/Raw:\\s+.*\\s+pathUSD/");
   }

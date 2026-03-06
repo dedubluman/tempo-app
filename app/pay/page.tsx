@@ -6,7 +6,14 @@ import { CheckCircle, Copy, Wallet } from "@phosphor-icons/react";
 import { useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { Hooks } from "wagmi/tempo";
-import { formatUnits, getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
+import {
+  formatUnits,
+  getAddress,
+  isAddress,
+  pad,
+  parseUnits,
+  stringToHex,
+} from "viem";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -23,7 +30,10 @@ type ParsedRequest = {
   memo: string;
 };
 
-function parseRequestParams(params: URLSearchParams): { request: ParsedRequest | null; error: string } {
+function parseRequestParams(params: URLSearchParams): {
+  request: ParsedRequest | null;
+  error: string;
+} {
   const toRaw = params.get("to") ?? "";
   const amountRaw = params.get("amount") ?? "";
   const tokenSymbol = params.get("token") ?? "pathUSD";
@@ -93,10 +103,18 @@ function PayPageContent() {
     if (message.includes("rejected") || message.includes("denied")) {
       return "Payment cancelled in passkey confirmation.";
     }
-    if (message.includes("insufficient") || message.includes("sponsor") || message.includes("fee")) {
+    if (
+      message.includes("insufficient") ||
+      message.includes("sponsor") ||
+      message.includes("fee")
+    ) {
       return "Payment failed due to insufficient balance or sponsorship.";
     }
-    if (message.includes("rpc") || message.includes("network") || message.includes("timeout")) {
+    if (
+      message.includes("rpc") ||
+      message.includes("network") ||
+      message.includes("timeout")
+    ) {
       return "Network is slow. Please retry.";
     }
     return error.message.split("\n")[0];
@@ -133,7 +151,11 @@ function PayPageContent() {
       if (address) {
         addTransferHistoryEntries([
           {
-            id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+            id:
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}`,
             transactionHash: hash,
             counterparty: request.to,
             amount: request.amountUnits,
@@ -143,7 +165,8 @@ function PayPageContent() {
         ]);
       }
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : "Payment failed";
+      const message =
+        caughtError instanceof Error ? caughtError.message : "Payment failed";
       if (message.includes("Transaction hash missing")) {
         setRuntimeError(message);
       }
@@ -169,7 +192,9 @@ function PayPageContent() {
             <CardTitle>Invalid Payment Request</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-[--status-error-text]">{requestError || "Malformed payment URL."}</p>
+            <p className="text-sm text-[--status-error-text]">
+              {requestError || "Malformed payment URL."}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -179,8 +204,12 @@ function PayPageContent() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-24 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Payment Request</h1>
-        <p className="mt-1 text-sm text-[--text-secondary]">Review and pay this Tempo request.</p>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">
+          Payment Request
+        </h1>
+        <p className="mt-1 text-sm text-[--text-secondary]">
+          Review and pay this Tempo request.
+        </p>
       </div>
 
       <Card variant="glass">
@@ -190,28 +219,46 @@ function PayPageContent() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-[--text-secondary]">Status</span>
-            <StatusBadge status={isPending ? "pending" : txHash ? "success" : "scheduled"} />
+            <StatusBadge
+              status={isPending ? "pending" : txHash ? "success" : "scheduled"}
+            />
           </div>
 
           <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2">
-            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">Amount</p>
-            <p className="font-mono text-xl text-[--text-primary]">{request.amount} {token.symbol}</p>
-            <p className="mt-1 text-xs text-[--text-secondary]">Raw units: {request.amountUnits.toString()}</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+              Amount
+            </p>
+            <p className="font-mono text-xl text-[--text-primary]">
+              {request.amount} {token.symbol}
+            </p>
+            <p className="mt-1 text-xs text-[--text-secondary]">
+              Raw units: {request.amountUnits.toString()}
+            </p>
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">Recipient</p>
-            <p className="mt-1 break-all font-mono text-sm text-[--text-primary]">{request.to}</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+              Recipient
+            </p>
+            <p className="mt-1 break-all font-mono text-sm text-[--text-primary]">
+              {request.to}
+            </p>
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">Memo</p>
-            <p className="mt-1 text-sm text-[--text-primary]">{request.memo || "-"}</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+              Memo
+            </p>
+            <p className="mt-1 text-sm text-[--text-primary]">
+              {request.memo || "-"}
+            </p>
           </div>
 
           {!isConnected ? (
             <div className="rounded-[--radius-md] border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2">
-              <p className="text-sm text-[--status-warning-text]">Connect Wallet to Pay</p>
+              <p className="text-sm text-[--status-warning-text]">
+                Connect Wallet to Pay
+              </p>
               <Link
                 href="/"
                 className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-[--radius-md] border border-[--border-default] px-3 text-xs text-[--text-primary] hover:bg-[--bg-surface]"
@@ -221,7 +268,12 @@ function PayPageContent() {
               </Link>
             </div>
           ) : (
-            <Button type="button" onClick={() => void handlePayNow()} disabled={isPending || !!txHash} loading={isPending}>
+            <Button
+              type="button"
+              onClick={() => void handlePayNow()}
+              disabled={isPending || !!txHash}
+              loading={isPending}
+            >
               {isPending ? "Paying..." : txHash ? "Payment Sent ✓" : "Pay Now"}
             </Button>
           )}
@@ -244,9 +296,16 @@ function PayPageContent() {
                 <CheckCircle size={14} />
                 Payment confirmed
               </p>
-              <p className="break-all font-mono text-xs text-[--text-secondary]">{txHash}</p>
+              <p className="break-all font-mono text-xs text-[--text-secondary]">
+                {txHash}
+              </p>
               <div className="flex flex-wrap gap-2">
-                <Button type="button" size="sm" variant="secondary" onClick={() => void handleCopyHash()}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => void handleCopyHash()}
+                >
                   <Copy size={12} />
                   {copied ? "Copied" : "Copy Hash"}
                 </Button>
@@ -262,10 +321,12 @@ function PayPageContent() {
           ) : null}
 
           <p className="text-xs text-[--text-secondary]">
-            Memo reconciliation: this payment submits memo as bytes32 so on-chain records match the request.
+            Memo reconciliation: this payment submits memo as bytes32 so
+            on-chain records match the request.
           </p>
           <p className="text-xs text-[--text-secondary]">
-            Display amount: {formatUnits(request.amountUnits, token.decimals)} {token.symbol}
+            Display amount: {formatUnits(request.amountUnits, token.decimals)}{" "}
+            {token.symbol}
           </p>
         </CardContent>
       </Card>
@@ -283,7 +344,9 @@ export default function PayPage() {
               <CardTitle>Loading Request</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-[--text-secondary]">Reading payment link parameters...</p>
+              <p className="text-sm text-[--text-secondary]">
+                Reading payment link parameters...
+              </p>
             </CardContent>
           </Card>
         </div>

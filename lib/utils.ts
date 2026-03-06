@@ -1,4 +1,8 @@
-export function formatAddress(address: string, prefixLen: number, suffixLen: number): string {
+export function formatAddress(
+  address: string,
+  prefixLen: number,
+  suffixLen: number,
+): string {
   if (!address) {
     return "";
   }

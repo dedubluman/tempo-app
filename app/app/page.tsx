@@ -26,7 +26,6 @@ import {
 } from "@phosphor-icons/react";
 import { FluxusLogo } from "@/components/ui/FluxusLogo";
 import Link from "next/link";
-import { cn } from "@/lib/cn";
 
 const E2E_MOCK_AUTH = process.env.NEXT_PUBLIC_E2E_MOCK_AUTH === "1";
 
@@ -55,7 +54,10 @@ function ActionButton({
 
   if (href) {
     return (
-      <Link href={href} className="group flex flex-col items-center p-3 rounded-[--radius-xl] transition-colors hover:bg-[--bg-surface]">
+      <Link
+        href={href}
+        className="group flex flex-col items-center p-3 rounded-[--radius-xl] transition-colors hover:bg-[--bg-surface]"
+      >
         {inner}
       </Link>
     );
@@ -96,7 +98,9 @@ export default function AppPage() {
           return parsed.state.lastAddress as string;
         }
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return "";
   })();
   const hasMockConnection = E2E_MOCK_AUTH && Boolean(mockAddress);
@@ -121,7 +125,11 @@ export default function AppPage() {
     router.push("/");
   }, [authBootstrapReady, hasMockConnection, isConnected, router]);
 
-  if (!authBootstrapReady || (!isConnected && !hasMockConnection) || !effectiveAddress) {
+  if (
+    !authBootstrapReady ||
+    (!isConnected && !hasMockConnection) ||
+    !effectiveAddress
+  ) {
     return null;
   }
 
@@ -157,7 +165,13 @@ export default function AppPage() {
             <FluxusLogo size="sm" showText />
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="brand" size="sm" dot pulse data-testid="network-badge">
+            <Badge
+              variant="brand"
+              size="sm"
+              dot
+              pulse
+              data-testid="network-badge"
+            >
               {t("common.network")}
             </Badge>
             {effectiveAddress && (
@@ -170,7 +184,10 @@ export default function AppPage() {
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] as [number, number, number, number] }}
+        transition={{
+          duration: 0.3,
+          ease: [0, 0, 0.2, 1] as [number, number, number, number],
+        }}
         className="max-w-3xl mx-auto px-4 py-8 pb-28 md:pb-10"
       >
         <motion.div
@@ -183,9 +200,14 @@ export default function AppPage() {
           <motion.section variants={variants.fadeUp} className="space-y-6">
             {/* Address row */}
             <div className="flex items-center gap-3">
-              {effectiveAddress && <AddressAvatar address={effectiveAddress} size="sm" />}
+              {effectiveAddress && (
+                <AddressAvatar address={effectiveAddress} size="sm" />
+              )}
               <div className="flex items-center gap-2 min-w-0">
-                <span className="font-mono text-sm text-[--text-secondary] truncate" title={effectiveAddress}>
+                <span
+                  className="font-mono text-sm text-[--text-secondary] truncate"
+                  title={effectiveAddress}
+                >
                   {shortAddress}
                 </span>
                 <button
@@ -232,11 +254,7 @@ export default function AppPage() {
                 label="Send"
                 onClick={() => setShowSend((v) => !v)}
               />
-              <ActionButton
-                icon={QrCode}
-                label="Receive"
-                href="/app/request"
-              />
+              <ActionButton icon={QrCode} label="Receive" href="/app/request" />
               <ActionButton
                 icon={ArrowsLeftRight}
                 label="Swap"

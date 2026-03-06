@@ -1,17 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRateLimiter } from "@/lib/rateLimiter";
 import { callGemini } from "@/lib/ai/geminiClient";
-import { sanitizeInput, detectPromptInjection, validateAddress, validateAmount, validateToken } from "@/lib/ai/validation";
+import {
+  sanitizeInput,
+  detectPromptInjection,
+  validateAddress,
+  validateAmount,
+  validateToken,
+} from "@/lib/ai/validation";
 import { AgentErrorType } from "@/lib/ai/types";
-import type { ParsedIntent, AgentApiRequest, AgentErrorResponse } from "@/lib/ai/types";
+import type {
+  ParsedIntent,
+  AgentApiRequest,
+  AgentErrorResponse,
+} from "@/lib/ai/types";
 
 const MAX_BODY_BYTES = 4 * 1024;
 
 // 30 requests per minute, in-memory sliding window
 const rateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60_000 });
 
-function errorResponse(error: string, errorType: AgentErrorType, status: number, retryAfter?: number): NextResponse {
-  const body: AgentErrorResponse = { action: "unknown", error, errorType, retryAfter };
+function errorResponse(
+  error: string,
+  errorType: AgentErrorType,
+  status: number,
+  retryAfter?: number,
+): NextResponse {
+  const body: AgentErrorResponse = {
+    action: "unknown",
+    error,
+    errorType,
+    retryAfter,
+  };
   return NextResponse.json(body, { status });
 }
 
@@ -32,19 +52,31 @@ export async function POST(request: NextRequest) {
     // 2. Body size check
     const contentLength = request.headers.get("content-length");
     if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
-      return errorResponse("Request too large", AgentErrorType.EMPTY_INPUT, 413);
+      return errorResponse(
+        "Request too large",
+        AgentErrorType.EMPTY_INPUT,
+        413,
+      );
     }
 
     const body = (await request.json()) as AgentApiRequest;
 
     if (!body.message) {
-      return errorResponse("Missing required field: message", AgentErrorType.EMPTY_INPUT, 400);
+      return errorResponse(
+        "Missing required field: message",
+        AgentErrorType.EMPTY_INPUT,
+        400,
+      );
     }
 
     // 3. Input sanitization
     const sanitized = sanitizeInput(body.message);
     if (!sanitized) {
-      return errorResponse("Empty message after sanitization", AgentErrorType.EMPTY_INPUT, 400);
+      return errorResponse(
+        "Empty message after sanitization",
+        AgentErrorType.EMPTY_INPUT,
+        400,
+      );
     }
 
     // 4. Prompt injection detection
@@ -58,7 +90,11 @@ export async function POST(request: NextRequest) {
 
     // 4b. Reject explicit negative amounts in user input
     if (/-\s*\d/.test(sanitized)) {
-      return errorResponse("Amount must be positive", AgentErrorType.INVALID_AMOUNT, 400);
+      return errorResponse(
+        "Amount must be positive",
+        AgentErrorType.INVALID_AMOUNT,
+        400,
+      );
     }
 
     // 5. Call Gemini API (with retry)
@@ -82,21 +118,37 @@ export async function POST(request: NextRequest) {
       if (parsed.recipient) {
         const addrResult = validateAddress(parsed.recipient);
         if (!addrResult.isValid) {
-          return errorResponse(addrResult.error!, AgentErrorType.INVALID_ADDRESS, 200);
+          return errorResponse(
+            addrResult.error!,
+            AgentErrorType.INVALID_ADDRESS,
+            200,
+          );
         }
         parsed.recipient = addrResult.normalized;
       } else {
-        return errorResponse("Could not determine a valid recipient address.", AgentErrorType.INVALID_ADDRESS, 200);
+        return errorResponse(
+          "Could not determine a valid recipient address.",
+          AgentErrorType.INVALID_ADDRESS,
+          200,
+        );
       }
 
       // Amount validation
       if (parsed.amount) {
         const amountResult = validateAmount(parsed.amount);
         if (!amountResult.isValid) {
-          return errorResponse(amountResult.error!, AgentErrorType.INVALID_AMOUNT, 200);
+          return errorResponse(
+            amountResult.error!,
+            AgentErrorType.INVALID_AMOUNT,
+            200,
+          );
         }
       } else {
-        return errorResponse("Could not determine a valid amount.", AgentErrorType.INVALID_AMOUNT, 200);
+        return errorResponse(
+          "Could not determine a valid amount.",
+          AgentErrorType.INVALID_AMOUNT,
+          200,
+        );
       }
 
       // Token validation
@@ -114,7 +166,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(parsed);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal server error";
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
     return errorResponse(message, AgentErrorType.AI_API_ERROR, 500);
   }
 }

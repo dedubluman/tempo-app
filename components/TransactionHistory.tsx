@@ -5,12 +5,25 @@ import { useAccount, usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import { motion } from "framer-motion";
-import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
+import {
+  PATHUSD_ADDRESS,
+  PATHUSD_DECIMALS,
+  EXPLORER_URL,
+} from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import { formatAddress } from "@/lib/utils";
-import { getTransferHistorySnapshot, subscribeTransferHistory } from "@/lib/transactionHistoryStore";
+import {
+  getTransferHistorySnapshot,
+  subscribeTransferHistory,
+} from "@/lib/transactionHistoryStore";
 import { useMotionSafe } from "@/lib/motion";
-import { ArrowSquareOut, ArrowUp, ArrowDown, ClockCountdown, Warning } from "@phosphor-icons/react";
+import {
+  ArrowSquareOut,
+  ArrowUp,
+  ArrowDown,
+  ClockCountdown,
+  Warning,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 
@@ -27,18 +40,29 @@ interface TransferLog {
 export function TransactionHistory() {
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const localEntries = useSyncExternalStore(subscribeTransferHistory, getTransferHistorySnapshot, getTransferHistorySnapshot);
+  const localEntries = useSyncExternalStore(
+    subscribeTransferHistory,
+    getTransferHistorySnapshot,
+    getTransferHistorySnapshot,
+  );
   const variants = useMotionSafe();
 
-  const { data: logs, isLoading, isError, refetch } = useQuery({
+  const {
+    data: logs,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["transferHistory", address],
     queryFn: async () => {
       if (!address || !publicClient) {
         return [];
       }
 
-      const transferEvent = pathUsdAbi.find((item) => item.type === "event" && item.name === "Transfer");
-      
+      const transferEvent = pathUsdAbi.find(
+        (item) => item.type === "event" && item.name === "Transfer",
+      );
+
       if (!transferEvent) {
         throw new Error("Transfer event not found in ABI");
       }
@@ -65,7 +89,9 @@ export function TransactionHistory() {
         });
 
         const allLogs = [...outboundLogs, ...inboundLogs];
-        const sortedLogs = allLogs.sort((a, b) => Number((b.blockNumber ?? BigInt(0)) - (a.blockNumber ?? BigInt(0))));
+        const sortedLogs = allLogs.sort((a, b) =>
+          Number((b.blockNumber ?? BigInt(0)) - (a.blockNumber ?? BigInt(0))),
+        );
 
         return sortedLogs.slice(0, 20) as TransferLog[];
       } catch {
@@ -95,7 +121,11 @@ export function TransactionHistory() {
           },
         };
       })
-      .filter((entry) => entry.args.from.toLowerCase() === normalizedAddress || entry.args.to.toLowerCase() === normalizedAddress);
+      .filter(
+        (entry) =>
+          entry.args.from.toLowerCase() === normalizedAddress ||
+          entry.args.to.toLowerCase() === normalizedAddress,
+      );
 
     const remoteLogs = logs ?? [];
     const deduped = new Map<string, TransferLog>();
@@ -135,7 +165,9 @@ export function TransactionHistory() {
     return (
       <div className="py-6 text-center space-y-3">
         <Warning size={20} className="mx-auto text-[--status-error-text]" />
-        <p className="text-sm text-[--status-error-text]">Could not load history. Network may be slow.</p>
+        <p className="text-sm text-[--status-error-text]">
+          Could not load history. Network may be slow.
+        </p>
         <button
           onClick={() => void refetch()}
           className="inline-flex h-9 items-center rounded-[--radius-md] border border-[--border-default] px-3 text-sm font-medium text-[--brand-primary] transition-colors hover:bg-[--bg-subtle]"
@@ -165,7 +197,8 @@ export function TransactionHistory() {
       className="divide-y divide-[--border-glass]"
     >
       {mergedLogs.map((log) => {
-        const isOutbound = log.args.from.toLowerCase() === address.toLowerCase();
+        const isOutbound =
+          log.args.from.toLowerCase() === address.toLowerCase();
         const counterparty = isOutbound ? log.args.to : log.args.from;
         const formattedAmount = formatUnits(log.args.value, PATHUSD_DECIMALS);
 
@@ -183,7 +216,11 @@ export function TransactionHistory() {
                   : "bg-[--status-success-bg] text-[--status-success-text]"
               }`}
             >
-              {isOutbound ? <ArrowUp size={14} weight="bold" /> : <ArrowDown size={14} weight="bold" />}
+              {isOutbound ? (
+                <ArrowUp size={14} weight="bold" />
+              ) : (
+                <ArrowDown size={14} weight="bold" />
+              )}
             </div>
 
             {/* Counterparty */}
@@ -200,7 +237,8 @@ export function TransactionHistory() {
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="text-right">
                 <p className="font-mono text-sm font-semibold text-[--text-primary]">
-                  {isOutbound ? "-" : "+"}{formattedAmount}
+                  {isOutbound ? "-" : "+"}
+                  {formattedAmount}
                 </p>
                 <p className="text-[10px] text-[--text-tertiary]">pathUSD</p>
               </div>

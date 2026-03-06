@@ -3,10 +3,13 @@ export const metadata = { title: "Getting Started — Fluxus Docs" };
 export default function GettingStartedPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[--text-primary] font-[--font-display]">Getting Started</h1>
+      <h1 className="text-3xl font-bold text-[--text-primary] font-[--font-display]">
+        Getting Started
+      </h1>
 
       <p className="text-[--text-secondary] leading-relaxed">
-        Fluxus requires no app download, no seed phrase, and no gas fees. Here is how to get started in under two minutes.
+        Fluxus requires no app download, no seed phrase, and no gas fees. Here
+        is how to get started in under two minutes.
       </p>
 
       <div className="space-y-5">
@@ -14,7 +17,7 @@ export default function GettingStartedPage() {
           {
             step: "1",
             title: "Open the app",
-            body: "Navigate to the Fluxus landing page and click \"Create Your Wallet\". Your browser will prompt you to create a passkey — this uses WebAuthn, the same standard used for Face ID and fingerprint login.",
+            body: 'Navigate to the Fluxus landing page and click "Create Your Wallet". Your browser will prompt you to create a passkey — this uses WebAuthn, the same standard used for Face ID and fingerprint login.',
           },
           {
             step: "2",
@@ -33,12 +36,19 @@ export default function GettingStartedPage() {
           },
         ].map(({ step, title, body }) => (
           <div key={step} className="flex gap-4">
-            <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm text-white" style={{ background: "var(--gradient-flux)" }}>
+            <div
+              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm text-white"
+              style={{ background: "var(--gradient-flux)" }}
+            >
               {step}
             </div>
             <div>
-              <h2 className="font-semibold text-[--text-primary] mb-1">{title}</h2>
-              <p className="text-sm text-[--text-secondary] leading-relaxed">{body}</p>
+              <h2 className="font-semibold text-[--text-primary] mb-1">
+                {title}
+              </h2>
+              <p className="text-sm text-[--text-secondary] leading-relaxed">
+                {body}
+              </p>
             </div>
           </div>
         ))}
@@ -46,7 +56,9 @@ export default function GettingStartedPage() {
 
       <div className="rounded-[--radius-xl] border border-[--status-info-border] bg-[--status-info-bg] p-4">
         <p className="text-sm text-[--status-info-text]">
-          <strong>Returning user?</strong> Use &ldquo;Sign In&rdquo; instead of &ldquo;Create Wallet&rdquo; to reconnect your existing address. Creating a new wallet generates a new address.
+          <strong>Returning user?</strong> Use &ldquo;Sign In&rdquo; instead of
+          &ldquo;Create Wallet&rdquo; to reconnect your existing address.
+          Creating a new wallet generates a new address.
         </p>
       </div>
     </div>

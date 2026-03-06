@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Copy, Hammer, ShieldCheck, Coins, ListDashes } from "@phosphor-icons/react";
+import {
+  CheckCircle,
+  Copy,
+  Hammer,
+  ShieldCheck,
+  Coins,
+  ListDashes,
+} from "@phosphor-icons/react";
 import { useAccount } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 import { parseUnits } from "viem";
@@ -25,13 +32,25 @@ interface StepResult {
 function prettyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
-  if (lower.includes("user rejected") || lower.includes("user denied") || lower.includes("rejected")) {
+  if (
+    lower.includes("user rejected") ||
+    lower.includes("user denied") ||
+    lower.includes("rejected")
+  ) {
     return "Action cancelled in passkey confirmation.";
   }
-  if (lower.includes("insufficient") || lower.includes("sponsor") || lower.includes("fee")) {
+  if (
+    lower.includes("insufficient") ||
+    lower.includes("sponsor") ||
+    lower.includes("fee")
+  ) {
     return "Insufficient balance or fee sponsorship issue.";
   }
-  if (lower.includes("network") || lower.includes("timeout") || lower.includes("rpc")) {
+  if (
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("rpc")
+  ) {
     return "Network is slow. Please retry in a moment.";
   }
   return message.split("\n")[0] || "Operation failed";
@@ -49,9 +68,16 @@ function TxLink({ hash }: { hash: string }) {
       <p className="inline-flex items-center gap-1.5 text-sm text-[--status-success-text]">
         <CheckCircle size={14} /> Transaction confirmed
       </p>
-      <p className="break-all font-mono text-xs text-[--text-secondary]">{hash}</p>
+      <p className="break-all font-mono text-xs text-[--text-secondary]">
+        {hash}
+      </p>
       <div className="flex gap-2">
-        <Button type="button" size="sm" variant="secondary" onClick={() => void handleCopy()}>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={() => void handleCopy()}
+        >
           <Copy size={12} />
           {copied ? "Copied" : "Copy"}
         </Button>
@@ -82,7 +108,9 @@ export default function ForgePage() {
   // Step 1: Create Token
   const [tokenName, setTokenName] = useState("");
   const [tokenSymbol, setTokenSymbol] = useState("");
-  const [createResult, setCreateResult] = useState<StepResult>({ status: "idle" });
+  const [createResult, setCreateResult] = useState<StepResult>({
+    status: "idle",
+  });
   const [tokenAddress, setTokenAddress] = useState<string | null>(null);
 
   // Step 2: Mint
@@ -90,21 +118,33 @@ export default function ForgePage() {
   const [mintResult, setMintResult] = useState<StepResult>({ status: "idle" });
 
   // Step 3: Policy
-  const [policyType, setPolicyType] = useState<"whitelist" | "blacklist">("whitelist");
+  const [policyType, setPolicyType] = useState<"whitelist" | "blacklist">(
+    "whitelist",
+  );
   const [policyAddresses, setPolicyAddresses] = useState("");
-  const [policyResult, setPolicyResult] = useState<StepResult>({ status: "idle" });
+  const [policyResult, setPolicyResult] = useState<StepResult>({
+    status: "idle",
+  });
   const [policyId, setPolicyId] = useState<string | null>(null);
 
   // Hooks
-  const { mutateAsync: createTokenSync, isPending: isCreating } = Hooks.token.useCreateSync();
-  const { mutateAsync: grantRolesSync, isPending: isGranting } = Hooks.token.useGrantRolesSync();
-  const { mutateAsync: mintSync, isPending: isMinting } = Hooks.token.useMintSync();
-  const { mutateAsync: createPolicySync, isPending: isCreatingPolicy } = Hooks.policy.useCreateSync();
-  const { mutateAsync: changePolicySync, isPending: isAttachingPolicy } = Hooks.token.useChangeTransferPolicySync();
+  const { mutateAsync: createTokenSync, isPending: isCreating } =
+    Hooks.token.useCreateSync();
+  const { mutateAsync: grantRolesSync, isPending: isGranting } =
+    Hooks.token.useGrantRolesSync();
+  const { mutateAsync: mintSync, isPending: isMinting } =
+    Hooks.token.useMintSync();
+  const { mutateAsync: createPolicySync, isPending: isCreatingPolicy } =
+    Hooks.policy.useCreateSync();
+  const { mutateAsync: changePolicySync, isPending: isAttachingPolicy } =
+    Hooks.token.useChangeTransferPolicySync();
 
   const handleCreate = async () => {
     if (!tokenName.trim() || !tokenSymbol.trim()) {
-      setCreateResult({ status: "failed", error: "Token name and symbol are required." });
+      setCreateResult({
+        status: "failed",
+        error: "Token name and symbol are required.",
+      });
       return;
     }
     setCreateResult({ status: "pending" });
@@ -131,7 +171,10 @@ export default function ForgePage() {
       });
       setCreateResult({ status: "success", txHash: hash });
       setCurrentStep(1);
-      showSuccess("Token created", `${tokenSymbol.trim()} at ${addr.slice(0, 10)}...`);
+      showSuccess(
+        "Token created",
+        `${tokenSymbol.trim()} at ${addr.slice(0, 10)}...`,
+      );
     } catch (error) {
       const pretty = prettyError(error);
       setCreateResult({ status: "failed", error: pretty });
@@ -186,7 +229,10 @@ export default function ForgePage() {
       .map((a) => a.trim())
       .filter((a) => a.startsWith("0x") && a.length === 42);
     if (addressList.length === 0) {
-      setPolicyResult({ status: "failed", error: "Add at least one valid address (0x...)." });
+      setPolicyResult({
+        status: "failed",
+        error: "Add at least one valid address (0x...).",
+      });
       return;
     }
     setPolicyResult({ status: "pending" });
@@ -214,7 +260,10 @@ export default function ForgePage() {
       }
       setPolicyResult({ status: "success", txHash: hash });
       setCurrentStep(3);
-      showSuccess("Policy attached", `${policyType} policy #${createdPolicyId} applied`);
+      showSuccess(
+        "Policy attached",
+        `${policyType} policy #${createdPolicyId} applied`,
+      );
     } catch (error) {
       const pretty = prettyError(error);
       setPolicyResult({ status: "failed", error: pretty });
@@ -232,7 +281,9 @@ export default function ForgePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:pb-10">
       <div className="mb-6">
-        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">Token Forge</h1>
+        <h1 className="font-[--font-display] text-2xl font-bold tracking-tight text-[--text-primary]">
+          Token Forge
+        </h1>
         <p className="mt-1 text-sm text-[--text-secondary]">
           Create a TIP-20 token, mint supply, apply compliance, and list on DEX.
         </p>
@@ -260,7 +311,11 @@ export default function ForgePage() {
                       : "bg-[--bg-subtle] text-[--text-tertiary]"
                 }`}
               >
-                {done ? <CheckCircle size={14} weight="fill" /> : <Icon size={14} />}
+                {done ? (
+                  <CheckCircle size={14} weight="fill" />
+                ) : (
+                  <Icon size={14} />
+                )}
                 <span className="hidden sm:inline">{step.label}</span>
                 <span className="sm:hidden">{i + 1}</span>
               </div>
@@ -300,8 +355,19 @@ export default function ForgePage() {
                   disabled={isCreating}
                 />
                 <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2">
-                  <p className="text-xs text-[--text-secondary]">Currency: <span className="font-medium text-[--text-primary]">USD</span></p>
-                  <p className="text-xs text-[--text-secondary]">Quote token: <span className="font-medium text-[--text-primary]">pathUSD</span> (auto-listed on DEX)</p>
+                  <p className="text-xs text-[--text-secondary]">
+                    Currency:{" "}
+                    <span className="font-medium text-[--text-primary]">
+                      USD
+                    </span>
+                  </p>
+                  <p className="text-xs text-[--text-secondary]">
+                    Quote token:{" "}
+                    <span className="font-medium text-[--text-primary]">
+                      pathUSD
+                    </span>{" "}
+                    (auto-listed on DEX)
+                  </p>
                 </div>
                 {createResult.error && (
                   <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
@@ -309,7 +375,14 @@ export default function ForgePage() {
                   </p>
                 )}
                 {createResult.txHash && <TxLink hash={createResult.txHash} />}
-                <Button type="button" onClick={() => void handleCreate()} loading={isCreating} disabled={isCreating || !tokenName.trim() || !tokenSymbol.trim()}>
+                <Button
+                  type="button"
+                  onClick={() => void handleCreate()}
+                  loading={isCreating}
+                  disabled={
+                    isCreating || !tokenName.trim() || !tokenSymbol.trim()
+                  }
+                >
                   {isCreating ? "Creating Token..." : "Create Token"}
                 </Button>
               </>
@@ -319,7 +392,12 @@ export default function ForgePage() {
             {currentStep === 1 && (
               <>
                 <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2">
-                  <p className="text-xs text-[--text-secondary]">Token: <span className="break-all font-mono font-medium text-[--text-primary]">{tokenAddress}</span></p>
+                  <p className="text-xs text-[--text-secondary]">
+                    Token:{" "}
+                    <span className="break-all font-mono font-medium text-[--text-primary]">
+                      {tokenAddress}
+                    </span>
+                  </p>
                 </div>
                 <Input
                   label="Mint Amount"
@@ -343,9 +421,18 @@ export default function ForgePage() {
                   type="button"
                   onClick={() => void handleMint()}
                   loading={isMinting || isGranting}
-                  disabled={isMinting || isGranting || !mintAmount.trim() || Number.parseFloat(mintAmount) <= 0}
+                  disabled={
+                    isMinting ||
+                    isGranting ||
+                    !mintAmount.trim() ||
+                    Number.parseFloat(mintAmount) <= 0
+                  }
                 >
-                  {isGranting ? "Granting Issuer Role..." : isMinting ? "Minting..." : "Grant Role & Mint"}
+                  {isGranting
+                    ? "Granting Issuer Role..."
+                    : isMinting
+                      ? "Minting..."
+                      : "Grant Role & Mint"}
                 </Button>
               </>
             )}
@@ -354,10 +441,17 @@ export default function ForgePage() {
             {currentStep === 2 && (
               <>
                 <div className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2">
-                  <p className="text-xs text-[--text-secondary]">Token: <span className="break-all font-mono font-medium text-[--text-primary]">{tokenAddress}</span></p>
+                  <p className="text-xs text-[--text-secondary]">
+                    Token:{" "}
+                    <span className="break-all font-mono font-medium text-[--text-primary]">
+                      {tokenAddress}
+                    </span>
+                  </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">Policy Type</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+                    Policy Type
+                  </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -392,7 +486,11 @@ export default function ForgePage() {
                     setPolicyResult({ status: "idle" });
                   }}
                   disabled={isCreatingPolicy || isAttachingPolicy}
-                  helperText={address ? `Tip: include your own address (${address.slice(0, 6)}...${address.slice(-4)}) to maintain access` : undefined}
+                  helperText={
+                    address
+                      ? `Tip: include your own address (${address.slice(0, 6)}...${address.slice(-4)}) to maintain access`
+                      : undefined
+                  }
                 />
                 {policyResult.error && (
                   <p className="rounded-lg border border-[--status-error-border] bg-[--status-error-bg] px-3 py-2 text-xs text-[--status-error-text]">
@@ -405,11 +503,24 @@ export default function ForgePage() {
                     type="button"
                     onClick={() => void handlePolicy()}
                     loading={isCreatingPolicy || isAttachingPolicy}
-                    disabled={isCreatingPolicy || isAttachingPolicy || !policyAddresses.trim()}
+                    disabled={
+                      isCreatingPolicy ||
+                      isAttachingPolicy ||
+                      !policyAddresses.trim()
+                    }
                   >
-                    {isCreatingPolicy ? "Creating Policy..." : isAttachingPolicy ? "Attaching..." : "Create & Attach Policy"}
+                    {isCreatingPolicy
+                      ? "Creating Policy..."
+                      : isAttachingPolicy
+                        ? "Attaching..."
+                        : "Create & Attach Policy"}
                   </Button>
-                  <Button type="button" variant="secondary" onClick={handleSkipPolicy} disabled={isCreatingPolicy || isAttachingPolicy}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleSkipPolicy}
+                    disabled={isCreatingPolicy || isAttachingPolicy}
+                  >
                     Skip
                   </Button>
                 </div>
@@ -420,38 +531,63 @@ export default function ForgePage() {
             {currentStep === 3 && (
               <>
                 <div className="rounded-[--radius-md] border border-[--status-success-border] bg-[--status-success-bg] px-4 py-3">
-                  <p className="font-medium text-[--status-success-text]">Token is live on the Stablecoin DEX!</p>
+                  <p className="font-medium text-[--status-success-text]">
+                    Token is live on the Stablecoin DEX!
+                  </p>
                   <p className="mt-1 text-xs text-[--status-success-text]/80">
-                    Your token was auto-listed when you set pathUSD as the quote token during creation.
+                    Your token was auto-listed when you set pathUSD as the quote
+                    token during creation.
                   </p>
                 </div>
                 <div className="space-y-3 rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">Token Summary</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-[--text-tertiary]">
+                    Token Summary
+                  </p>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">Name</span>
-                      <span className="text-sm font-medium text-[--text-primary]">{tokenName}</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        Name
+                      </span>
+                      <span className="text-sm font-medium text-[--text-primary]">
+                        {tokenName}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">Symbol</span>
-                      <span className="text-sm font-medium text-[--text-primary]">{tokenSymbol}</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        Symbol
+                      </span>
+                      <span className="text-sm font-medium text-[--text-primary]">
+                        {tokenSymbol}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">Address</span>
-                      <span className="break-all font-mono text-xs text-[--text-primary]">{tokenAddress}</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        Address
+                      </span>
+                      <span className="break-all font-mono text-xs text-[--text-primary]">
+                        {tokenAddress}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">Supply</span>
-                      <span className="text-sm font-medium text-[--text-primary]">{mintAmount || "0"} tokens</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        Supply
+                      </span>
+                      <span className="text-sm font-medium text-[--text-primary]">
+                        {mintAmount || "0"} tokens
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">Policy</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        Policy
+                      </span>
                       <span className="text-sm font-medium text-[--text-primary]">
                         {policyId ? `${policyType} #${policyId}` : "None"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[--text-secondary]">DEX</span>
+                      <span className="text-sm text-[--text-secondary]">
+                        DEX
+                      </span>
                       <StatusBadge status="success" />
                     </div>
                   </div>
@@ -487,7 +623,9 @@ export default function ForgePage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[--text-secondary]">Step</span>
-              <span className="text-sm font-medium text-[--text-primary]">{currentStep + 1} / 4</span>
+              <span className="text-sm font-medium text-[--text-primary]">
+                {currentStep + 1} / 4
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[--text-secondary]">Currency</span>
@@ -507,7 +645,9 @@ export default function ForgePage() {
             {tokenAddress && (
               <div className="space-y-2 rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] p-3">
                 <p className="text-xs text-[--text-tertiary]">Created Token</p>
-                <p className="break-all font-mono text-xs text-[--text-primary]">{tokenAddress}</p>
+                <p className="break-all font-mono text-xs text-[--text-primary]">
+                  {tokenAddress}
+                </p>
               </div>
             )}
           </CardContent>

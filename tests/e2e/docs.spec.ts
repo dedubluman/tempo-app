@@ -10,7 +10,9 @@ test.describe("Docs Navigation", () => {
   test("getting started page loads", async ({ page }) => {
     await page.goto("/docs/getting-started");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: "Getting Started", level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Getting Started", level: 1 }),
+    ).toBeVisible();
     await expect(page.getByText("Create your passkey")).toBeVisible();
   });
 
@@ -24,13 +26,17 @@ test.describe("Docs Navigation", () => {
   test("session keys page loads", async ({ page }) => {
     await page.goto("/docs/session-keys");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: "Session Keys", level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Session Keys", level: 1 }),
+    ).toBeVisible();
   });
 
   test("transaction history page loads", async ({ page }) => {
     await page.goto("/docs/transaction-history");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: "Transaction History", level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Transaction History", level: 1 }),
+    ).toBeVisible();
   });
 
   test("security page loads", async ({ page }) => {
@@ -43,7 +49,11 @@ test.describe("Docs Navigation", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/docs");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("link", { name: "Getting Started", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Security", exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Getting Started", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Security", exact: true }).first(),
+    ).toBeVisible();
   });
 });

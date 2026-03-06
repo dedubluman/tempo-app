@@ -32,19 +32,25 @@ const OFFLINE_FALLBACK_HTML = `<!doctype html>
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL_CACHE)).then(() => self.skipWaiting())
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL_CACHE))
+      .then(() => self.skipWaiting()),
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -65,7 +71,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  const isNavigationRequest = request.mode === "navigate" || request.destination === "document";
+  const isNavigationRequest =
+    request.mode === "navigate" || request.destination === "document";
   const isAppShellAsset =
     url.pathname === "/app" ||
     url.pathname.startsWith("/app/") ||
@@ -100,10 +107,13 @@ self.addEventListener("fetch", (event) => {
             });
           }
 
-          return new Response("Offline", { status: 503, statusText: "Offline" });
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Offline",
+          });
         });
 
       return cached || networkPromise;
-    })
+    }),
   );
 });

@@ -12,9 +12,13 @@ export class PasskeyAuthPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.createWalletButton = page.getByRole("button", { name: /Create Wallet/i }).first();
+    this.createWalletButton = page
+      .getByRole("button", { name: /Create Wallet/i })
+      .first();
     this.signInButton = page.getByRole("button", { name: /Sign In/i }).first();
-    this.disconnectButton = page.getByRole("button", { name: /Sign Out|Disconnect/i });
+    this.disconnectButton = page.getByRole("button", {
+      name: /Sign Out|Disconnect/i,
+    });
     this.addressDisplay = page.locator("[title^='0x']").first();
   }
 

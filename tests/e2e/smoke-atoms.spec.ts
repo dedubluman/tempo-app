@@ -25,7 +25,9 @@ test.describe("Atom/Molecule Smoke Tests", () => {
     await expect(page.getByTestId("badge-success")).toBeVisible();
     await expect(page.getByTestId("badge-error")).toBeVisible();
     await expect(page.getByTestId("badge-pending")).toBeVisible();
-    await expect(page.getByTestId("badge-brand")).toContainText("Gas: $0 (sponsored)");
+    await expect(page.getByTestId("badge-brand")).toContainText(
+      "Gas: $0 (sponsored)",
+    );
   });
 
   test("cards render", async ({ page }) => {
@@ -39,6 +41,8 @@ test.describe("Atom/Molecule Smoke Tests", () => {
   });
 
   test("empty state renders", async ({ page }) => {
-    await expect(page.getByTestId("empty-state-section")).toContainText("No transactions yet");
+    await expect(page.getByTestId("empty-state-section")).toContainText(
+      "No transactions yet",
+    );
   });
 });

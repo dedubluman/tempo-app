@@ -12,37 +12,65 @@ import { FeatureFlag } from "@/lib/featureFlags";
 export default function TestComponentsPage() {
   return (
     <div className="p-8 space-y-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold" data-testid="test-page-heading">Component Test Page</h1>
+      <h1 className="text-2xl font-bold" data-testid="test-page-heading">
+        Component Test Page
+      </h1>
 
       <section data-testid="buttons-section">
         <div className="flex gap-3 flex-wrap">
           <Button data-testid="btn-primary">Primary</Button>
-          <Button variant="secondary" data-testid="btn-secondary">Secondary</Button>
-          <Button variant="ghost" data-testid="btn-ghost">Ghost</Button>
-          <Button variant="danger" data-testid="btn-danger">Danger</Button>
-          <Button loading data-testid="btn-loading">Loading</Button>
+          <Button variant="secondary" data-testid="btn-secondary">
+            Secondary
+          </Button>
+          <Button variant="ghost" data-testid="btn-ghost">
+            Ghost
+          </Button>
+          <Button variant="danger" data-testid="btn-danger">
+            Danger
+          </Button>
+          <Button loading data-testid="btn-loading">
+            Loading
+          </Button>
         </div>
       </section>
 
       <section data-testid="badges-section">
         <div className="flex gap-2 flex-wrap">
-          <Badge variant="success" dot data-testid="badge-success">Confirmed</Badge>
-          <Badge variant="error" dot data-testid="badge-error">Failed</Badge>
-          <Badge variant="warning" dot pulse data-testid="badge-pending">Pending</Badge>
-          <Badge variant="info" data-testid="badge-info">Info</Badge>
-          <Badge variant="neutral" data-testid="badge-neutral">Neutral</Badge>
-          <Badge variant="brand" data-testid="badge-brand">Gas: $0 (sponsored)</Badge>
+          <Badge variant="success" dot data-testid="badge-success">
+            Confirmed
+          </Badge>
+          <Badge variant="error" dot data-testid="badge-error">
+            Failed
+          </Badge>
+          <Badge variant="warning" dot pulse data-testid="badge-pending">
+            Pending
+          </Badge>
+          <Badge variant="info" data-testid="badge-info">
+            Info
+          </Badge>
+          <Badge variant="neutral" data-testid="badge-neutral">
+            Neutral
+          </Badge>
+          <Badge variant="brand" data-testid="badge-brand">
+            Gas: $0 (sponsored)
+          </Badge>
         </div>
       </section>
 
       <section data-testid="cards-section">
         <div className="space-y-3">
           <Card variant="flat" data-testid="card-flat">
-            <CardHeader><CardTitle>Flat Card</CardTitle></CardHeader>
-            <CardContent><p className="text-sm text-[--text-secondary]">Content here</p></CardContent>
+            <CardHeader>
+              <CardTitle>Flat Card</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-[--text-secondary]">Content here</p>
+            </CardContent>
           </Card>
           <Card variant="elevated" data-testid="card-elevated">
-            <CardContent><p className="text-sm">Elevated card</p></CardContent>
+            <CardContent>
+              <p className="text-sm">Elevated card</p>
+            </CardContent>
           </Card>
         </div>
       </section>
@@ -68,7 +96,9 @@ export default function TestComponentsPage() {
         <h2 className="text-lg font-semibold mb-4">Feature Flags</h2>
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-[--text-secondary] mb-2">ANALYTICS (enabled by default):</p>
+            <p className="text-sm text-[--text-secondary] mb-2">
+              ANALYTICS (enabled by default):
+            </p>
             <FeatureGate flag={FeatureFlag.ANALYTICS}>
               <Badge variant="success" dot data-testid="feature-gate-analytics">
                 Analytics Enabled
@@ -77,32 +107,52 @@ export default function TestComponentsPage() {
           </div>
 
           <div>
-            <p className="text-sm text-[--text-secondary] mb-2">PASSKEY_RECOVERY (disabled by default):</p>
+            <p className="text-sm text-[--text-secondary] mb-2">
+              PASSKEY_RECOVERY (disabled by default):
+            </p>
             <FeatureGate
               flag={FeatureFlag.PASSKEY_RECOVERY}
               fallback={
-                <Badge variant="warning" dot data-testid="feature-gate-fallback-passkey">
+                <Badge
+                  variant="warning"
+                  dot
+                  data-testid="feature-gate-fallback-passkey"
+                >
                   Passkey Recovery Coming Soon
                 </Badge>
               }
             >
-              <Badge variant="success" dot data-testid="feature-gate-passkey-recovery">
+              <Badge
+                variant="success"
+                dot
+                data-testid="feature-gate-passkey-recovery"
+              >
                 Passkey Recovery Enabled
               </Badge>
             </FeatureGate>
           </div>
 
           <div>
-            <p className="text-sm text-[--text-secondary] mb-2">OFFLINE_MODE (disabled by default):</p>
+            <p className="text-sm text-[--text-secondary] mb-2">
+              OFFLINE_MODE (disabled by default):
+            </p>
             <FeatureGate
               flag={FeatureFlag.OFFLINE_MODE}
               fallback={
-                <Badge variant="warning" dot data-testid="feature-gate-fallback-offline">
+                <Badge
+                  variant="warning"
+                  dot
+                  data-testid="feature-gate-fallback-offline"
+                >
                   Offline Mode Coming Soon
                 </Badge>
               }
             >
-              <Badge variant="success" dot data-testid="feature-gate-offline-mode">
+              <Badge
+                variant="success"
+                dot
+                data-testid="feature-gate-offline-mode"
+              >
                 Offline Mode Enabled
               </Badge>
             </FeatureGate>

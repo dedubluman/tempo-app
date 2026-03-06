@@ -81,7 +81,9 @@ test.describe("Transfer Form - Validation Flows", () => {
     await expect(errorMessage).toBeVisible();
   });
 
-  test.skip("4. Form validation - address checks block invalid submit", async ({ page }) => {
+  test.skip("4. Form validation - address checks block invalid submit", async ({
+    page,
+  }) => {
     // Arrange: Form is loaded with user's own address
     const recipientInput = page.getByLabel("Recipient Address");
     const amountInput = page.getByLabel("Amount");
@@ -91,7 +93,9 @@ test.describe("Transfer Form - Validation Flows", () => {
     await amountInput.fill("1");
     await sendButton.click();
 
-    const validationMessage = page.locator("text=/Cannot send to your own address|Insufficient balance/i");
+    const validationMessage = page.locator(
+      "text=/Cannot send to your own address|Insufficient balance/i",
+    );
     await expect(validationMessage).toBeVisible();
   });
 
@@ -111,7 +115,9 @@ test.describe("Transfer Form - Validation Flows", () => {
     await expect(errorMessage).toBeVisible();
   });
 
-  test("5b. Form validation - Invalid amount (non-numeric)", async ({ page }) => {
+  test("5b. Form validation - Invalid amount (non-numeric)", async ({
+    page,
+  }) => {
     // Arrange: Form is loaded
     const recipientInput = page.getByLabel("Recipient Address");
     const amountInput = page.getByLabel("Amount");
@@ -123,7 +129,9 @@ test.describe("Transfer Form - Validation Flows", () => {
     await sendButton.click();
 
     // Assert: Amount validation error is shown
-    const errorMessage = page.locator("text=/Amount must be greater than 0|Invalid amount format/");
+    const errorMessage = page.locator(
+      "text=/Amount must be greater than 0|Invalid amount format/",
+    );
     await expect(errorMessage).toBeVisible();
   });
 
@@ -187,11 +195,17 @@ test.describe("Transfer Form - Confirmation Step", () => {
     await expect(page.locator("text=Review required")).toBeVisible();
 
     // Verify recipient address is displayed
-    const recipientDisplay = page.locator("text=Recipient").locator("..").locator("p:has-text('0x')");
+    const recipientDisplay = page
+      .locator("text=Recipient")
+      .locator("..")
+      .locator("p:has-text('0x')");
     await expect(recipientDisplay).toContainText(VALID_RECIPIENT);
 
     // Verify amount is displayed
-    const amountDisplay = page.locator("text=Amount").locator("..").locator("p:has-text('pathUSD')");
+    const amountDisplay = page
+      .locator("text=Amount")
+      .locator("..")
+      .locator("p:has-text('pathUSD')");
     await expect(amountDisplay).toContainText("10 pathUSD");
 
     // Verify memo is displayed
@@ -199,7 +213,9 @@ test.describe("Transfer Form - Confirmation Step", () => {
     await expect(memoDisplay).toContainText("Test");
 
     // Verify buttons are present
-    await expect(page.getByRole("button", { name: /Confirm & Send/ })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Confirm & Send/ }),
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: /Edit/ })).toBeVisible();
   });
 
@@ -223,7 +239,9 @@ test.describe("Transfer Form - Confirmation Step", () => {
     await editButton.click();
 
     // Assert: Back to form with values preserved
-    await expect(page.getByTestId("transfer-card").getByText("Send pathUSD")).toBeVisible();
+    await expect(
+      page.getByTestId("transfer-card").getByText("Send pathUSD"),
+    ).toBeVisible();
     await expect(recipientInput).toHaveValue(VALID_RECIPIENT);
     await expect(amountInput).toHaveValue("10");
     await expect(memoInput).toHaveValue("Test");
@@ -337,7 +355,9 @@ test.describe("Transfer Form - Input Constraints", () => {
     await expect(byteCounter).toContainText("12/32 bytes");
   });
 
-  test("Recipient input accepts valid checksummed addresses", async ({ page }) => {
+  test("Recipient input accepts valid checksummed addresses", async ({
+    page,
+  }) => {
     // Arrange: Form is loaded
     const recipientInput = page.getByLabel("Recipient Address");
     const amountInput = page.getByLabel("Amount");

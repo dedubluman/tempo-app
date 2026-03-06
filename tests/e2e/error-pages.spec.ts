@@ -13,7 +13,9 @@ test("404 Not Found page - navigate to non-existent page", async ({ page }) => {
 
   // Verify error message is visible
   await expect(
-    page.locator("text=The page you are looking for does not exist or has moved.")
+    page.locator(
+      "text=The page you are looking for does not exist or has moved.",
+    ),
   ).toBeVisible();
 
   // Verify "Go to Wallet" button is visible
@@ -37,7 +39,7 @@ test("Invalid transaction hash - format validation", async ({ page }) => {
 
   // Verify error message about format is visible
   await expect(
-    page.locator("text=Hash must start with 0x and have 66 characters.")
+    page.locator("text=Hash must start with 0x and have 66 characters."),
   ).toBeVisible();
 
   // Verify "Go to Wallet" button is visible
@@ -56,13 +58,14 @@ test("Invalid transaction hash - too short", async ({ page }) => {
   // Verify error is shown
   await expect(page.locator("text=Invalid transaction hash")).toBeVisible();
   await expect(
-    page.locator("text=Hash must start with 0x and have 66 characters.")
+    page.locator("text=Hash must start with 0x and have 66 characters."),
   ).toBeVisible();
 });
 
 test("Invalid transaction hash - wrong prefix", async ({ page }) => {
   // Navigate to /tx with hash missing 0x prefix
-  const invalidHash = "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
+  const invalidHash =
+    "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
   await page.goto(`${BASE_URL}/tx/${invalidHash}`);
 
   // Verify error is shown
@@ -83,13 +86,15 @@ test("Transaction not found - valid hash format but non-existent", async ({
 
   // Wait for the page to load and check for error state
   // The page will show "Transaction not found" when the RPC query fails
-  await expect(
-    page.locator("text=Transaction not found")
-  ).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Transaction not found")).toBeVisible({
+    timeout: 10000,
+  });
 
   // Verify error message is visible
   await expect(
-    page.locator("text=Verify the hash or open the explorer for recent activity.")
+    page.locator(
+      "text=Verify the hash or open the explorer for recent activity.",
+    ),
   ).toBeVisible();
 
   // Verify "Back to Wallet" link is visible
@@ -231,7 +236,9 @@ test("404 page - styling and accessibility", async ({ page }) => {
   await page.goto(`${BASE_URL}/non-existent-page`);
 
   // Verify the 404 heading is visible
-  await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Page not found" }),
+  ).toBeVisible();
 
   // Verify button is keyboard accessible
   const button = page.getByTestId("notfound-home");
@@ -239,7 +246,9 @@ test("404 page - styling and accessibility", async ({ page }) => {
 
   // Verify button can be focused
   await button.focus();
-  const isFocused = await button.evaluate((el) => el === document.activeElement);
+  const isFocused = await button.evaluate(
+    (el) => el === document.activeElement,
+  );
   expect(isFocused).toBe(true);
 });
 

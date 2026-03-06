@@ -31,7 +31,11 @@ function shortAddress(value: string): string {
   return `${value.slice(0, 8)}...${value.slice(-6)}`;
 }
 
-export function RecentRequests({ entries, onCopy, onDelete }: RecentRequestsProps) {
+export function RecentRequests({
+  entries,
+  onCopy,
+  onDelete,
+}: RecentRequestsProps) {
   if (entries.length === 0) {
     return (
       <p className="rounded-[--radius-md] border border-[--border-subtle] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary]">
@@ -51,12 +55,25 @@ export function RecentRequests({ entries, onCopy, onDelete }: RecentRequestsProp
             <p className="text-sm text-[--text-primary]">
               {entry.amount} {entry.token}
             </p>
-            <span className="text-xs text-[--text-secondary]">{formatDate(entry.createdAtMs)}</span>
+            <span className="text-xs text-[--text-secondary]">
+              {formatDate(entry.createdAtMs)}
+            </span>
           </div>
-          <p className="mt-1 text-xs text-[--text-secondary]">To: {shortAddress(entry.to)}</p>
-          {entry.memo ? <p className="mt-1 text-xs text-[--text-secondary]">Memo: {entry.memo}</p> : null}
+          <p className="mt-1 text-xs text-[--text-secondary]">
+            To: {shortAddress(entry.to)}
+          </p>
+          {entry.memo ? (
+            <p className="mt-1 text-xs text-[--text-secondary]">
+              Memo: {entry.memo}
+            </p>
+          ) : null}
           <div className="mt-2 flex gap-2">
-            <Button type="button" size="sm" variant="secondary" onClick={() => void onCopy(entry.url)}>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => void onCopy(entry.url)}
+            >
               <Copy size={12} />
               Copy
             </Button>
@@ -68,7 +85,12 @@ export function RecentRequests({ entries, onCopy, onDelete }: RecentRequestsProp
               <QrCode size={12} />
               Open
             </Link>
-            <Button type="button" size="sm" variant="ghost" onClick={() => onDelete(entry.id)}>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => onDelete(entry.id)}
+            >
               <Trash size={12} />
               Delete
             </Button>

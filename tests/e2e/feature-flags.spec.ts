@@ -11,7 +11,7 @@ test.describe("Feature Flags", () => {
     await expect(featureContent).not.toBeVisible();
   });
 
-  test("PASSKEY_RECOVERY flag enabled via env var", async ({ page, context }) => {
+  test("PASSKEY_RECOVERY flag enabled via env var", async ({ page }) => {
     // This test verifies the feature flag system works
     // In a real scenario, you'd restart the server with NEXT_PUBLIC_FF_PASSKEY_RECOVERY=1
     // For now, we verify the mechanism by checking the test component

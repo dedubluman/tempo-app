@@ -16,7 +16,9 @@ test.describe("Feature Docs Pages", () => {
     test(`${heading} docs page loads`, async ({ page }) => {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
-      await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: heading, level: 1 }),
+      ).toBeVisible();
       await expect(page.getByText("Tempo Primitives Used")).toBeVisible();
     });
   }
@@ -26,21 +28,43 @@ test.describe("Feature Docs Pages", () => {
     await page.goto("/docs");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole("link", { name: "Overview", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Getting Started", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Security", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Stablecoin Swap", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Token Forge", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "AI Agent Wallet", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "POS Terminal", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Streaming Payments", exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Overview", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Getting Started", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Security", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Stablecoin Swap", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Token Forge", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "AI Agent Wallet", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "POS Terminal", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole("link", { name: "Streaming Payments", exact: true })
+        .first(),
+    ).toBeVisible();
   });
 
   test("docs index shows Advanced Features section", async ({ page }) => {
     await page.goto("/docs");
     await page.waitForLoadState("networkidle");
     await expect(page.getByText("Advanced Features")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Stablecoin Swap" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Streaming Payments" }).first()).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Stablecoin Swap" }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Streaming Payments" }).first(),
+    ).toBeVisible();
   });
 });

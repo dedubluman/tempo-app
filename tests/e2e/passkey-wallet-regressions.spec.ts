@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createPublicClient, createWalletClient, http, isAddress, parseUnits } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  isAddress,
+  parseUnits,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
 
@@ -12,7 +18,8 @@ declare global {
 const PATHUSD_ADDRESS = "0x20c0000000000000000000000000000000000000";
 const PATHUSD_DECIMALS = 6;
 const E2E_SEEDED_ADDRESS = "0x1234567890AbcdEF1234567890aBcdef12345678";
-const RPC_URL = process.env.NEXT_PUBLIC_TEMPO_RPC_URL || "https://rpc.moderato.tempo.xyz";
+const RPC_URL =
+  process.env.NEXT_PUBLIC_TEMPO_RPC_URL || "https://rpc.moderato.tempo.xyz";
 
 const transferAbi = [
   {
@@ -46,7 +53,9 @@ async function enableVirtualAuthenticator(page: Page) {
 async function sendPathUsdToAddress(to: `0x${string}`, amount: string) {
   const privateKey = process.env.E2E_FUNDED_PRIVATE_KEY;
   if (!privateKey || !privateKey.startsWith("0x")) {
-    throw new Error("E2E_FUNDED_PRIVATE_KEY is required for live balance scenario.");
+    throw new Error(
+      "E2E_FUNDED_PRIVATE_KEY is required for live balance scenario.",
+    );
   }
 
   const account = privateKeyToAccount(privateKey as `0x${string}`);
@@ -79,7 +88,9 @@ test.describe("Passkey wallet regression coverage", () => {
     await enableVirtualAuthenticator(page);
   });
 
-  test.skip("asks reset confirmation and keeps existing wallet flow when user cancels", async ({ page }) => {
+  test.skip("asks reset confirmation and keeps existing wallet flow when user cancels", async ({
+    page,
+  }) => {
     await page.addInitScript((seededAddress) => {
       window.localStorage.setItem("tempo.walletCreated", "1");
       window.localStorage.setItem("tempo.lastAddress", seededAddress);
@@ -94,15 +105,24 @@ test.describe("Passkey wallet regression coverage", () => {
 
     await createWalletButton.click();
 
-    await expect(page.getByRole("heading", { name: "Create New Wallet?" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Create New Wallet?" }),
+    ).toBeVisible();
     await expect(page.getByText("Current wallet")).toBeVisible();
     await page.getByRole("button", { name: "Sign In Instead" }).click();
 
-    await expect(page.getByRole("button", { name: /Waiting for passkey|Sign In/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Waiting for passkey|Sign In/i }),
+    ).toBeVisible();
   });
 
-  test("updates balance without manual page refresh after external transfer", async ({ page }) => {
-    test.skip(process.env.E2E_ENABLE_LIVE_BALANCE !== "1", "Enable with E2E_ENABLE_LIVE_BALANCE=1 and funded sender env.");
+  test("updates balance without manual page refresh after external transfer", async ({
+    page,
+  }) => {
+    test.skip(
+      process.env.E2E_ENABLE_LIVE_BALANCE !== "1",
+      "Enable with E2E_ENABLE_LIVE_BALANCE=1 and funded sender env.",
+    );
 
     await page.addInitScript(() => {
       window.localStorage.clear();

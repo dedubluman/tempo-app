@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] hover:-translate-y-[1px] relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] hover:-translate-y-[2px] relative overflow-hidden",
   {
     variants: {
       variant: {
@@ -19,20 +19,21 @@ const buttonVariants = cva(
           "bg-[--status-error-bg] text-[--status-error-text] border border-[--status-error-border] hover:bg-[--status-error-border] active:opacity-80",
       },
       size: {
-        sm: "h-8 px-3 text-sm",
-        md: "h-10 px-4 text-base",
-        lg: "h-12 px-6 text-lg",
+        sm: "h-8 px-4 py-2 text-sm",
+        md: "h-10 px-6 text-base",
+        lg: "h-12 px-8 text-lg",
       },
     },
     defaultVariants: {
       variant: "primary",
       size: "md",
     },
-  }
+  },
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
   "data-testid"?: string;
@@ -41,7 +42,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { className, variant, size, loading, disabled, children, style, ...props },
-    ref
+    ref,
   ) => {
     const isPrimary = variant === "primary" || variant === undefined;
 
@@ -57,11 +58,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           buttonVariants({ variant, size }),
           loading && "text-transparent pointer-events-none",
-          className
+          className,
         )}
         {...props}
       >
-        <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-transparent" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.05] to-transparent"
+        />
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-inherit">
             <div className="relative w-[50%] h-1.5 bg-current/20 rounded-full overflow-hidden">
@@ -72,7 +76,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <span className={cn(loading && "opacity-0")}>{children}</span>
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

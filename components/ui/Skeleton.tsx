@@ -28,7 +28,7 @@ function Skeleton({
       className={cn(
         "relative overflow-hidden bg-[--bg-elevated] motion-reduce:animate-none",
         variantClasses[variant],
-        className
+        className,
       )}
       style={{
         ...(width !== undefined ? { width } : {}),

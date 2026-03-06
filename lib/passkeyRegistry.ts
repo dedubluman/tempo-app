@@ -134,7 +134,10 @@ function getRegistrySalt(): string | null {
 
 function openRegistryDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open(REGISTRY_DB_NAME, REGISTRY_DB_VERSION);
+    const request = window.indexedDB.open(
+      REGISTRY_DB_NAME,
+      REGISTRY_DB_VERSION,
+    );
 
     request.onupgradeneeded = () => {
       const database = request.result;
@@ -146,11 +149,17 @@ function openRegistryDatabase(): Promise<IDBDatabase> {
     };
 
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("Could not open passkey registry database."));
+    request.onerror = () =>
+      reject(
+        request.error ?? new Error("Could not open passkey registry database."),
+      );
   });
 }
 
-function withStoreRequest<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function withStoreRequest<T>(
+  mode: IDBTransactionMode,
+  work: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     void openRegistryDatabase()
       .then((database) => {
@@ -159,11 +168,17 @@ function withStoreRequest<T>(mode: IDBTransactionMode, work: (store: IDBObjectSt
         const request = work(store);
 
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error ?? new Error("Passkey registry operation failed."));
+        request.onerror = () =>
+          reject(
+            request.error ?? new Error("Passkey registry operation failed."),
+          );
 
         transaction.oncomplete = () => database.close();
         transaction.onerror = () => {
-          reject(transaction.error ?? new Error("Passkey registry transaction failed."));
+          reject(
+            transaction.error ??
+              new Error("Passkey registry transaction failed."),
+          );
           database.close();
         };
       })
@@ -173,11 +188,17 @@ function withStoreRequest<T>(mode: IDBTransactionMode, work: (store: IDBObjectSt
 
 async function hashCredentialId(credentialId: string): Promise<string> {
   const normalized = `${window.location.origin}:${credentialId}`;
-  const digest = await window.crypto.subtle.digest("SHA-256", encodeUtf8(normalized));
+  const digest = await window.crypto.subtle.digest(
+    "SHA-256",
+    encodeUtf8(normalized),
+  );
   return bytesToBase64(new Uint8Array(digest));
 }
 
-async function deriveCredentialKey(credentialId: string, salt: string): Promise<CryptoKey> {
+async function deriveCredentialKey(
+  credentialId: string,
+  salt: string,
+): Promise<CryptoKey> {
   const keyMaterial = await window.crypto.subtle.importKey(
     "raw",
     encodeUtf8(`${window.location.origin}:${credentialId}`),
@@ -203,7 +224,11 @@ async function deriveCredentialKey(credentialId: string, salt: string): Promise<
   );
 }
 
-async function encryptAddress(address: string, credentialId: string, salt: string): Promise<{ ciphertext: string; iv: string }> {
+async function encryptAddress(
+  address: string,
+  credentialId: string,
+  salt: string,
+): Promise<{ ciphertext: string; iv: string }> {
   const ivBytes = new Uint8Array(12);
   window.crypto.getRandomValues(ivBytes);
   const ivBuffer = toArrayBuffer(ivBytes);
@@ -224,7 +249,12 @@ async function encryptAddress(address: string, credentialId: string, salt: strin
   };
 }
 
-async function decryptAddress(ciphertext: string, iv: string, credentialId: string, salt: string): Promise<string | null> {
+async function decryptAddress(
+  ciphertext: string,
+  iv: string,
+  credentialId: string,
+  salt: string,
+): Promise<string | null> {
   try {
     const key = await deriveCredentialKey(credentialId, salt);
     const decrypted = await window.crypto.subtle.decrypt(
@@ -268,7 +298,9 @@ export async function hasAnyWalletMappings(): Promise<boolean> {
   return total > 0;
 }
 
-export async function getMappedAddress(credentialId: string): Promise<string | null> {
+export async function getMappedAddress(
+  credentialId: string,
+): Promise<string | null> {
   if (!canUseRegistry()) {
     return null;
   }
@@ -279,18 +311,28 @@ export async function getMappedAddress(credentialId: string): Promise<string | n
   }
 
   const credentialHash = await hashCredentialId(credentialId);
-  const record = await withStoreRequest("readonly", (store) =>
-    store.get(credentialHash) as IDBRequest<WalletMappingRecord | undefined>,
+  const record = await withStoreRequest(
+    "readonly",
+    (store) =>
+      store.get(credentialHash) as IDBRequest<WalletMappingRecord | undefined>,
   );
 
   if (!record) {
     return null;
   }
 
-  return decryptAddress(record.addressCiphertext, record.iv, credentialId, salt);
+  return decryptAddress(
+    record.addressCiphertext,
+    record.iv,
+    credentialId,
+    salt,
+  );
 }
 
-export async function saveWalletMapping(credentialId: string, address: string): Promise<void> {
+export async function saveWalletMapping(
+  credentialId: string,
+  address: string,
+): Promise<void> {
   if (!canUseRegistry()) {
     return;
   }
@@ -301,8 +343,10 @@ export async function saveWalletMapping(credentialId: string, address: string): 
   }
 
   const credentialHash = await hashCredentialId(credentialId);
-  const existingRecord = await withStoreRequest("readonly", (store) =>
-    store.get(credentialHash) as IDBRequest<WalletMappingRecord | undefined>,
+  const existingRecord = await withStoreRequest(
+    "readonly",
+    (store) =>
+      store.get(credentialHash) as IDBRequest<WalletMappingRecord | undefined>,
   );
 
   const encrypted = await encryptAddress(address, credentialId, salt);
@@ -324,7 +368,10 @@ export async function saveBackupCredentialMetadata(
   accountAddress: string,
   label: string | null = null,
 ): Promise<void> {
-  if (typeof window === "undefined" || typeof window.crypto?.subtle === "undefined") {
+  if (
+    typeof window === "undefined" ||
+    typeof window.crypto?.subtle === "undefined"
+  ) {
     return;
   }
 
@@ -332,7 +379,9 @@ export async function saveBackupCredentialMetadata(
   const normalizedAddress = normalizeAddress(accountAddress);
   const allRecords = getBackupMetadataList();
   const now = new Date().toISOString();
-  const existing = allRecords.find((record) => record.credentialHash === credentialHash);
+  const existing = allRecords.find(
+    (record) => record.credentialHash === credentialHash,
+  );
 
   const nextRecord: BackupCredentialMetadata = {
     credentialHash,
@@ -342,25 +391,33 @@ export async function saveBackupCredentialMetadata(
     updatedAt: now,
   };
 
-  const remaining = allRecords.filter((record) => record.credentialHash !== credentialHash);
+  const remaining = allRecords.filter(
+    (record) => record.credentialHash !== credentialHash,
+  );
   setBackupMetadataList([nextRecord, ...remaining]);
 }
 
-export function getBackupCredentialMetadata(accountAddress?: string): BackupCredentialMetadata[] {
+export function getBackupCredentialMetadata(
+  accountAddress?: string,
+): BackupCredentialMetadata[] {
   const allRecords = getBackupMetadataList();
   if (!accountAddress) {
     return allRecords;
   }
 
   const normalizedAddress = normalizeAddress(accountAddress);
-  return allRecords.filter((record) => normalizeAddress(record.accountAddress) === normalizedAddress);
+  return allRecords.filter(
+    (record) => normalizeAddress(record.accountAddress) === normalizedAddress,
+  );
 }
 
 export function hasBackupCredentialMetadata(accountAddress: string): boolean {
   return getBackupCredentialMetadata(accountAddress).length > 0;
 }
 
-async function postRegistryAction(payload: Record<string, unknown>): Promise<unknown> {
+async function postRegistryAction(
+  payload: Record<string, unknown>,
+): Promise<unknown> {
   if (typeof window === "undefined") {
     return null;
   }
@@ -393,9 +450,14 @@ export async function hasAnyServerWalletMappings(): Promise<boolean> {
   }
 }
 
-export async function getServerMappedAddress(credentialId: string): Promise<string | null> {
+export async function getServerMappedAddress(
+  credentialId: string,
+): Promise<string | null> {
   try {
-    const response = await postRegistryAction({ action: "resolve", credentialId });
+    const response = await postRegistryAction({
+      action: "resolve",
+      credentialId,
+    });
     if (!response || typeof response !== "object" || !("address" in response)) {
       return null;
     }
@@ -410,7 +472,10 @@ export async function getServerMappedAddress(credentialId: string): Promise<stri
   }
 }
 
-export async function saveServerWalletMapping(credentialId: string, address: string): Promise<boolean> {
+export async function saveServerWalletMapping(
+  credentialId: string,
+  address: string,
+): Promise<boolean> {
   try {
     const response = await postRegistryAction({
       action: "upsert",

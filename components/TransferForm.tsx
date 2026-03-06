@@ -1,10 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAccount, useBlockNumber, usePublicClient, useReadContract, useSendCallsSync } from "wagmi";
+import {
+  useAccount,
+  useBlockNumber,
+  usePublicClient,
+  useReadContract,
+  useSendCallsSync,
+} from "wagmi";
 import { Hooks } from "wagmi/tempo";
-import { encodeFunctionData, formatUnits, getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
-import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
+import {
+  encodeFunctionData,
+  formatUnits,
+  getAddress,
+  isAddress,
+  pad,
+  parseUnits,
+  stringToHex,
+} from "viem";
+import {
+  PATHUSD_ADDRESS,
+  PATHUSD_DECIMALS,
+  EXPLORER_URL,
+} from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import {
   applySessionSpend,
@@ -32,7 +50,10 @@ const MAX_BATCH_RECIPIENTS = 10;
 
 function createBatchRecipientRow(): BatchRecipientRow {
   return {
-    id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+    id:
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}`,
     recipient: "",
     amount: "",
     memo: "",
@@ -54,7 +75,9 @@ export function TransferForm() {
   const [amountError, setAmountError] = useState("");
   const [memoError, setMemoError] = useState("");
 
-  const [batchRows, setBatchRows] = useState<BatchRecipientRow[]>([createBatchRecipientRow()]);
+  const [batchRows, setBatchRows] = useState<BatchRecipientRow[]>([
+    createBatchRecipientRow(),
+  ]);
   const [batchFormError, setBatchFormError] = useState("");
   const [batchConfirming, setBatchConfirming] = useState(false);
   const [batchHasNewAddress, setBatchHasNewAddress] = useState(false);
@@ -70,7 +93,11 @@ export function TransferForm() {
     },
   });
 
-  const { data: balance, isLoading: isBalanceLoading, refetch: refetchBalance } = useReadContract({
+  const {
+    data: balance,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalance,
+  } = useReadContract({
     address: PATHUSD_ADDRESS,
     abi: pathUsdAbi,
     functionName: "balanceOf",
@@ -139,7 +166,9 @@ export function TransferForm() {
         if (amountInUnits > balance) {
           const needed = formatUnits(amountInUnits, PATHUSD_DECIMALS);
           const available = formatUnits(balance, PATHUSD_DECIMALS);
-          setAmountError(`Insufficient balance. You need ${needed} pathUSD but have ${available}.`);
+          setAmountError(
+            `Insufficient balance. You need ${needed} pathUSD but have ${available}.`,
+          );
           return false;
         }
       }
@@ -216,13 +245,27 @@ export function TransferForm() {
   const isBatchSuccess = Boolean(batchHash);
   const memoByteLength = new TextEncoder().encode(memo).length;
   const memoRemaining = 32 - memoByteLength;
-  const formattedBalance = balance ? formatUnits(balance, PATHUSD_DECIMALS) : "0";
-  const maxDisabled = isPending || isBatchPending || isBalanceLoading || !balance || formattedBalance === "0";
+  const formattedBalance = balance
+    ? formatUnits(balance, PATHUSD_DECIMALS)
+    : "0";
+  const maxDisabled =
+    isPending ||
+    isBatchPending ||
+    isBalanceLoading ||
+    !balance ||
+    formattedBalance === "0";
   const isPendingAny = isPending || isBatchPending;
   const refetchBalanceRef = useRef(refetchBalance);
 
-  const shortHash = useMemo(() => (hash ? `${hash.slice(0, 10)}...${hash.slice(-8)}` : ""), [hash]);
-  const shortBatchHash = useMemo(() => (batchHash ? `${batchHash.slice(0, 10)}...${batchHash.slice(-8)}` : ""), [batchHash]);
+  const shortHash = useMemo(
+    () => (hash ? `${hash.slice(0, 10)}...${hash.slice(-8)}` : ""),
+    [hash],
+  );
+  const shortBatchHash = useMemo(
+    () =>
+      batchHash ? `${batchHash.slice(0, 10)}...${batchHash.slice(-8)}` : "",
+    [batchHash],
+  );
 
   const batchTotalInUnits = useMemo(() => {
     return batchRows.reduce((sum, row) => {
@@ -237,12 +280,17 @@ export function TransferForm() {
     }, BigInt(0));
   }, [batchRows]);
 
-  const batchTotalFormatted = useMemo(() => formatUnits(batchTotalInUnits, PATHUSD_DECIMALS), [batchTotalInUnits]);
+  const batchTotalFormatted = useMemo(
+    () => formatUnits(batchTotalInUnits, PATHUSD_DECIMALS),
+    [batchTotalInUnits],
+  );
   const batchEstimatedFee = useMemo(() => {
     if (!batchHasNewAddress) {
       return null;
     }
-    const estimated = parseUnits("0.001", PATHUSD_DECIMALS) * BigInt(Math.max(batchRows.length, 1));
+    const estimated =
+      parseUnits("0.001", PATHUSD_DECIMALS) *
+      BigInt(Math.max(batchRows.length, 1));
     return formatUnits(estimated, PATHUSD_DECIMALS);
   }, [batchHasNewAddress, batchRows.length]);
 
@@ -254,7 +302,11 @@ export function TransferForm() {
     const rawMessage = transferError.message.split("\n")[0];
     const normalized = transferError.message.toLowerCase();
 
-    if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
+    if (
+      normalized.includes("user rejected") ||
+      normalized.includes("user denied") ||
+      normalized.includes("rejected")
+    ) {
       return "Transfer cancelled in passkey confirmation. Review the details and approve to send.";
     }
 
@@ -292,7 +344,11 @@ export function TransferForm() {
     const rawMessage = batchError.message.split("\n")[0];
     const normalized = batchError.message.toLowerCase();
 
-    if (normalized.includes("user rejected") || normalized.includes("user denied") || normalized.includes("rejected")) {
+    if (
+      normalized.includes("user rejected") ||
+      normalized.includes("user denied") ||
+      normalized.includes("rejected")
+    ) {
       return "Batch send cancelled in passkey confirmation. Review recipients and approve to continue.";
     }
 
@@ -338,7 +394,9 @@ export function TransferForm() {
   }, [address, blockNumber]);
 
   const updateBatchRow = (id: string, patch: Partial<BatchRecipientRow>) => {
-    setBatchRows((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+    setBatchRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+    );
   };
 
   const validateBatchRows = () => {
@@ -383,7 +441,9 @@ export function TransferForm() {
       hasError = true;
       const needed = formatUnits(computedTotal, PATHUSD_DECIMALS);
       const available = formatUnits(balance, PATHUSD_DECIMALS);
-      setBatchFormError(`Insufficient balance. You need ${needed} pathUSD but have ${available}.`);
+      setBatchFormError(
+        `Insufficient balance. You need ${needed} pathUSD but have ${available}.`,
+      );
       return { hasError: true, normalizedRows: nextRows };
     }
 
@@ -397,7 +457,12 @@ export function TransferForm() {
     }
 
     const uniqueRecipients = Array.from(
-      new Set(rows.map((row) => row.recipient).filter((item) => item && isAddress(item)).map((item) => getAddress(item))),
+      new Set(
+        rows
+          .map((row) => row.recipient)
+          .filter((item) => item && isAddress(item))
+          .map((item) => getAddress(item)),
+      ),
     );
 
     if (uniqueRecipients.length === 0) {
@@ -406,7 +471,9 @@ export function TransferForm() {
 
     try {
       const nonces = await Promise.all(
-        uniqueRecipients.map((recipientAddress) => publicClient.getTransactionCount({ address: recipientAddress })),
+        uniqueRecipients.map((recipientAddress) =>
+          publicClient.getTransactionCount({ address: recipientAddress }),
+        ),
       );
       return nonces.some((nonce) => nonce === 0);
     } catch {
@@ -456,10 +523,14 @@ export function TransferForm() {
     setConfirming(true);
   };
 
-  const executeSingleTransfer = async (sessionId: ReturnType<typeof getSessionForTransfer> | null) => {
+  const executeSingleTransfer = async (
+    sessionId: ReturnType<typeof getSessionForTransfer> | null,
+  ) => {
     const checksummedRecipient = getAddress(recipient);
     const amountInUnits = parseUnits(amount, PATHUSD_DECIMALS);
-    const memoBytes32 = memo ? pad(stringToHex(memo), { size: 32 }) : pad("0x", { size: 32 });
+    const memoBytes32 = memo
+      ? pad(stringToHex(memo), { size: 32 })
+      : pad("0x", { size: 32 });
 
     const baseRequest = {
       token: PATHUSD_ADDRESS,
@@ -476,15 +547,21 @@ export function TransferForm() {
         const request = {
           ...baseRequest,
           account: accessAccount,
-          ...(sessionId.keyAuthorization ? { keyAuthorization: sessionId.keyAuthorization } : {}),
+          ...(sessionId.keyAuthorization
+            ? { keyAuthorization: sessionId.keyAuthorization }
+            : {}),
         };
 
         try {
           const response = await transferSync(request);
           transactionHash = response?.receipt?.transactionHash;
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (sessionId.keyAuthorization && message.includes("KeyAlreadyExists")) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (
+            sessionId.keyAuthorization &&
+            message.includes("KeyAlreadyExists")
+          ) {
             clearSessionAuthorization(sessionId.id);
             const response = await transferSync({
               ...baseRequest,
@@ -508,7 +585,11 @@ export function TransferForm() {
       if (address && transactionHash) {
         addTransferHistoryEntries([
           {
-            id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
+            id:
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}`,
             transactionHash,
             counterparty: checksummedRecipient,
             amount: amountInUnits,
@@ -542,7 +623,11 @@ export function TransferForm() {
           abi: pathUsdAbi,
           functionName: hasMemo ? "transferWithMemo" : "transfer",
           args: hasMemo
-            ? [checksummedRecipient, amountInUnits, pad(stringToHex(row.memo), { size: 32 })]
+            ? [
+                checksummedRecipient,
+                amountInUnits,
+                pad(stringToHex(row.memo), { size: 32 }),
+              ]
             : [checksummedRecipient, amountInUnits],
         });
 
@@ -552,7 +637,10 @@ export function TransferForm() {
         };
       });
 
-      const totalAmount = batchRows.reduce((sum, row) => sum + parseUnits(row.amount, PATHUSD_DECIMALS), BigInt(0));
+      const totalAmount = batchRows.reduce(
+        (sum, row) => sum + parseUnits(row.amount, PATHUSD_DECIMALS),
+        BigInt(0),
+      );
       const batchSession = getSessionForBatch({
         recipients: batchRows.map((row) => row.recipient),
         amount: totalAmount,
@@ -566,15 +654,21 @@ export function TransferForm() {
           calls,
           forceAtomic: true,
           account: accessAccount,
-          ...(batchSession.keyAuthorization ? { keyAuthorization: batchSession.keyAuthorization } : {}),
+          ...(batchSession.keyAuthorization
+            ? { keyAuthorization: batchSession.keyAuthorization }
+            : {}),
         };
 
         try {
           const response = await sendCallsSync(request);
           transactionHash = response?.receipts?.[0]?.transactionHash;
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (batchSession.keyAuthorization && message.includes("KeyAlreadyExists")) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (
+            batchSession.keyAuthorization &&
+            message.includes("KeyAlreadyExists")
+          ) {
             clearSessionAuthorization(batchSession.id);
             const response = await sendCallsSync({
               calls,
@@ -603,7 +697,8 @@ export function TransferForm() {
         addTransferHistoryEntries(
           batchRows.map((row, index) => ({
             id:
-              typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
                 ? crypto.randomUUID()
                 : `${Date.now()}-${index}`,
             transactionHash,
@@ -711,11 +806,18 @@ export function TransferForm() {
     return (
       <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Batch Transfer Successful</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">
+            Batch Transfer Successful
+          </p>
           <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">Transaction</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">
+              Transaction
+            </p>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-mono text-sm text-[--status-success-text]" title={batchHash}>
+              <p
+                className="font-mono text-sm text-[--status-success-text]"
+                title={batchHash}
+              >
                 {shortBatchHash}
               </p>
               <button
@@ -728,12 +830,13 @@ export function TransferForm() {
             </div>
           </div>
           <p className="text-xs text-[--status-success-text]">
-            {batchRows.length} recipient{batchRows.length > 1 ? "s" : ""} • Total {batchTotalFormatted} pathUSD
+            {batchRows.length} recipient{batchRows.length > 1 ? "s" : ""} •
+            Total {batchTotalFormatted} pathUSD
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href={`/tx/${batchHash}`}
-               className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
+              className="inline-flex h-11 items-center rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 text-sm font-medium text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-subtle] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
             >
               View Details
             </Link>
@@ -762,11 +865,18 @@ export function TransferForm() {
     return (
       <div className="space-y-5 rounded-2xl border border-[--status-success-border] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">Transfer Successful</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--status-success-text]">
+            Transfer Successful
+          </p>
           <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">Transaction</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[--status-success-text]">
+              Transaction
+            </p>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-mono text-sm text-[--status-success-text]" title={hash}>
+              <p
+                className="font-mono text-sm text-[--status-success-text]"
+                title={hash}
+              >
                 {shortHash}
               </p>
               <button
@@ -810,29 +920,47 @@ export function TransferForm() {
     return (
       <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Batch Send</p>
-          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+            Confirm Batch Send
+          </p>
+          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">
+            Review required
+          </span>
         </div>
 
         <div className="space-y-3 border-t border-[--border-default] pt-4 text-sm text-[--text-secondary]">
           {batchRows.map((row, index) => (
-            <div key={row.id} className="rounded-xl border border-[--border-default] bg-[--bg-elevated] p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient {index + 1}</p>
-              <p className="mt-1 break-all font-mono text-xs text-[--text-primary]">{row.recipient}</p>
-              <p className="mt-2 font-mono text-sm text-[--text-primary]">{row.amount} pathUSD</p>
-              <p className="mt-1 text-xs text-[--text-tertiary]">Memo: {row.memo || "-"}</p>
+            <div
+              key={row.id}
+              className="rounded-xl border border-[--border-default] bg-[--bg-elevated] p-3"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
+                Recipient {index + 1}
+              </p>
+              <p className="mt-1 break-all font-mono text-xs text-[--text-primary]">
+                {row.recipient}
+              </p>
+              <p className="mt-2 font-mono text-sm text-[--text-primary]">
+                {row.amount} pathUSD
+              </p>
+              <p className="mt-1 text-xs text-[--text-tertiary]">
+                Memo: {row.memo || "-"}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="rounded-xl border border-[--border-default] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary]">
-          <p className="font-medium text-[--text-primary]">{batchRows.length} recipients</p>
+          <p className="font-medium text-[--text-primary]">
+            {batchRows.length} recipients
+          </p>
           <p>Total: {batchTotalFormatted} pathUSD</p>
         </div>
 
         {batchHasNewAddress && (
           <p className="rounded-lg border border-[--status-warning-border] bg-[--status-warning-bg] px-3 py-2 text-xs text-[--status-warning-text]">
-            Sending to new addresses costs more. Estimated fee: {batchEstimatedFee ?? "0.001"} pathUSD.
+            Sending to new addresses costs more. Estimated fee:{" "}
+            {batchEstimatedFee ?? "0.001"} pathUSD.
           </p>
         )}
 
@@ -862,25 +990,37 @@ export function TransferForm() {
     return (
       <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Confirm Transfer</p>
-          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">Review required</span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+            Confirm Transfer
+          </p>
+          <span className="inline-flex rounded-full bg-[--status-warning-bg] px-2.5 py-1 text-xs font-medium text-[--status-warning-text]">
+            Review required
+          </span>
         </div>
         <div className="space-y-3 border-t border-[--border-default] pt-4 text-sm text-[--text-secondary]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
+              Recipient
+            </p>
             <p className="mt-1 break-all rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 font-mono text-xs text-[--text-primary]">
               {recipient}
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Amount</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
+              Amount
+            </p>
             <p className="mt-1 rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 font-mono text-sm text-[--text-primary]">
               {amount} pathUSD
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Memo</p>
-            <p className="mt-1 rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 text-sm text-[--text-primary]">{memo || "-"}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
+              Memo
+            </p>
+            <p className="mt-1 rounded-lg border border-[--border-default] bg-[--bg-elevated] px-3 py-2 text-sm text-[--text-primary]">
+              {memo || "-"}
+            </p>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -906,10 +1046,14 @@ export function TransferForm() {
   }
 
   return (
-      <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
+    <div className="space-y-5 rounded-2xl border border-[--border-glass] bg-[--bg-glass] backdrop-blur-md p-4 sm:p-6">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">Send pathUSD</p>
-        <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">Gas sponsored</span>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[--text-tertiary]">
+          Send pathUSD
+        </p>
+        <span className="inline-flex rounded-full bg-[--brand-subtle] px-2.5 py-1 text-xs font-medium text-[--brand-primary]">
+          Gas sponsored
+        </span>
       </div>
 
       <div className="grid gap-2 border-t border-[--border-default] pt-4 sm:grid-cols-2">
@@ -944,11 +1088,17 @@ export function TransferForm() {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 border-t border-[--border-default] pt-4 md:grid-cols-2 md:gap-5">
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-4 border-t border-[--border-default] pt-4 md:grid-cols-2 md:gap-5"
+      >
         {mode === "single" ? (
           <>
             <div className="space-y-1 md:col-span-2">
-              <label htmlFor="recipient" className="text-sm font-medium text-[--text-primary]">
+              <label
+                htmlFor="recipient"
+                className="text-sm font-medium text-[--text-primary]"
+              >
                 Recipient Address
               </label>
               <input
@@ -963,12 +1113,19 @@ export function TransferForm() {
                 }}
                 disabled={isPendingAny}
               />
-              {recipientError && <p className="text-xs text-[--status-error-text]">{recipientError}</p>}
+              {recipientError && (
+                <p className="text-xs text-[--status-error-text]">
+                  {recipientError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <label htmlFor="amount" className="text-sm font-medium text-[--text-primary]">
+                <label
+                  htmlFor="amount"
+                  className="text-sm font-medium text-[--text-primary]"
+                >
                   Amount
                 </label>
                 <button
@@ -991,17 +1148,26 @@ export function TransferForm() {
                   const input = e.target.value;
                   const [whole, fractional = ""] = input.split(".");
                   const normalized =
-                    fractional.length > PATHUSD_DECIMALS ? `${whole}.${fractional.slice(0, PATHUSD_DECIMALS)}` : input;
+                    fractional.length > PATHUSD_DECIMALS
+                      ? `${whole}.${fractional.slice(0, PATHUSD_DECIMALS)}`
+                      : input;
                   setAmount(normalized);
                   validateAmount(normalized);
                 }}
                 disabled={isPendingAny}
               />
-              {amountError && <p className="text-xs text-[--status-error-text]">{amountError}</p>}
+              {amountError && (
+                <p className="text-xs text-[--status-error-text]">
+                  {amountError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="memo" className="text-sm font-medium text-[--text-primary]">
+              <label
+                htmlFor="memo"
+                className="text-sm font-medium text-[--text-primary]"
+              >
                 Memo (optional)
               </label>
               <input
@@ -1016,10 +1182,16 @@ export function TransferForm() {
                 }}
                 disabled={isPendingAny}
               />
-              <p className={`text-xs ${memoRemaining < 0 ? "text-[--status-error-text]" : memoRemaining <= 6 ? "text-[--status-warning-text]" : "text-[--text-tertiary]"}`}>
+              <p
+                className={`text-xs ${memoRemaining < 0 ? "text-[--status-error-text]" : memoRemaining <= 6 ? "text-[--status-warning-text]" : "text-[--text-tertiary]"}`}
+              >
                 {memoByteLength}/32 bytes
               </p>
-              {memoError && <p className="text-xs text-[--status-error-text]">{memoError}</p>}
+              {memoError && (
+                <p className="text-xs text-[--status-error-text]">
+                  {memoError}
+                </p>
+              )}
             </div>
 
             {transferError && (
@@ -1035,7 +1207,9 @@ export function TransferForm() {
             >
               {isPendingAny ? "Processing..." : "Send"}
             </button>
-            <p className="text-xs text-[--text-tertiary] md:col-span-2">Network fees are sponsored during testnet usage.</p>
+            <p className="text-xs text-[--text-tertiary] md:col-span-2">
+              Network fees are sponsored during testnet usage.
+            </p>
           </>
         ) : (
           <>
@@ -1045,9 +1219,14 @@ export function TransferForm() {
                 const memoRemainingForRow = 32 - memoBytes;
 
                 return (
-                  <div key={row.id} className="space-y-3 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-4">
+                  <div
+                    key={row.id}
+                    className="space-y-3 rounded-xl border border-[--border-default] bg-[--bg-elevated] p-4"
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">Recipient {index + 1}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[--text-tertiary]">
+                        Recipient {index + 1}
+                      </p>
                       <button
                         type="button"
                         onClick={() => removeBatchRow(row.id)}
@@ -1060,7 +1239,10 @@ export function TransferForm() {
 
                     <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                       <div className="space-y-1">
-                        <label htmlFor={`batch-recipient-${row.id}`} className="text-sm font-medium text-[--text-primary]">
+                        <label
+                          htmlFor={`batch-recipient-${row.id}`}
+                          className="text-sm font-medium text-[--text-primary]"
+                        >
                           Recipient Address
                         </label>
                         <input
@@ -1078,12 +1260,19 @@ export function TransferForm() {
                           }}
                           disabled={isPendingAny}
                         />
-                        {row.recipientError && <p className="text-xs text-[--status-error-text]">{row.recipientError}</p>}
+                        {row.recipientError && (
+                          <p className="text-xs text-[--status-error-text]">
+                            {row.recipientError}
+                          </p>
+                        )}
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex items-center justify-between gap-2">
-                          <label htmlFor={`batch-amount-${row.id}`} className="text-sm font-medium text-[--text-primary]">
+                          <label
+                            htmlFor={`batch-amount-${row.id}`}
+                            className="text-sm font-medium text-[--text-primary]"
+                          >
                             Amount
                           </label>
                           <button
@@ -1116,12 +1305,19 @@ export function TransferForm() {
                           }}
                           disabled={isPendingAny}
                         />
-                        {row.amountError && <p className="text-xs text-[--status-error-text]">{row.amountError}</p>}
+                        {row.amountError && (
+                          <p className="text-xs text-[--status-error-text]">
+                            {row.amountError}
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label htmlFor={`batch-memo-${row.id}`} className="text-sm font-medium text-[--text-primary]">
+                      <label
+                        htmlFor={`batch-memo-${row.id}`}
+                        className="text-sm font-medium text-[--text-primary]"
+                      >
                         Memo (optional)
                       </label>
                       <input
@@ -1150,7 +1346,11 @@ export function TransferForm() {
                       >
                         {memoBytes}/32 bytes
                       </p>
-                      {row.memoError && <p className="text-xs text-[--status-error-text]">{row.memoError}</p>}
+                      {row.memoError && (
+                        <p className="text-xs text-[--status-error-text]">
+                          {row.memoError}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
@@ -1159,7 +1359,9 @@ export function TransferForm() {
               <button
                 type="button"
                 onClick={addBatchRow}
-                disabled={batchRows.length >= MAX_BATCH_RECIPIENTS || isPendingAny}
+                disabled={
+                  batchRows.length >= MAX_BATCH_RECIPIENTS || isPendingAny
+                }
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-[--border-default] bg-[--bg-elevated] px-4 text-sm font-semibold text-[--text-primary] transition-colors duration-150 hover:bg-[--bg-subtle] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--brand-primary]/60 focus-visible:ring-offset-2"
               >
                 Add Recipient
@@ -1167,7 +1369,9 @@ export function TransferForm() {
             </div>
 
             <div className="rounded-xl border border-[--border-default] bg-[--bg-subtle] px-3 py-2 text-sm text-[--text-secondary] md:col-span-2">
-              <p className="font-medium text-[--text-primary]">{batchRows.length} recipients</p>
+              <p className="font-medium text-[--text-primary]">
+                {batchRows.length} recipients
+              </p>
               <p>Total: {batchTotalFormatted} pathUSD</p>
             </div>
 
@@ -1191,7 +1395,8 @@ export function TransferForm() {
               {isPendingAny ? "Processing..." : "Review Batch"}
             </button>
             <p className="text-xs text-[--text-tertiary] md:col-span-2">
-              Batch uses native Tempo atomic calls. Network fees remain sponsored during testnet usage.
+              Batch uses native Tempo atomic calls. Network fees remain
+              sponsored during testnet usage.
             </p>
           </>
         )}

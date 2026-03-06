@@ -9,7 +9,13 @@ const mockSetSessions = vi.fn();
 vi.mock("@/lib/store", () => ({
   useSessionStore: Object.assign(
     vi.fn((selector?: (s: unknown) => unknown) => {
-      const state = { sessions: mockSessions, addSession: mockAddSession, removeSession: mockRemoveSession, clearAllSessions: mockClearAllSessions, setSessions: mockSetSessions };
+      const state = {
+        sessions: mockSessions,
+        addSession: mockAddSession,
+        removeSession: mockRemoveSession,
+        clearAllSessions: mockClearAllSessions,
+        setSessions: mockSetSessions,
+      };
       return selector ? selector(state) : state;
     }),
     {
@@ -21,7 +27,7 @@ vi.mock("@/lib/store", () => ({
         clearAllSessions: mockClearAllSessions,
         setSessions: mockSetSessions,
       })),
-    }
+    },
   ),
 }));
 
@@ -34,8 +40,12 @@ vi.mock("@/lib/config", () => ({
 }));
 
 vi.mock("@/lib/sessionCrypto", () => ({
-  getOrCreateSessionEncryptionKey: vi.fn(() => Promise.resolve({} as CryptoKey)),
-  encryptPrivateKey: vi.fn(() => Promise.resolve({ ciphertext: "abc", iv: "def" })),
+  getOrCreateSessionEncryptionKey: vi.fn(() =>
+    Promise.resolve({} as CryptoKey),
+  ),
+  encryptPrivateKey: vi.fn(() =>
+    Promise.resolve({ ciphertext: "abc", iv: "def" }),
+  ),
   decryptPrivateKey: vi.fn(() => Promise.resolve("0xprivkey" as `0x${string}`)),
 }));
 

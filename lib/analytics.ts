@@ -11,7 +11,9 @@ export function initAnalytics(): void {
 
   // Check if Do Not Track is enabled
   if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") {
-    console.warn("[Analytics] Do Not Track enabled, skipping PostHog initialization");
+    console.warn(
+      "[Analytics] Do Not Track enabled, skipping PostHog initialization",
+    );
     return;
   }
 
@@ -19,7 +21,9 @@ export function initAnalytics(): void {
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
   if (!apiKey || !host) {
-    console.warn("[Analytics] Missing NEXT_PUBLIC_POSTHOG_KEY or NEXT_PUBLIC_POSTHOG_HOST");
+    console.warn(
+      "[Analytics] Missing NEXT_PUBLIC_POSTHOG_KEY or NEXT_PUBLIC_POSTHOG_HOST",
+    );
     return;
   }
 
@@ -45,7 +49,7 @@ export function initAnalytics(): void {
  */
 export function trackEvent(
   name: string,
-  properties?: Record<string, unknown>
+  properties?: Record<string, unknown>,
 ): void {
   if (!isInitialized || navigator.doNotTrack === "1") {
     return;

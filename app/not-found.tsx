@@ -11,8 +11,12 @@ export default function NotFoundPage() {
           <MagnifyingGlass size={28} />
         </div>
         <div className="space-y-2">
-          <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">Page not found</h1>
-          <p className="text-sm text-[--text-secondary]">The page you are looking for does not exist or has moved.</p>
+          <h1 className="text-xl font-bold text-[--text-primary] font-[--font-display]">
+            Page not found
+          </h1>
+          <p className="text-sm text-[--text-secondary]">
+            The page you are looking for does not exist or has moved.
+          </p>
         </div>
         <Link
           href="/app"

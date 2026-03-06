@@ -1,23 +1,35 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { useCountUp } from "@/hooks/useCountUp"
+import { motion } from "framer-motion";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const metrics = [
-  { value: "< 0.5s", label: "Transaction Finality", sublabel: "Faster than a credit card swipe" },
+  {
+    value: "< 0.5s",
+    label: "Transaction Finality",
+    sublabel: "Faster than a credit card swipe",
+  },
   { value: "$0", label: "Gas Fees", sublabel: "Sponsored for all transfers" },
-  { value: "6", label: "Decimal Precision", sublabel: "pathUSD stablecoin accuracy" },
-  { value: "100%", label: "Passkey Auth", sublabel: "No passwords, no seed phrases" },
-]
+  {
+    value: "6",
+    label: "Decimal Precision",
+    sublabel: "pathUSD stablecoin accuracy",
+  },
+  {
+    value: "100%",
+    label: "Passkey Auth",
+    sublabel: "No passwords, no seed phrases",
+  },
+];
 
 interface MetricItemProps {
-  value: string
-  label: string
-  sublabel: string
+  value: string;
+  label: string;
+  sublabel: string;
 }
 
 function MetricItem({ value, label, sublabel }: MetricItemProps) {
-  const { ref, displayValue } = useCountUp({ raw: value })
+  const { ref, displayValue } = useCountUp({ raw: value });
 
   return (
     <motion.div
@@ -33,10 +45,12 @@ function MetricItem({ value, label, sublabel }: MetricItemProps) {
       >
         {displayValue}
       </span>
-      <span className="text-sm font-semibold text-[--text-primary]">{label}</span>
+      <span className="text-sm font-semibold text-[--text-primary]">
+        {label}
+      </span>
       <span className="text-xs text-[--text-muted]">{sublabel}</span>
     </motion.div>
-  )
+  );
 }
 
 export function LandingMetrics() {
@@ -54,5 +68,5 @@ export function LandingMetrics() {
         ))}
       </div>
     </motion.section>
-  )
+  );
 }

@@ -20,10 +20,12 @@ export const config = createConfig({
           retryDelay: 150,
         }),
         ...(process.env.NEXT_PUBLIC_TEMPO_RPC_FALLBACK
-          ? [http(process.env.NEXT_PUBLIC_TEMPO_RPC_FALLBACK, {
-              retryCount: 3,
-              retryDelay: 150,
-            })]
+          ? [
+              http(process.env.NEXT_PUBLIC_TEMPO_RPC_FALLBACK, {
+                retryCount: 3,
+                retryDelay: 150,
+              }),
+            ]
           : []),
       ]),
       http("/api/sponsor"),

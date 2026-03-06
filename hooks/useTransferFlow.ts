@@ -1,11 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAccount, useBlockNumber, usePublicClient, useReadContract, useSendCallsSync } from "wagmi";
+import {
+  useAccount,
+  useBlockNumber,
+  usePublicClient,
+  useReadContract,
+  useSendCallsSync,
+} from "wagmi";
 import { Hooks } from "wagmi/tempo";
-import { encodeFunctionData, formatUnits, getAddress, isAddress, pad, parseUnits, stringToHex } from "viem";
+import {
+  encodeFunctionData,
+  formatUnits,
+  getAddress,
+  isAddress,
+  pad,
+  parseUnits,
+  stringToHex,
+} from "viem";
 import type { Address } from "viem";
-import { PATHUSD_ADDRESS, PATHUSD_DECIMALS, EXPLORER_URL } from "@/lib/constants";
+import {
+  PATHUSD_ADDRESS,
+  PATHUSD_DECIMALS,
+  EXPLORER_URL,
+} from "@/lib/constants";
 import { pathUsdAbi } from "@/lib/abi";
 import {
   applySessionSpend,
@@ -31,9 +49,10 @@ const MAX_BATCH_RECIPIENTS = 10;
 
 function createBatchRow(): BatchRecipientRow {
   return {
-    id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `${Date.now()}`,
+    id:
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}`,
     recipient: "",
     amount: "",
     memo: "",
@@ -164,8 +183,15 @@ export function useTransferFlow(): UseTransferFlowReturn {
     void refetchBalance();
   }, [address, blockNumber, refetchBalance]);
 
-  const formattedBalance = balance ? formatUnits(balance, PATHUSD_DECIMALS) : "0";
-  const maxDisabled = isPending || isBatchPending || isBalanceLoading || !balance || formattedBalance === "0";
+  const formattedBalance = balance
+    ? formatUnits(balance, PATHUSD_DECIMALS)
+    : "0";
+  const maxDisabled =
+    isPending ||
+    isBatchPending ||
+    isBalanceLoading ||
+    !balance ||
+    formattedBalance === "0";
 
   const memoByteLength = new TextEncoder().encode(memo).length;
   const memoRemaining = 32 - memoByteLength;
@@ -178,25 +204,43 @@ export function useTransferFlow(): UseTransferFlowReturn {
   const batchTotalInUnits = useMemo(() => {
     return rows.reduce((sum, row) => {
       if (!row.amount) return sum;
-      try { return sum + parseUnits(row.amount, PATHUSD_DECIMALS); }
-      catch { return sum; }
+      try {
+        return sum + parseUnits(row.amount, PATHUSD_DECIMALS);
+      } catch {
+        return sum;
+      }
     }, BigInt(0));
   }, [rows]);
 
   const batchTotalFormatted = useMemo(
     () => formatUnits(batchTotalInUnits, PATHUSD_DECIMALS),
-    [batchTotalInUnits]
+    [batchTotalInUnits],
   );
 
   const txErrorMessage = useMemo(() => {
     if (!transferError) return "";
     const raw = transferError.message.split("\n")[0];
     const n = transferError.message.toLowerCase();
-    if (n.includes("user rejected") || n.includes("user denied") || n.includes("rejected"))
+    if (
+      n.includes("user rejected") ||
+      n.includes("user denied") ||
+      n.includes("rejected")
+    )
       return "Transfer cancelled in passkey confirmation. Review the details and approve to send.";
-    if (n.includes("insufficient funds") || n.includes("insufficient balance") || n.includes("gas") || n.includes("fee") || n.includes("sponsor"))
+    if (
+      n.includes("insufficient funds") ||
+      n.includes("insufficient balance") ||
+      n.includes("gas") ||
+      n.includes("fee") ||
+      n.includes("sponsor")
+    )
       return "Transaction sponsorship failed. Try a smaller amount. If the recipient is a new address, fund your wallet with native testnet tokens and retry.";
-    if (n.includes("network") || n.includes("timeout") || n.includes("rpc") || n.includes("fetch"))
+    if (
+      n.includes("network") ||
+      n.includes("timeout") ||
+      n.includes("rpc") ||
+      n.includes("fetch")
+    )
       return "Network is slow. Please try again. If it keeps failing, check Tempo RPC connectivity and retry.";
     if (n.includes("execution reverted"))
       return "Transfer reverted on-chain. Confirm recipient address, amount, and that you are using the current receive address.";
@@ -207,56 +251,111 @@ export function useTransferFlow(): UseTransferFlowReturn {
     if (!batchError) return "";
     const raw = batchError.message.split("\n")[0];
     const n = batchError.message.toLowerCase();
-    if (n.includes("user rejected") || n.includes("user denied") || n.includes("rejected"))
+    if (
+      n.includes("user rejected") ||
+      n.includes("user denied") ||
+      n.includes("rejected")
+    )
       return "Batch send cancelled in passkey confirmation. Review recipients and approve to continue.";
-    if (n.includes("insufficient funds") || n.includes("insufficient balance") || n.includes("gas") || n.includes("fee") || n.includes("sponsor"))
+    if (
+      n.includes("insufficient funds") ||
+      n.includes("insufficient balance") ||
+      n.includes("gas") ||
+      n.includes("fee") ||
+      n.includes("sponsor")
+    )
       return "Transaction sponsorship failed. Try a smaller amount. If recipients are new wallets, fund with native testnet tokens and retry.";
-    if (n.includes("network") || n.includes("timeout") || n.includes("rpc") || n.includes("fetch"))
+    if (
+      n.includes("network") ||
+      n.includes("timeout") ||
+      n.includes("rpc") ||
+      n.includes("fetch")
+    )
       return "Network is slow. Please try again. If it keeps failing, check Tempo RPC connectivity and retry.";
     if (n.includes("execution reverted"))
       return "Batch transaction reverted on-chain. Confirm all recipient addresses, amounts, and memo lengths before retrying.";
     return raw;
   }, [batchError]);
 
-  const validateRecipient = useCallback((value: string): boolean => {
-    if (!value) { setRecipientError("Recipient address required"); return false; }
-    if (!isAddress(value)) { setRecipientError("Invalid address format"); return false; }
-    const checksummed = getAddress(value);
-    if (checksummed === "0x0000000000000000000000000000000000000000") { setRecipientError("Cannot send to zero address"); return false; }
-    if (address && checksummed === getAddress(address)) { setRecipientError("Cannot send to your own address"); return false; }
-    setRecipientError(""); return true;
-  }, [address]);
-
-  const validateAmount = useCallback((value: string): boolean => {
-    if (!value) { setAmountError("Amount required"); return false; }
-    const num = parseFloat(value);
-    if (isNaN(num) || num <= 0) { setAmountError("Amount must be greater than 0"); return false; }
-    const decimalPart = value.split(".")[1];
-    if (decimalPart && decimalPart.length > PATHUSD_DECIMALS) { setAmountError(`Max ${PATHUSD_DECIMALS} decimal places`); return false; }
-    try {
-      if (balance) {
-        const amountInUnits = parseUnits(value, PATHUSD_DECIMALS);
-        if (amountInUnits > balance) {
-          setAmountError(`Insufficient balance. You need ${formatUnits(amountInUnits, PATHUSD_DECIMALS)} pathUSD but have ${formatUnits(balance, PATHUSD_DECIMALS)}.`);
-          return false;
-        }
+  const validateRecipient = useCallback(
+    (value: string): boolean => {
+      if (!value) {
+        setRecipientError("Recipient address required");
+        return false;
       }
-    } catch { setAmountError("Invalid amount format"); return false; }
-    setAmountError(""); return true;
-  }, [balance]);
+      if (!isAddress(value)) {
+        setRecipientError("Invalid address format");
+        return false;
+      }
+      const checksummed = getAddress(value);
+      if (checksummed === "0x0000000000000000000000000000000000000000") {
+        setRecipientError("Cannot send to zero address");
+        return false;
+      }
+      if (address && checksummed === getAddress(address)) {
+        setRecipientError("Cannot send to your own address");
+        return false;
+      }
+      setRecipientError("");
+      return true;
+    },
+    [address],
+  );
+
+  const validateAmount = useCallback(
+    (value: string): boolean => {
+      if (!value) {
+        setAmountError("Amount required");
+        return false;
+      }
+      const num = parseFloat(value);
+      if (isNaN(num) || num <= 0) {
+        setAmountError("Amount must be greater than 0");
+        return false;
+      }
+      const decimalPart = value.split(".")[1];
+      if (decimalPart && decimalPart.length > PATHUSD_DECIMALS) {
+        setAmountError(`Max ${PATHUSD_DECIMALS} decimal places`);
+        return false;
+      }
+      try {
+        if (balance) {
+          const amountInUnits = parseUnits(value, PATHUSD_DECIMALS);
+          if (amountInUnits > balance) {
+            setAmountError(
+              `Insufficient balance. You need ${formatUnits(amountInUnits, PATHUSD_DECIMALS)} pathUSD but have ${formatUnits(balance, PATHUSD_DECIMALS)}.`,
+            );
+            return false;
+          }
+        }
+      } catch {
+        setAmountError("Invalid amount format");
+        return false;
+      }
+      setAmountError("");
+      return true;
+    },
+    [balance],
+  );
 
   const validateMemo = useCallback((value: string): boolean => {
     const byteLength = new TextEncoder().encode(value).length;
-    if (byteLength > 32) { setMemoError("Memo exceeds 32 bytes"); return false; }
-    setMemoError(""); return true;
+    if (byteLength > 32) {
+      setMemoError("Memo exceeds 32 bytes");
+      return false;
+    }
+    setMemoError("");
+    return true;
   }, []);
 
   const validateBatchRecipient = (value: string): string => {
     if (!value) return "Recipient address required";
     if (!isAddress(value)) return "Invalid address format";
     const checksummed = getAddress(value);
-    if (checksummed === "0x0000000000000000000000000000000000000000") return "Cannot send to zero address";
-    if (address && checksummed === getAddress(address)) return "Cannot send to your own address";
+    if (checksummed === "0x0000000000000000000000000000000000000000")
+      return "Cannot send to zero address";
+    if (address && checksummed === getAddress(address))
+      return "Cannot send to your own address";
     return "";
   };
 
@@ -265,8 +364,13 @@ export function useTransferFlow(): UseTransferFlowReturn {
     const num = parseFloat(value);
     if (isNaN(num) || num <= 0) return "Amount must be greater than 0";
     const decimalPart = value.split(".")[1];
-    if (decimalPart && decimalPart.length > PATHUSD_DECIMALS) return `Max ${PATHUSD_DECIMALS} decimal places`;
-    try { parseUnits(value, PATHUSD_DECIMALS); } catch { return "Invalid amount format"; }
+    if (decimalPart && decimalPart.length > PATHUSD_DECIMALS)
+      return `Max ${PATHUSD_DECIMALS} decimal places`;
+    try {
+      parseUnits(value, PATHUSD_DECIMALS);
+    } catch {
+      return "Invalid amount format";
+    }
     return "";
   };
 
@@ -275,9 +379,14 @@ export function useTransferFlow(): UseTransferFlowReturn {
     return byteLength > 32 ? "Memo exceeds 32 bytes" : "";
   };
 
-  const updateRow = useCallback((id: string, patch: Partial<BatchRecipientRow>) => {
-    setRows((prev) => prev.map((row) => row.id === id ? { ...row, ...patch } : row));
-  }, []);
+  const updateRow = useCallback(
+    (id: string, patch: Partial<BatchRecipientRow>) => {
+      setRows((prev) =>
+        prev.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+      );
+    },
+    [],
+  );
 
   const addRow = useCallback(() => {
     if (rows.length >= MAX_BATCH_RECIPIENTS) return;
@@ -291,17 +400,27 @@ export function useTransferFlow(): UseTransferFlowReturn {
     });
   }, []);
 
-  const handleBatchMaxAmount = useCallback((id: string) => {
-    const available = balance ?? BigInt(0);
-    const allocated = rows.reduce((sum, row) => {
-      if (row.id === id || !row.amount) return sum;
-      try { return sum + parseUnits(row.amount, PATHUSD_DECIMALS); }
-      catch { return sum; }
-    }, BigInt(0));
-    const remaining = available > allocated ? available - allocated : BigInt(0);
-    const normalized = formatUnits(remaining, PATHUSD_DECIMALS);
-    updateRow(id, { amount: normalized, amountError: validateBatchAmount(normalized) });
-  }, [balance, rows, updateRow]);
+  const handleBatchMaxAmount = useCallback(
+    (id: string) => {
+      const available = balance ?? BigInt(0);
+      const allocated = rows.reduce((sum, row) => {
+        if (row.id === id || !row.amount) return sum;
+        try {
+          return sum + parseUnits(row.amount, PATHUSD_DECIMALS);
+        } catch {
+          return sum;
+        }
+      }, BigInt(0));
+      const remaining =
+        available > allocated ? available - allocated : BigInt(0);
+      const normalized = formatUnits(remaining, PATHUSD_DECIMALS);
+      updateRow(id, {
+        amount: normalized,
+        amountError: validateBatchAmount(normalized),
+      });
+    },
+    [balance, rows, updateRow],
+  );
 
   const validateBatchRows = () => {
     let hasError = false;
@@ -317,8 +436,11 @@ export function useTransferFlow(): UseTransferFlowReturn {
     let computedTotal = BigInt(0);
     for (const row of nextRows) {
       if (row.amountError || !row.amount) continue;
-      try { computedTotal += parseUnits(row.amount, PATHUSD_DECIMALS); }
-      catch { hasError = true; }
+      try {
+        computedTotal += parseUnits(row.amount, PATHUSD_DECIMALS);
+      } catch {
+        hasError = true;
+      }
     }
 
     if (computedTotal === BigInt(0)) {
@@ -329,7 +451,9 @@ export function useTransferFlow(): UseTransferFlowReturn {
 
     if (balance && computedTotal > balance) {
       hasError = true;
-      setBatchFormError(`Insufficient balance. You need ${formatUnits(computedTotal, PATHUSD_DECIMALS)} pathUSD but have ${formatUnits(balance, PATHUSD_DECIMALS)}.`);
+      setBatchFormError(
+        `Insufficient balance. You need ${formatUnits(computedTotal, PATHUSD_DECIMALS)} pathUSD but have ${formatUnits(balance, PATHUSD_DECIMALS)}.`,
+      );
       return { hasError: true, normalizedRows: nextRows };
     }
 
@@ -340,15 +464,24 @@ export function useTransferFlow(): UseTransferFlowReturn {
   const detectNewAddresses = async (batchRows: BatchRecipientRow[]) => {
     if (!publicClient) return false;
     const uniqueRecipients = Array.from(
-      new Set(batchRows.map((r) => r.recipient).filter((r) => r && isAddress(r)).map((r) => getAddress(r as Address)))
+      new Set(
+        batchRows
+          .map((r) => r.recipient)
+          .filter((r) => r && isAddress(r))
+          .map((r) => getAddress(r as Address)),
+      ),
     );
     if (uniqueRecipients.length === 0) return false;
     try {
       const nonces = await Promise.all(
-        uniqueRecipients.map((r) => publicClient.getTransactionCount({ address: r }))
+        uniqueRecipients.map((r) =>
+          publicClient.getTransactionCount({ address: r }),
+        ),
       );
       return nonces.some((n) => n === 0);
-    } catch { return false; }
+    } catch {
+      return false;
+    }
   };
 
   const handleBatchSubmit = async () => {
@@ -361,7 +494,10 @@ export function useTransferFlow(): UseTransferFlowReturn {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === "batch") { void handleBatchSubmit(); return; }
+    if (mode === "batch") {
+      void handleBatchSubmit();
+      return;
+    }
     const recipientOk = validateRecipient(recipient);
     const amountOk = validateAmount(amount);
     const memoOk = validateMemo(memo);
@@ -369,33 +505,63 @@ export function useTransferFlow(): UseTransferFlowReturn {
 
     const checksummedRecipient = getAddress(recipient);
     const amountInUnits = parseUnits(amount, PATHUSD_DECIMALS);
-    const matchedSession = getSessionForTransfer({ recipient: checksummedRecipient, amount: amountInUnits });
+    const matchedSession = getSessionForTransfer({
+      recipient: checksummedRecipient,
+      amount: amountInUnits,
+    });
 
-    if (matchedSession) { void executeSingleTransfer(matchedSession); return; }
+    if (matchedSession) {
+      void executeSingleTransfer(matchedSession);
+      return;
+    }
     setConfirming(true);
   };
 
-  const executeSingleTransfer = async (sessionId: ReturnType<typeof getSessionForTransfer> | null) => {
+  const executeSingleTransfer = async (
+    sessionId: ReturnType<typeof getSessionForTransfer> | null,
+  ) => {
     const checksummedRecipient = getAddress(recipient);
     const amountInUnits = parseUnits(amount, PATHUSD_DECIMALS);
-    const memoBytes32 = memo ? pad(stringToHex(memo), { size: 32 }) : pad("0x", { size: 32 });
-    const baseRequest = { token: PATHUSD_ADDRESS, to: checksummedRecipient, amount: amountInUnits, memo: memoBytes32 } as const;
+    const memoBytes32 = memo
+      ? pad(stringToHex(memo), { size: 32 })
+      : pad("0x", { size: 32 });
+    const baseRequest = {
+      token: PATHUSD_ADDRESS,
+      to: checksummedRecipient,
+      amount: amountInUnits,
+      memo: memoBytes32,
+    } as const;
 
     try {
       let transactionHash: `0x${string}` | undefined;
       if (sessionId) {
         const accessAccount = getAccessAccountForSession(sessionId);
-        const request = { ...baseRequest, account: accessAccount, ...(sessionId.keyAuthorization ? { keyAuthorization: sessionId.keyAuthorization } : {}) };
+        const request = {
+          ...baseRequest,
+          account: accessAccount,
+          ...(sessionId.keyAuthorization
+            ? { keyAuthorization: sessionId.keyAuthorization }
+            : {}),
+        };
         try {
           const response = await transferSync(request);
           transactionHash = response?.receipt?.transactionHash;
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (sessionId.keyAuthorization && message.includes("KeyAlreadyExists")) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (
+            sessionId.keyAuthorization &&
+            message.includes("KeyAlreadyExists")
+          ) {
             clearSessionAuthorization(sessionId.id);
-            const response = await transferSync({ ...baseRequest, account: accessAccount });
+            const response = await transferSync({
+              ...baseRequest,
+              account: accessAccount,
+            });
             transactionHash = response?.receipt?.transactionHash;
-          } else { throw error; }
+          } else {
+            throw error;
+          }
         }
         applySessionSpend(sessionId.id, amountInUnits);
         if (sessionId.keyAuthorization) clearSessionAuthorization(sessionId.id);
@@ -405,21 +571,33 @@ export function useTransferFlow(): UseTransferFlowReturn {
       }
 
       if (address && transactionHash) {
-        addTransferHistoryEntries([{
-          id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`,
-          transactionHash,
-          counterparty: checksummedRecipient,
-          amount: amountInUnits,
-          direction: "sent",
-          createdAtMs: Date.now(),
-        }]);
+        addTransferHistoryEntries([
+          {
+            id:
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}`,
+            transactionHash,
+            counterparty: checksummedRecipient,
+            amount: amountInUnits,
+            direction: "sent",
+            createdAtMs: Date.now(),
+          },
+        ]);
       }
       await refetchBalance();
-      window.setTimeout(() => { void refetchBalance(); }, 1200);
-    } catch { setConfirming(false); }
+      window.setTimeout(() => {
+        void refetchBalance();
+      }, 1200);
+    } catch {
+      setConfirming(false);
+    }
   };
 
-  const handleConfirmTransfer = async () => { await executeSingleTransfer(null); };
+  const handleConfirmTransfer = async () => {
+    await executeSingleTransfer(null);
+  };
 
   const handleConfirmBatchTransfer = async () => {
     try {
@@ -430,58 +608,102 @@ export function useTransferFlow(): UseTransferFlowReturn {
         const data = encodeFunctionData({
           abi: pathUsdAbi,
           functionName: hasMemo ? "transferWithMemo" : "transfer",
-          args: hasMemo ? [checksummedRecipient, amountInUnits, pad(stringToHex(row.memo), { size: 32 })] : [checksummedRecipient, amountInUnits],
+          args: hasMemo
+            ? [
+                checksummedRecipient,
+                amountInUnits,
+                pad(stringToHex(row.memo), { size: 32 }),
+              ]
+            : [checksummedRecipient, amountInUnits],
         });
         return { to: PATHUSD_ADDRESS, data };
       });
 
-      const totalAmount = rows.reduce((sum, row) => sum + parseUnits(row.amount, PATHUSD_DECIMALS), BigInt(0));
-      const batchSession = getSessionForBatch({ recipients: rows.map((r) => r.recipient), amount: totalAmount });
+      const totalAmount = rows.reduce(
+        (sum, row) => sum + parseUnits(row.amount, PATHUSD_DECIMALS),
+        BigInt(0),
+      );
+      const batchSession = getSessionForBatch({
+        recipients: rows.map((r) => r.recipient),
+        amount: totalAmount,
+      });
 
       let transactionHash: `0x${string}` | undefined;
 
       if (batchSession) {
         const accessAccount = getAccessAccountForSession(batchSession);
-        const request = { calls, forceAtomic: true, account: accessAccount, ...(batchSession.keyAuthorization ? { keyAuthorization: batchSession.keyAuthorization } : {}) };
+        const request = {
+          calls,
+          forceAtomic: true,
+          account: accessAccount,
+          ...(batchSession.keyAuthorization
+            ? { keyAuthorization: batchSession.keyAuthorization }
+            : {}),
+        };
         try {
           const response = await sendCallsSync(request);
           transactionHash = response?.receipts?.[0]?.transactionHash;
         } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (batchSession.keyAuthorization && message.includes("KeyAlreadyExists")) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          if (
+            batchSession.keyAuthorization &&
+            message.includes("KeyAlreadyExists")
+          ) {
             clearSessionAuthorization(batchSession.id);
-            const response = await sendCallsSync({ calls, forceAtomic: true, account: accessAccount });
+            const response = await sendCallsSync({
+              calls,
+              forceAtomic: true,
+              account: accessAccount,
+            });
             transactionHash = response?.receipts?.[0]?.transactionHash;
-          } else { throw error; }
+          } else {
+            throw error;
+          }
         }
         applySessionSpend(batchSession.id, totalAmount);
-        if (batchSession.keyAuthorization) clearSessionAuthorization(batchSession.id);
+        if (batchSession.keyAuthorization)
+          clearSessionAuthorization(batchSession.id);
       } else {
         const response = await sendCallsSync({ calls, forceAtomic: true });
         transactionHash = response?.receipts?.[0]?.transactionHash;
       }
 
       if (address && transactionHash) {
-        addTransferHistoryEntries(rows.map((row, index) => ({
-          id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${index}`,
-          transactionHash: transactionHash!,
-          counterparty: getAddress(row.recipient),
-          amount: parseUnits(row.amount, PATHUSD_DECIMALS),
-          direction: "sent" as const,
-          createdAtMs: Date.now(),
-        })));
+        addTransferHistoryEntries(
+          rows.map((row, index) => ({
+            id:
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}-${index}`,
+            transactionHash: transactionHash!,
+            counterparty: getAddress(row.recipient),
+            amount: parseUnits(row.amount, PATHUSD_DECIMALS),
+            direction: "sent" as const,
+            createdAtMs: Date.now(),
+          })),
+        );
       }
 
       await refetchBalance();
-      window.setTimeout(() => { void refetchBalance(); }, 1200);
-    } catch { setBatchConfirming(false); }
+      window.setTimeout(() => {
+        void refetchBalance();
+      }, 1200);
+    } catch {
+      setBatchConfirming(false);
+    }
   };
 
   const reset = useCallback(() => {
     setConfirming(false);
     setStep("edit");
-    setRecipient(""); setAmount(""); setMemo("");
-    setRecipientError(""); setAmountError(""); setMemoError("");
+    setRecipient("");
+    setAmount("");
+    setMemo("");
+    setRecipientError("");
+    setAmountError("");
+    setMemoError("");
     resetTransfer();
     setBatchConfirming(false);
     setRows([createBatchRow()]);
@@ -497,35 +719,77 @@ export function useTransferFlow(): UseTransferFlowReturn {
 
   const handleCopyHash = useCallback(async () => {
     if (!txHash) return;
-    try { await navigator.clipboard.writeText(txHash); setCopiedHash(true); window.setTimeout(() => setCopiedHash(false), 1200); }
-    catch { setCopiedHash(false); }
+    try {
+      await navigator.clipboard.writeText(txHash);
+      setCopiedHash(true);
+      window.setTimeout(() => setCopiedHash(false), 1200);
+    } catch {
+      setCopiedHash(false);
+    }
   }, [txHash]);
 
   const handleCopyBatchHash = useCallback(async () => {
     if (!batchHash) return;
-    try { await navigator.clipboard.writeText(batchHash); setCopiedBatchHash(true); window.setTimeout(() => setCopiedBatchHash(false), 1200); }
-    catch { setCopiedBatchHash(false); }
+    try {
+      await navigator.clipboard.writeText(batchHash);
+      setCopiedBatchHash(true);
+      window.setTimeout(() => setCopiedBatchHash(false), 1200);
+    } catch {
+      setCopiedBatchHash(false);
+    }
   }, [batchHash]);
 
-  const explorerUrl = useCallback((hash: string) => `${EXPLORER_URL}/tx/${hash}`, []);
+  const explorerUrl = useCallback(
+    (hash: string) => `${EXPLORER_URL}/tx/${hash}`,
+    [],
+  );
 
   return {
-    step, mode, setMode,
-    recipient, setRecipient, amount, setAmount, memo, setMemo,
-    recipientError, amountError, memoError,
-    balance, formattedBalance, isBalanceLoading,
-    rows, addRow, removeRow, updateRow, handleBatchMaxAmount,
-    batchTotalFormatted, batchFormError, batchHasNewAddress,
-    confirming, batchConfirming,
-    memoByteLength, memoRemaining,
+    step,
+    mode,
+    setMode,
+    recipient,
+    setRecipient,
+    amount,
+    setAmount,
+    memo,
+    setMemo,
+    recipientError,
+    amountError,
+    memoError,
+    balance,
+    formattedBalance,
+    isBalanceLoading,
+    rows,
+    addRow,
+    removeRow,
+    updateRow,
+    handleBatchMaxAmount,
+    batchTotalFormatted,
+    batchFormError,
+    batchHasNewAddress,
+    confirming,
+    batchConfirming,
+    memoByteLength,
+    memoRemaining,
     isSubmitting: isPending,
     isBatchSubmitting: isBatchPending,
-    txHash, batchHash, isSuccess, isBatchSuccess,
-    txErrorMessage, batchErrorMessage,
+    txHash,
+    batchHash,
+    isSuccess,
+    isBatchSuccess,
+    txErrorMessage,
+    batchErrorMessage,
     explorerUrl,
-    copiedHash, copiedBatchHash, handleCopyHash, handleCopyBatchHash,
-    maxDisabled, setMax,
-    handleSubmit, handleConfirmTransfer, handleConfirmBatchTransfer,
+    copiedHash,
+    copiedBatchHash,
+    handleCopyHash,
+    handleCopyBatchHash,
+    maxDisabled,
+    setMax,
+    handleSubmit,
+    handleConfirmTransfer,
+    handleConfirmBatchTransfer,
     reset,
   };
 }
