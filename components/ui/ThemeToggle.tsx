@@ -38,7 +38,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         "border border-[--border-glass] bg-[--bg-glass] backdrop-blur-sm",
         "text-[--text-secondary] transition-all duration-[--duration-fast]",
         "hover:border-[--border-glass-hover] hover:text-[--brand-primary]",
-        "hover:shadow-[0_0_12px_rgba(251,191,36,0.12)] active:scale-95",
+        "hover:shadow-[0_0_12px_rgba(52,211,153,0.12)] active:scale-95",
         className,
       )}
       data-testid="theme-toggle"

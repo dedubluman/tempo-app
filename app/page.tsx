@@ -19,6 +19,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[--bg-base] text-[--text-primary]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[--brand-primary] focus:text-[--brand-contrast] focus:rounded-lg"
+      >
+        Skip to content
+      </a>
+
       <LandingNav onAuthClick={() => setAuthOpen(true)} />
 
       <main id="main-content">

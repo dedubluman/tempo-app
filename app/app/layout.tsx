@@ -15,6 +15,7 @@ import {
   Storefront,
   Waves,
 } from "@phosphor-icons/react";
+import { FluxusLogo } from "@/components/ui/FluxusLogo";
 
 type NavItem = {
   href: string;
@@ -50,11 +51,20 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen">
       <div className="mx-auto flex w-full max-w-[1200px] md:gap-6 md:px-4 md:py-6">
-        <aside className="hidden md:block md:w-64 md:shrink-0">
+        {/* ── Desktop Sidebar ── */}
+        <aside className="hidden md:flex md:w-64 md:shrink-0 md:flex-col">
           <nav
             role="navigation"
-            className="sticky top-6 rounded-[--radius-xl] border border-[--border-glass] bg-[--bg-glass] p-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+            className="sticky top-0 h-screen overflow-y-auto rounded-[--radius-xl] border-r border-[--border-glass] bg-[--bg-glass] p-3 backdrop-blur-xl shadow-[inset_1px_0_0_rgba(255,255,255,0.06)]"
           >
+            {/* Logo */}
+            <Link
+              href="/app"
+              className="mb-6 flex items-center gap-2 px-3 py-2"
+            >
+              <FluxusLogo size="sm" showText />
+            </Link>
+
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(pathname, item.href);
@@ -64,12 +74,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="relative flex items-center gap-2.5 rounded-[--radius-md] px-4 py-2.5 text-sm text-[--text-secondary] hover:bg-[--bg-subtle] hover:text-[--text-primary]"
+                      className="relative flex items-center gap-2.5 rounded-[--radius-md] px-4 py-2.5 text-sm text-[--text-secondary] transition-colors duration-150 hover:bg-[--bg-elevated] hover:text-[--text-primary]"
                     >
                       {active ? (
                         <motion.span
                           layoutId="app-nav-indicator"
-                          className="absolute inset-y-1 left-0 w-1 rounded-full bg-[--brand-primary]"
+                          className="absolute inset-0 rounded-[--radius-md] bg-[--brand-primary]/10 border border-[--brand-primary]/20"
                           transition={{
                             type: "spring",
                             stiffness: 420,
@@ -77,8 +87,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                           }}
                         />
                       ) : null}
-                      <Icon size={18} weight={active ? "duotone" : "regular"} />
-                      <span className={active ? "text-[--text-primary]" : ""}>
+                      <Icon
+                        size={18}
+                        weight={active ? "duotone" : "regular"}
+                      />
+                      <span
+                        className={
+                          active
+                            ? "relative text-[--brand-primary] font-medium"
+                            : "relative"
+                        }
+                      >
                         {item.label}
                       </span>
                     </Link>
@@ -94,11 +113,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
+      {/* ── Mobile Bottom Tab Bar ── */}
       <nav
         role="navigation"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[--bg-glass] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-[--border-glass] bg-[--bg-glass] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] md:hidden"
       >
-        <div className="overflow-x-auto px-2">
+        <div className="overflow-x-auto scrollbar-hide px-2">
           <ul className="flex min-w-max items-center gap-1">
             {NAV_ITEMS.map((item) => {
               const active = isActive(pathname, item.href);
@@ -121,7 +141,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                         }}
                       />
                     ) : null}
-                    <Icon size={18} weight={active ? "duotone" : "regular"} />
+                    <Icon
+                      size={18}
+                      weight={active ? "duotone" : "regular"}
+                    />
                     <span className={active ? "text-[--text-primary]" : ""}>
                       {item.label}
                     </span>

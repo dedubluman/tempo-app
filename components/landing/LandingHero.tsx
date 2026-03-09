@@ -79,17 +79,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
             <h1 className="text-5xl md:text-7xl tracking-tighter leading-[0.9] font-bold text-[--text-primary]">
               Instant <br className="hidden md:block" />
               Stablecoin <br className="hidden md:block" />
-              <span
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-hover) 0%, var(--brand-primary) 50%, var(--brand-active) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Payments.
-              </span>
+              <span className="text-[--brand-primary]">Payments.</span>
             </h1>
             <h2 className="mt-3 text-2xl md:text-3xl tracking-tight font-semibold text-[--text-secondary]">
               Zero Gas. Zero Passwords.
@@ -226,16 +216,7 @@ export function LandingHero({ onAuthClick }: LandingHeroProps) {
                 </span>
                 <ArrowUpRight size={12} className="text-[--brand-primary]" />
               </div>
-              <p
-                className="font-mono text-2xl font-bold"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-primary), var(--brand-hover))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
+              <p className="font-mono text-2xl font-bold text-[--brand-primary]">
                 $0.00
               </p>
               <p className="text-xs text-[--text-muted] mt-0.5">

@@ -6,7 +6,7 @@ import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const TOKEN_ACCENT_STYLE: Record<string, string> = {
-  pathUSD: "from-amber-500 to-yellow-600",
+  pathUSD: "from-emerald-400 to-emerald-600",
   AlphaUSD: "from-blue-500 to-indigo-600",
   BetaUSD: "from-emerald-500 to-teal-600",
   ThetaUSD: "from-violet-500 to-purple-600",
@@ -56,7 +56,7 @@ export default function PortfolioPage() {
             className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-15"
             style={{
               background:
-                "radial-gradient(ellipse at 20% 50%, #fbbf24 0%, transparent 70%)",
+                "radial-gradient(ellipse at 20% 50%, #34d399 0%, transparent 70%)",
             }}
             aria-hidden="true"
           />

@@ -180,7 +180,7 @@ export function BalanceDisplay() {
           className="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-20"
           style={{
             background:
-              "radial-gradient(ellipse at 30% 50%, #fbbf24 0%, transparent 70%)",
+              "radial-gradient(ellipse at 30% 50%, #34d399 0%, transparent 70%)",
           }}
           aria-hidden="true"
         />

@@ -27,11 +27,11 @@ export function MeshGradient() {
         }
       `}</style>
 
-      {/* Primary amber blob — top left */}
+      {/* Primary emerald blob — top left */}
       <div
         className="mesh-blob absolute -top-1/4 -left-1/4 w-[65%] h-[65%] rounded-full"
         style={{
-          background: "#fbbf24",
+          background: "#34d399",
           opacity: 0.28,
           filter: "blur(90px)",
           animation: "blob-drift-1 25s ease-in-out infinite",
@@ -39,11 +39,11 @@ export function MeshGradient() {
         }}
       />
 
-      {/* Dark amber blob — center right */}
+      {/* Medium emerald blob — center right */}
       <div
         className="mesh-blob absolute top-1/4 -right-1/4 w-[60%] h-[60%] rounded-full"
         style={{
-          background: "#d97706",
+          background: "#10b981",
           opacity: 0.22,
           filter: "blur(80px)",
           animation: "blob-drift-2 22s ease-in-out infinite",
@@ -52,11 +52,11 @@ export function MeshGradient() {
         }}
       />
 
-      {/* Deep amber blob — bottom center */}
+      {/* Deep emerald blob — bottom center */}
       <div
         className="mesh-blob absolute -bottom-1/4 left-1/4 w-[55%] h-[55%] rounded-full"
         style={{
-          background: "#92400e",
+          background: "#059669",
           opacity: 0.16,
           filter: "blur(80px)",
           animation: "blob-drift-3 28s ease-in-out infinite",
@@ -65,11 +65,11 @@ export function MeshGradient() {
         }}
       />
 
-      {/* Top-center warm highlight */}
+      {/* Top-center emerald highlight */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[30%] rounded-full"
         style={{
-          background: "radial-gradient(ellipse, #fcd34d 0%, transparent 70%)",
+          background: "radial-gradient(ellipse, #6ee7b7 0%, transparent 70%)",
           opacity: 0.12,
           filter: "blur(60px)",
         }}

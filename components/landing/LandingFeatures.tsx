@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   PaperPlaneTilt,
@@ -16,7 +15,7 @@ import {
   Storefront,
   Broadcast,
 } from "@phosphor-icons/react";
-import { calculateTilt, useMotionSafe } from "@/lib/motion";
+import { useMotionSafe, useSpotlightBorder } from "@/lib/motion";
 
 const coreFeatures = [
   {
@@ -104,61 +103,29 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
   const variants = useMotionSafe();
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
-
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (isTouch || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const { rotateX: rx, rotateY: ry } = calculateTilt(
-      e.clientX,
-      e.clientY,
-      rect,
-      8,
-    );
-    setRotateX(rx);
-    setRotateY(ry);
-  }
-
-  function handleMouseLeave() {
-    setRotateX(0);
-    setRotateY(0);
-    setIsHovered(false);
-  }
+  const { onMouseMove, onMouseLeave, spotlightBackground } =
+    useSpotlightBorder();
 
   return (
     <motion.div
-      ref={cardRef}
       variants={variants.fadeUp}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={() => setIsTouch(true)}
-      animate={{ rotateX, rotateY }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      style={{
-        transformStyle: "preserve-3d",
-        willChange: isHovered ? "transform" : "auto",
-        WebkitBackfaceVisibility: "hidden",
-      }}
-      className={`rounded-[--radius-xl] border p-5 flex flex-col gap-3 cursor-default
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      className="relative rounded-[--radius-xl] border p-5 flex flex-col gap-3 cursor-default
         bg-[--bg-glass] backdrop-blur-md border-[--border-glass]
         shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)]
         transition-colors duration-200
-        hover:border-[--border-glass-hover] hover:bg-[--bg-glass-hover]
-        ${isHovered ? "animate-glow-pulse" : ""}
-      `}
+        hover:border-[--border-glass-hover] hover:bg-[--bg-glass-hover]"
     >
+      {/* Spotlight overlay */}
       <motion.div
-        whileHover={{ scale: 1.1 }}
-        transition={{ duration: 0.2 }}
-        className="w-10 h-10 rounded-[--radius-lg] bg-[--brand-subtle] flex items-center justify-center text-[--brand-primary]"
-      >
+        className="pointer-events-none absolute inset-0 rounded-[--radius-xl] opacity-15"
+        style={{ background: spotlightBackground }}
+      />
+
+      <div className="w-10 h-10 rounded-[--radius-lg] bg-[--brand-subtle] flex items-center justify-center text-[--brand-primary]">
         <Icon size={20} />
-      </motion.div>
+      </div>
       <h3 className="font-semibold text-[--text-primary]">{title}</h3>
       <p className="text-sm text-[--text-secondary] leading-relaxed">
         {description}
@@ -182,7 +149,10 @@ export function LandingFeatures() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={variants.fadeUp} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
+            <h2
+              className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3"
+              style={{ textWrap: "balance" }}
+            >
               Everything you need, nothing you don&apos;t
             </h2>
             <p className="text-[--text-secondary] max-w-xl mx-auto">
@@ -190,10 +160,20 @@ export function LandingFeatures() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {coreFeatures.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
+          {/* Asymmetric bento: 2fr 1fr / 1fr 2fr alternating */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="sm:col-span-2">
+              <FeatureCard {...coreFeatures[0]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...coreFeatures[1]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...coreFeatures[2]} />
+            </div>
+            <div className="sm:col-span-2">
+              <FeatureCard {...coreFeatures[3]} />
+            </div>
           </div>
         </div>
       </motion.section>
@@ -208,7 +188,10 @@ export function LandingFeatures() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={variants.fadeUp} className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3">
+            <h2
+              className="text-3xl font-bold text-[--text-primary] font-[--font-display] mb-3"
+              style={{ textWrap: "balance" }}
+            >
               Powered by Tempo
             </h2>
             <p className="text-[--text-secondary] max-w-xl mx-auto">
@@ -218,10 +201,32 @@ export function LandingFeatures() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {advancedFeatures.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
+          {/* Asymmetric bento for advanced features */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="sm:col-span-2">
+              <FeatureCard {...advancedFeatures[0]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...advancedFeatures[1]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...advancedFeatures[2]} />
+            </div>
+            <div className="sm:col-span-2">
+              <FeatureCard {...advancedFeatures[3]} />
+            </div>
+            <div className="sm:col-span-2">
+              <FeatureCard {...advancedFeatures[4]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...advancedFeatures[5]} />
+            </div>
+            <div className="sm:col-span-1">
+              <FeatureCard {...advancedFeatures[6]} />
+            </div>
+            <div className="sm:col-span-2">
+              <FeatureCard {...advancedFeatures[7]} />
+            </div>
           </div>
         </div>
       </motion.section>
