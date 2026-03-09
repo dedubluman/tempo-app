@@ -7,13 +7,13 @@ import { cn } from "@/lib/cn";
 const cardVariants = cva("rounded-[--radius-xl] overflow-hidden", {
   variants: {
     variant: {
-      flat: "bg-[--bg-surface]",
-      elevated: "bg-[--bg-surface] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]",
+      flat: "bg-[var(--bg-surface)] shadow-[var(--shadow-sm),inset_0_1px_0_rgba(255,255,255,0.06)]",
+      elevated: "bg-[var(--bg-surface)] shadow-[var(--shadow-md),inset_0_1px_0_rgba(255,255,255,0.06)]",
       outlined: "bg-transparent border border-[--border-default]",
       brand:
         "bg-[--bg-surface] ring-1 ring-[--brand-primary]/40 shadow-[var(--shadow-brand)]",
       glass:
-        "bg-[--bg-glass] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+        "bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-glass)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
     },
   },
   defaultVariants: {

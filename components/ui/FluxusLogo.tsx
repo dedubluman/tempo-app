@@ -37,9 +37,9 @@ export function FluxusLogo({
             y2="32"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0%" stopColor="#fcd34d" />
-            <stop offset="52%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#b45309" />
+            <stop offset="0%" stopColor="#34d399" />
+            <stop offset="52%" stopColor="#10b981" />
+            <stop offset="100%" stopColor="#059669" />
           </linearGradient>
         </defs>
 
@@ -62,7 +62,7 @@ export function FluxusLogo({
           fill="none"
         />
 
-        {/* Amber dot — focal accent */}
+        {/* Emerald dot — focal accent */}
         <circle cx="16" cy="16" r="2.5" fill={`url(#${id})`} />
 
         {/* Arrow tip on outer arc */}

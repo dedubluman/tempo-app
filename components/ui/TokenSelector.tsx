@@ -14,7 +14,7 @@ type TokenSelectorProps = {
 };
 
 const TOKEN_ACCENT: Record<string, string> = {
-  pathUSD: "bg-amber-500/80",
+  pathUSD: "bg-emerald-500/80",
   AlphaUSD: "bg-blue-500/80",
   BetaUSD: "bg-emerald-500/80",
   ThetaUSD: "bg-violet-500/80",

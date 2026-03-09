@@ -5,12 +5,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] hover:-translate-y-[2px] relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-[--duration-fast] ease-[--ease-out] rounded-[--radius-md] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--bg-base] active:scale-[0.98] active:translate-y-0 hover:-translate-y-0.5 relative overflow-hidden",
   {
     variants: {
       variant: {
         primary:
-          "bg-[--brand-primary] text-[--brand-contrast] hover:bg-[--brand-hover] active:bg-[--brand-active] shadow-[--shadow-sm] hover:shadow-[--shadow-md]",
+          "bg-[--brand-primary] text-[--brand-contrast] hover:bg-[--brand-hover] active:bg-[--brand-active] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-brand)]",
         secondary:
           "bg-[--bg-surface] border border-[--border-default] text-[--text-primary] hover:bg-[--bg-elevated] hover:border-[--border-strong] active:bg-[--bg-overlay]",
         ghost:

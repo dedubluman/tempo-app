@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import localFont from "next/font/local";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ThemeProvider, themeScript } from "@/components/ui/ThemeProvider";
@@ -9,50 +10,6 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { FeatureFlag, isFeatureEnabled } from "@/lib/featureFlags";
 import { Toaster } from "sonner";
 
-const satoshi = localFont({
-  src: [
-    {
-      path: "../public/fonts/satoshi/Satoshi-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/satoshi/Satoshi-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/satoshi/Satoshi-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-body",
-  display: "swap",
-});
-
-const satoshiDisplay = localFont({
-  src: [
-    {
-      path: "../public/fonts/satoshi/Satoshi-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/satoshi/Satoshi-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const jetbrainsMono = localFont({
-  src: "../public/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2",
-  variable: "--font-mono",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Fluxus — Instant Stablecoin Payments",
@@ -72,7 +29,7 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${satoshi.variable} ${satoshiDisplay.variable} ${jetbrainsMono.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
@@ -88,7 +45,7 @@ export default async function RootLayout({
       <body className="bg-[--bg-base] text-[--text-primary] antialiased">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:outline-none"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[--brand-primary] focus:px-4 focus:py-2 focus:text-[--brand-contrast] focus:outline-none"
         >
           Skip to content
         </a>

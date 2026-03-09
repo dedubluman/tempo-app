@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-flux-50: #fffbeb;
-  --color-flux-100: #fef3c7;
-  --color-flux-200: #fde68a;
-  --color-flux-300: #fcd34d;
-  --color-flux-400: #fbbf24;
-  --color-flux-500: #f59e0b;
-  --color-flux-600: #d97706;
-  --color-flux-700: #b45309;
-  --color-flux-800: #92400e;
-  --color-flux-900: #78350f;
-  --color-flux-950: #451a03;
+  --color-flux-50: #ecfdf5;
+  --color-flux-100: #d1fae5;
+  --color-flux-200: #a7f3d0;
+  --color-flux-300: #6ee7b7;
+  --color-flux-400: #34d399;
+  --color-flux-500: #10b981;
+  --color-flux-600: #059669;
+  --color-flux-700: #047857;
+  --color-flux-800: #065f46;
+  --color-flux-900: #064e3b;
+  --color-flux-950: #022c22;
 
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f4f4f5;
@@ -56,13 +56,9 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  --font-display:
-    var(--font-display), "Satoshi", "Avenir Next", "Segoe UI", sans-serif;
-  --font-body:
-    var(--font-body), "Satoshi", "Avenir Next", "Segoe UI", sans-serif;
-  --font-mono:
-    var(--font-mono), "JetBrains Mono", "SFMono-Regular", ui-monospace,
-    monospace;
+  --font-display: var(--font-geist-sans), "Satoshi", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: var(--font-geist-sans), "Satoshi", "Avenir Next", "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
 
   --animate-float: float 6s ease-in-out infinite;
 
@@ -101,29 +97,29 @@
 }
 
 :root {
-  --bg-base: #09090b;
-  --bg-subtle: #18181b;
-  --bg-surface: #1f1f22;
-  --bg-elevated: #27272a;
-  --bg-overlay: rgb(9 9 11 / 72%);
+  --bg-base: #0a0f0d;
+  --bg-subtle: #111916;
+  --bg-surface: #16201c;
+  --bg-elevated: #1c2823;
+  --bg-overlay: rgb(10 15 13 / 72%);
 
-  --border-default: #27272a;
-  --border-subtle: rgb(82 82 91 / 35%);
-  --border-strong: #52525b;
-  --border-focus: #fbbf24;
+  --border-default: #1c2823;
+  --border-subtle: rgb(52 211 153 / 12%);
+  --border-strong: #4a7c5f;
+  --border-focus: #34d399;
 
-  --text-primary: #fafafa;
-  --text-secondary: #d4d4d8;
-  --text-tertiary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-inverse: #18181b;
-  --text-brand: #fbbf24;
+  --text-primary: #f0fdf4;
+  --text-secondary: #a7f3d0;
+  --text-tertiary: #6ee7b7;
+  --text-muted: #4a7c5f;
+  --text-inverse: #022c22;
+  --text-brand: #34d399;
 
-  --brand-primary: #fbbf24;
-  --brand-hover: #fcd34d;
-  --brand-active: #f59e0b;
-  --brand-subtle: rgb(251 191 36 / 14%);
-  --brand-contrast: #18181b;
+  --brand-primary: #34d399;
+  --brand-hover: #6ee7b7;
+  --brand-active: #10b981;
+  --brand-subtle: rgb(52 211 153 / 14%);
+  --brand-contrast: #022c22;
 
   --status-success-bg: rgb(34 197 94 / 14%);
   --status-success-border: rgb(34 197 94 / 30%);
@@ -140,25 +136,25 @@
 
   --gradient-flux: linear-gradient(
     135deg,
-    #fcd34d 0%,
-    #f59e0b 52%,
-    #b45309 100%
+    #6ee7b7 0%,
+    #10b981 52%,
+    #047857 100%
   );
   --gradient-flux-radial: radial-gradient(
     90% 120% at 50% -18%,
-    rgb(251 191 36 / 38%) 0%,
-    rgb(251 191 36 / 0%) 68%
+    rgb(52 211 153 / 38%) 0%,
+    rgb(52 211 153 / 0%) 68%
   );
   --gradient-flux-subtle: linear-gradient(
     135deg,
-    rgb(251 191 36 / 12%) 0%,
-    rgb(245 158 11 / 6%) 100%
+    rgb(52 211 153 / 12%) 0%,
+    rgb(16 185 129 / 6%) 100%
   );
-  --gradient-btn-primary: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  --gradient-btn-primary: linear-gradient(135deg, #34d399 0%, #059669 100%);
   --gradient-sent: linear-gradient(
     135deg,
-    rgb(251 191 36 / 16%) 0%,
-    rgb(217 119 6 / 10%) 100%
+    rgb(52 211 153 / 16%) 0%,
+    rgb(5 150 105 / 10%) 100%
   );
   --gradient-received: linear-gradient(
     135deg,
@@ -166,44 +162,44 @@
     rgb(29 78 216 / 8%) 100%
   );
 
-  --shadow-sm: 0 1px 2px rgb(9 9 11 / 28%);
-  --shadow-md: 0 6px 14px -6px rgb(9 9 11 / 45%);
-  --shadow-lg: 0 16px 32px -12px rgb(9 9 11 / 52%);
-  --shadow-xl: 0 24px 48px -16px rgb(9 9 11 / 60%);
-  --shadow-2xl: 0 38px 70px -24px rgb(9 9 11 / 66%);
-  --shadow-brand: 0 16px 42px -18px rgb(251 191 36 / 32%);
-  --shadow-brand-lg: 0 28px 56px -24px rgb(251 191 36 / 38%);
+  --shadow-sm: 0 1px 2px rgb(10 15 13 / 28%);
+  --shadow-md: 0 6px 14px -6px rgb(10 15 13 / 45%);
+  --shadow-lg: 0 16px 32px -12px rgb(10 15 13 / 52%);
+  --shadow-xl: 0 24px 48px -16px rgb(10 15 13 / 60%);
+  --shadow-2xl: 0 38px 70px -24px rgb(10 15 13 / 66%);
+  --shadow-brand: 0 16px 42px -18px rgb(52 211 153 / 32%);
+  --shadow-brand-lg: 0 28px 56px -24px rgb(52 211 153 / 38%);
 
-  --bg-glass: rgb(24 24 27 / 48%);
-  --bg-glass-hover: rgb(24 24 27 / 64%);
-  --border-glass: rgb(251 191 36 / 16%);
-  --border-glass-hover: rgb(251 191 36 / 28%);
+  --bg-glass: rgb(17 25 22 / 48%);
+  --bg-glass-hover: rgb(17 25 22 / 64%);
+  --border-glass: rgb(52 211 153 / 16%);
+  --border-glass-hover: rgb(52 211 153 / 28%);
 }
 
 [data-theme="light"] {
-  --bg-base: #fafafa;
-  --bg-subtle: #f4f4f5;
+  --bg-base: #fafdfb;
+  --bg-subtle: #f0fdf4;
   --bg-surface: #ffffff;
-  --bg-elevated: #f8f8f8;
-  --bg-overlay: rgb(24 24 27 / 48%);
+  --bg-elevated: #f7fcf9;
+  --bg-overlay: rgb(10 15 13 / 48%);
 
-  --border-default: #e4e4e7;
-  --border-subtle: #f4f4f5;
-  --border-strong: #a1a1aa;
-  --border-focus: #d97706;
+  --border-default: #d1fae5;
+  --border-subtle: #ecfdf5;
+  --border-strong: #6ee7b7;
+  --border-focus: #10b981;
 
-  --text-primary: #18181b;
-  --text-secondary: #3f3f46;
-  --text-tertiary: #52525b;
-  --text-muted: #71717a;
-  --text-inverse: #fafafa;
-  --text-brand: #b45309;
+  --text-primary: #022c22;
+  --text-secondary: #064e3b;
+  --text-tertiary: #047857;
+  --text-muted: #4a7c5f;
+  --text-inverse: #fafdfb;
+  --text-brand: #047857;
 
-  --brand-primary: #f59e0b;
-  --brand-hover: #d97706;
-  --brand-active: #b45309;
-  --brand-subtle: rgb(245 158 11 / 16%);
-  --brand-contrast: #18181b;
+  --brand-primary: #10b981;
+  --brand-hover: #059669;
+  --brand-active: #047857;
+  --brand-subtle: rgb(16 185 129 / 16%);
+  --brand-contrast: #ffffff;
 
   --status-success-bg: #f0fdf4;
   --status-success-border: #bbf7d0;
@@ -220,25 +216,25 @@
 
   --gradient-flux: linear-gradient(
     135deg,
-    #fbbf24 0%,
-    #d97706 52%,
-    #92400e 100%
+    #34d399 0%,
+    #059669 52%,
+    #065f46 100%
   );
   --gradient-flux-radial: radial-gradient(
     90% 120% at 50% -18%,
-    rgb(245 158 11 / 30%) 0%,
-    rgb(245 158 11 / 0%) 68%
+    rgb(16 185 129 / 30%) 0%,
+    rgb(16 185 129 / 0%) 68%
   );
   --gradient-flux-subtle: linear-gradient(
     135deg,
-    rgb(245 158 11 / 10%) 0%,
-    rgb(217 119 6 / 5%) 100%
+    rgb(16 185 129 / 10%) 0%,
+    rgb(5 150 105 / 5%) 100%
   );
-  --gradient-btn-primary: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  --gradient-btn-primary: linear-gradient(135deg, #10b981 0%, #047857 100%);
   --gradient-sent: linear-gradient(
     135deg,
-    rgb(245 158 11 / 18%) 0%,
-    rgb(217 119 6 / 10%) 100%
+    rgb(16 185 129 / 18%) 0%,
+    rgb(5 150 105 / 10%) 100%
   );
   --gradient-received: linear-gradient(
     135deg,
@@ -246,18 +242,18 @@
     rgb(29 78 216 / 8%) 100%
   );
 
-  --shadow-sm: 0 1px 2px rgb(24 24 27 / 8%);
-  --shadow-md: 0 8px 18px -10px rgb(24 24 27 / 14%);
-  --shadow-lg: 0 18px 34px -16px rgb(24 24 27 / 16%);
-  --shadow-xl: 0 28px 48px -22px rgb(24 24 27 / 18%);
-  --shadow-2xl: 0 42px 72px -30px rgb(24 24 27 / 24%);
-  --shadow-brand: 0 18px 40px -20px rgb(245 158 11 / 28%);
-  --shadow-brand-lg: 0 30px 60px -30px rgb(245 158 11 / 34%);
+  --shadow-sm: 0 1px 2px rgb(10 15 13 / 8%);
+  --shadow-md: 0 8px 18px -10px rgb(10 15 13 / 14%);
+  --shadow-lg: 0 18px 34px -16px rgb(10 15 13 / 16%);
+  --shadow-xl: 0 28px 48px -22px rgb(10 15 13 / 18%);
+  --shadow-2xl: 0 42px 72px -30px rgb(10 15 13 / 24%);
+  --shadow-brand: 0 18px 40px -20px rgb(16 185 129 / 28%);
+  --shadow-brand-lg: 0 30px 60px -30px rgb(16 185 129 / 34%);
 
   --bg-glass: rgb(255 255 255 / 62%);
   --bg-glass-hover: rgb(255 255 255 / 78%);
-  --border-glass: rgb(245 158 11 / 16%);
-  --border-glass-hover: rgb(245 158 11 / 28%);
+  --border-glass: rgb(16 185 129 / 16%);
+  --border-glass-hover: rgb(16 185 129 / 28%);
 }
 
 html {

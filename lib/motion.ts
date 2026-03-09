@@ -5,12 +5,13 @@ import {
   useScroll,
   useTransform,
   useMotionValue,
+  useMotionTemplate,
   useSpring,
   useInView,
   animate,
   type Variants,
 } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import type { MouseEvent } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -387,4 +388,47 @@ export function useMagneticHover(strength = 0.35) {
   };
 
   return { x, y, handlers };
+}
+
+// ─── pageTransition ───────────────────────────────────────────────────────────
+// Preset for AnimatePresence page transitions (opacity fade, 200ms).
+// Usage: <motion.div key={pathname} {...pageTransition}>{children}</motion.div>
+
+export const pageTransition = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.2, ease: "easeInOut" },
+};
+
+// ─── useSpotlightBorder ───────────────────────────────────────────────────────
+// Tracks cursor position over element → returns radial-gradient background.
+// Uses useMotionValue + useMotionTemplate (no useState).
+// Usage: const { onMouseMove, onMouseLeave, spotlightBackground } = useSpotlightBorder()
+//        <motion.div onMouseMove={onMouseMove} onMouseLeave={onMouseLeave} style={{ background: spotlightBackground }} />
+
+export function useSpotlightBorder() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const radius = useMotionValue(0);
+  const prefersReducedMotion = useReducedMotion();
+
+  const onMouseMove = useCallback(
+    ({ clientX, clientY, currentTarget }: MouseEvent<HTMLElement>) => {
+      if (prefersReducedMotion) return;
+      const bounds = currentTarget.getBoundingClientRect();
+      mouseX.set(clientX - bounds.left);
+      mouseY.set(clientY - bounds.top);
+      radius.set(Math.sqrt(bounds.width ** 2 + bounds.height ** 2) / 2.5);
+    },
+    [mouseX, mouseY, radius, prefersReducedMotion]
+  );
+
+  const onMouseLeave = useCallback(() => {
+    radius.set(0);
+  }, [radius]);
+
+  const spotlightBackground = useMotionTemplate`radial-gradient(circle ${radius}px at ${mouseX}px ${mouseY}px, var(--brand-primary), transparent)`;
+
+  return { onMouseMove, onMouseLeave, spotlightBackground };
 }

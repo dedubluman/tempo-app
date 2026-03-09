@@ -54,13 +54,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "w-full h-10 rounded-[--radius-md] border bg-[--bg-surface] text-[--text-primary]",
               "px-3 outline-none transition-all duration-[--duration-fast]",
               "placeholder:text-[--text-muted]",
-              "focus-visible:border-[--border-focus] focus-visible:ring-2 focus-visible:ring-[--brand-primary]/20 focus-visible:bg-[--bg-elevated] focus-visible:shadow-[0_0_0_3px_rgba(251,191,36,0.08)]",
+              "focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:bg-[var(--bg-elevated)]",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               leftElement && "pl-10",
               rightElement && "pr-10",
               error
-                ? "border-[--status-error-border] ring-2 ring-[--status-error-bg]"
-                : "border-[--border-default]",
+                ? "border-[var(--status-error-border)] ring-2 ring-[var(--status-error-text)]"
+                : "border-[var(--border-subtle)]",
               className,
             )}
             aria-invalid={!!error}
