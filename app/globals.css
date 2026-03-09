@@ -361,6 +361,7 @@ body {
   letter-spacing: -0.02em;
   line-height: 1.2;
   color: var(--text-primary);
+  text-wrap: balance;
 }
 
 @media (min-width: 768px) {
